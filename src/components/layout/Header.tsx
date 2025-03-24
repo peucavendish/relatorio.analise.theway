@@ -1,0 +1,33 @@
+
+import React from 'react';
+import { useTheme } from '@/context/ThemeContext';
+import { Sun, Moon } from 'lucide-react';
+
+interface HeaderProps {
+  title: string;
+  subtitle?: string;
+}
+
+const Header: React.FC<HeaderProps> = ({ title, subtitle }) => {
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <header className="w-full py-6 animate-fade-in">
+      <div className="container mx-auto flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">{title}</h1>
+          {subtitle && <p className="text-muted-foreground mt-1">{subtitle}</p>}
+        </div>
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-full bg-secondary hover:bg-secondary/80 transition-colors"
+          aria-label="Toggle theme"
+        >
+          {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+        </button>
+      </div>
+    </header>
+  );
+};
+
+export default Header;

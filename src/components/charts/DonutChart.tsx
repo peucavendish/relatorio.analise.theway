@@ -1,0 +1,102 @@
+
+import React, { useState } from 'react';
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { cn } from '@/lib/utils';
+
+interface DonutChartProps {
+  data: Array<{
+    name: string;
+    value: number;
+    color: string;
+  }>;
+  className?: string;
+  innerRadius?: number;
+  outerRadius?: number;
+  animationDuration?: number;
+}
+
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-background border border-border p-2 rounded-md text-sm shadow-md">
+        <p className="font-medium">{payload[0].name}</p>
+        <p className="text-muted-foreground">
+          {payload[0].value}% ({payload[0].payload.rawValue})
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
+const DonutChart: React.FC<DonutChartProps> = ({
+  data,
+  className,
+  innerRadius = 60,
+  outerRadius = 80,
+  animationDuration = 1000,
+}) => {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const onPieEnter = (_: any, index: number) => {
+    setActiveIndex(index);
+  };
+
+  const onPieLeave = () => {
+    setActiveIndex(null);
+  };
+
+  return (
+    <div className={cn('w-full h-64', className)}>
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            innerRadius={innerRadius}
+            outerRadius={outerRadius}
+            dataKey="value"
+            animationDuration={animationDuration}
+            onMouseEnter={onPieEnter}
+            onMouseLeave={onPieLeave}
+          >
+            {data.map((entry, index) => (
+              <Cell 
+                key={`cell-${index}`} 
+                fill={entry.color} 
+                strokeWidth={activeIndex === index ? 2 : 0}
+                stroke={entry.color}
+                style={{ 
+                  filter: activeIndex === index ? 'drop-shadow(0 0 3px rgba(0,0,0,0.2))' : 'none',
+                  opacity: activeIndex !== null && activeIndex !== index ? 0.7 : 1,
+                  transition: 'opacity 0.3s, filter 0.3s'
+                }}
+              />
+            ))}
+          </Pie>
+          <Tooltip content={<CustomTooltip />} />
+        </PieChart>
+      </ResponsiveContainer>
+      <div className="flex flex-wrap gap-4 justify-center mt-2">
+        {data.map((entry, index) => (
+          <div 
+            key={`legend-${index}`} 
+            className="flex items-center gap-2 text-sm"
+            onMouseEnter={() => setActiveIndex(index)}
+            onMouseLeave={() => setActiveIndex(null)}
+          >
+            <div 
+              className="w-3 h-3 rounded-sm" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span>{entry.name} - {entry.value}%</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default DonutChart;

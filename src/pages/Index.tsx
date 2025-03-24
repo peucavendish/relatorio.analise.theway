@@ -8,6 +8,7 @@ import FinancialSummary from '@/components/sections/FinancialSummary';
 import RetirementPlanning from '@/components/sections/RetirementPlanning';
 import BeachHouse from '@/components/sections/BeachHouse';
 import TaxPlanning from '@/components/sections/TaxPlanning';
+import ProtectionPlanning from '@/components/sections/ProtectionPlanning';
 
 // Mock client data
 const clientData = {
@@ -139,6 +140,116 @@ const clientData = {
         "Otimização de deduções fiscais"
       ]
     }
+  },
+  protecao: {
+    titulo: "Proteção Patrimonial e Seguros",
+    resumo: "Estratégias para proteção do patrimônio e garantia de segurança financeira da família",
+    analiseNecessidades: {
+      rendaAnual: 420000,
+      anosSuporteDependentes: 10,
+      patrimonioTotal: 4000000,
+      numeroDependentes: 3,
+      tiposDependentes: ["Cônjuge", "2 filhos"],
+      viagensInternacionais: "40 dias/ano (Europa)",
+      atividadeEmpresarial: "Participação de 40% em empresa avaliada em R$ 1.000.000"
+    },
+    seguroVida: {
+      titulo: "Seguro de Vida",
+      importancia: "Essencial para proteção financeira da família em caso de falecimento ou invalidez",
+      coberturaMinima: 4200000,
+      metodologiaCalculo: "10x renda anual para garantir sustento dos dependentes",
+      coberturas: [
+        {"tipo": "Morte", "percentual": "100% da cobertura contratada"},
+        {"tipo": "Invalidez permanente", "percentual": "100% da cobertura contratada"},
+        {"tipo": "Doenças graves", "percentual": "50% da cobertura contratada"}
+      ],
+      custoEstimadoAnual: "0.2% a 0.5% do valor segurado, dependendo da idade e condições de saúde",
+      prioridadeImplementacao: "Alta - recomendação de implementação em 30 dias"
+    },
+    seguroPatrimonial: {
+      titulo: "Seguro Patrimonial",
+      importancia: "Proteção dos bens materiais contra danos, perdas ou roubos",
+      bensImoveis: 2000000,
+      adicional: 400000,
+      coberturaRecomendada: 2400000,
+      riscosProtegidos: [
+        "Incêndio",
+        "Roubo/furto",
+        "Danos elétricos",
+        "Responsabilidade civil",
+        "Desastres naturais"
+      ],
+      custoEstimadoAnual: "0.1% a 0.3% do valor segurado",
+      prioridadeImplementacao: "Média - recomendação de implementação em 60 dias"
+    },
+    seguroDO: {
+      titulo: "Seguro D&O (Directors & Officers)",
+      importancia: "Essencial para proteção contra riscos da atividade empresarial",
+      descricao: "Cobertura para processos e responsabilidades decorrentes de atos de gestão",
+      coberturaMinima: 1000000,
+      justificativa: "Considerando a participação de 40% na empresa avaliada em R$ 1.000.000",
+      riscosCobertos: [
+        "Processos de terceiros",
+        "Reclamações trabalhistas",
+        "Custos de defesa",
+        "Danos reputacionais"
+      ],
+      custoEstimadoAnual: "1% a 2% do valor de cobertura",
+      prioridadeImplementacao: "Média-alta - recomendação de implementação em 45 dias"
+    },
+    seguroInternacional: {
+      titulo: "Seguro de Viagem Internacional",
+      importancia: "Proteção durante viagens ao exterior, especialmente na Europa",
+      coberturaMedica: "US$ 100.000",
+      coberturaPatrimonial: "US$ 10.000",
+      custoEstimadoAnual: "US$ 500-1.000",
+      consideracoes: "Necessário devido às frequentes viagens internacionais (40 dias/ano)",
+      riscosCobertos: [
+        "Despesas médicas e hospitalares",
+        "Cancelamento de viagem",
+        "Extravio de bagagem",
+        "Repatriação"
+      ],
+      prioridadeImplementacao: "Baixa - contratar antes da próxima viagem internacional"
+    },
+    protecaoJuridica: {
+      titulo: "Proteção Jurídica",
+      descricao: "Estruturas legais para proteção patrimonial de longo prazo",
+      holdingPatrimonial: {
+        titulo: "Holding Familiar",
+        custoEstimado: 30000,
+        finalidade: "Proteção contra credores, planejamento sucessório e otimização fiscal",
+        tempoImplementacao: "60-90 dias",
+        vantagensAdicionais: [
+          "Centralização dos bens imóveis",
+          "Simplificação da administração patrimonial",
+          "Redução de custos com sucessão",
+          "Possibilidade de planejamento tributário"
+        ]
+      },
+      mandatoDuradouro: {
+        titulo: "Mandato Duradouro",
+        custoEstimado: 5000,
+        finalidade: "Garantia de gestão patrimonial em caso de incapacidade",
+        descricao: "Instrumento jurídico que permite a nomeação de representantes para administrar o patrimônio em caso de incapacidade do titular",
+        beneficios: [
+          "Evita processo judicial de curatela",
+          "Mantém a gestão patrimonial conforme desejo do titular",
+          "Reduz custos e trâmites burocráticos",
+          "Proporciona tranquilidade à família"
+        ],
+        prioridadeImplementacao: "Média - recomendação de implementação em 60 dias"
+      }
+    },
+    recomendacoesAdicionais: {
+      titulo: "Recomendações Adicionais",
+      itens: [
+        "Revisão anual das coberturas de seguros para adequação à evolução patrimonial",
+        "Consulta a especialistas em seguros para personalização das apólices",
+        "Avaliação de coberturas específicas para os filhos (educação, seguro infantil)",
+        "Implementação de medidas de segurança física para residências (alarmes, monitoramento)"
+      ]
+    }
   }
 };
 
@@ -210,6 +321,11 @@ const IndexPage = () => {
           {/* Tax Planning */}
           <div id="tax">
             <TaxPlanning data={clientData} />
+          </div>
+          
+          {/* Protection Planning */}
+          <div id="protection">
+            <ProtectionPlanning data={clientData} />
           </div>
           
           {/* Other sections would be added here */}

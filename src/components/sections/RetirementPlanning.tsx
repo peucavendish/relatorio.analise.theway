@@ -1,10 +1,9 @@
-
 import React from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { BarChart, Wallet, PiggyBank, LineChart, Calculator } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import StatusChip from "@/components/ui/StatusChip";
 import { formatCurrency } from '@/utils/formatCurrency';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import { Calculator, Calendar, PiggyBank, ArrowRight } from 'lucide-react';
 
 // This is a simplified version of the retirement planning section
 const RetirementPlanning = () => {
@@ -239,3 +238,4 @@ const RetirementPlanning = () => {
 };
 
 export default RetirementPlanning;
+

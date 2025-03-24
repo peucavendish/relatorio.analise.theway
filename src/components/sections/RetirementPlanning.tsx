@@ -1,338 +1,272 @@
 
-import React, { useState } from 'react';
-import { PiggyBank, Wallet, CalendarClock, TrendingUp, Calculator } from 'lucide-react';
-import { formatCurrency } from '@/utils/formatCurrency';
-import { Card } from "@/components/ui/card";
-import { CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import StatusChip from '@/components/ui/StatusChip';
-import ProgressBar from '@/components/ui/ProgressBar';
+import React from 'react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-
-interface RetirementData {
-  currentAge: number;
-  targetRetirementAge: number;
-  monthlyTargetIncome: number;
-  currentSavings: number;
-  monthlyContribution: number;
-  expectedAnnualReturn: number;
-  inflationRate: number;
-  lifeExpectancy: number;
-  scenarios: RetirementScenario[];
-}
-
-interface RetirementScenario {
-  name: string;
-  monthlyContribution: number;
-  expectedReturn: number;
-  inflationRate: number;
-  targetAge: number;
-  projectedSavings: number;
-  projectedMonthlyIncome: number;
-  capitalExhaustion: number;
-  savingsProgress: number;
-  status: 'success' | 'warning' | 'danger' | 'info';
-}
-
-// Mock retirement data
-const retirementData: RetirementData = {
-  currentAge: 43,
-  targetRetirementAge: 60,
-  monthlyTargetIncome: 25000,
-  currentSavings: 750000,
-  monthlyContribution: 5000,
-  expectedAnnualReturn: 8,
-  inflationRate: 4,
-  lifeExpectancy: 90,
-  scenarios: [
-    {
-      name: "Conservador",
-      monthlyContribution: 5000,
-      expectedReturn: 6,
-      inflationRate: 4,
-      targetAge: 60,
-      projectedSavings: 3200000,
-      projectedMonthlyIncome: 18000,
-      capitalExhaustion: 82,
-      savingsProgress: 23,
-      status: 'warning'
-    },
-    {
-      name: "Base",
-      monthlyContribution: 7000,
-      expectedReturn: 8,
-      inflationRate: 4,
-      targetAge: 60,
-      projectedSavings: 5100000,
-      projectedMonthlyIncome: 28000,
-      capitalExhaustion: 88,
-      savingsProgress: 38,
-      status: 'success'
-    },
-    {
-      name: "Agressivo",
-      monthlyContribution: 10000,
-      expectedReturn: 10,
-      inflationRate: 4,
-      targetAge: 58,
-      projectedSavings: 6800000,
-      projectedMonthlyIncome: 36000,
-      capitalExhaustion: 90,
-      savingsProgress: 58,
-      status: 'success'
-    }
-  ]
-};
-
-// Calculate years to retirement
-const yearsToRetirement = retirementData.targetRetirementAge - retirementData.currentAge;
+import { formatCurrency } from '@/utils/formatCurrency';
+import StatusChip from '@/components/ui/StatusChip';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { PiggyBank, TrendingUp, AlertTriangle, CheckCircle, BarChart3 } from 'lucide-react';
 
 const RetirementPlanning: React.FC = () => {
-  // State for the active scenario
-  const [activeScenario, setActiveScenario] = useState<string>("Base");
-  const [viewMode, setViewMode] = useState<string>("overview");
-  
-  // Get active scenario data
-  const currentScenario = retirementData.scenarios.find(
-    (scenario) => scenario.name === activeScenario
-  ) || retirementData.scenarios[1]; // Default to Base scenario
-  
-  // Animation refs
   const headerRef = useScrollAnimation();
-  const summaryRef = useScrollAnimation({ threshold: 0.2 });
-  const scenariosRef = useScrollAnimation({ threshold: 0.2 });
-  const projectionRef = useScrollAnimation({ threshold: 0.1 });
-
+  const summaryCardRef = useScrollAnimation();
+  const scenariosCardRef = useScrollAnimation();
+  const recommendationsCardRef = useScrollAnimation();
+  
+  // Mock data for the retirement planning
+  const retirementData = {
+    currentAge: 43,
+    retirementAge: 60,
+    yearsToRetirement: 17,
+    currentMonthlyIncome: 35000,
+    desiredRetirementIncome: 25000,
+    currentSavings: 750000,
+    requiredSavings: 5000000,
+    currentProgress: 15, // percentage
+    scenarios: [
+      {
+        name: "Conservador",
+        monthlySavings: 8000,
+        expectedReturn: 0.08,
+        projectedSavings: 3800000,
+        sufficient: false
+      },
+      {
+        name: "Moderado",
+        monthlySavings: 12000,
+        expectedReturn: 0.10,
+        projectedSavings: 5100000,
+        sufficient: true
+      },
+      {
+        name: "Arrojado",
+        monthlySavings: 15000,
+        expectedReturn: 0.12,
+        projectedSavings: 6400000,
+        sufficient: true
+      }
+    ],
+    recommendations: [
+      {
+        title: "Aumentar aportes mensais",
+        description: "Elevar os aportes para PGBL/VGBL para R$ 12.000 mensais",
+        impact: "Alto",
+        priority: "Alta"
+      },
+      {
+        title: "Ajustar carteira de investimentos",
+        description: "Alocar 40% em Renda Variável, 30% em Fundos Imobiliários, 30% em Renda Fixa",
+        impact: "Médio",
+        priority: "Média"
+      },
+      {
+        title: "Utilizar PGBL para eficiência fiscal",
+        description: "Aumentar contribuições para PGBL para reduzir base de IR",
+        impact: "Médio",
+        priority: "Alta"
+      }
+    ]
+  };
+  
+  // Helper function to get status color
+  const getStatusColor = (sufficient: boolean) => {
+    return sufficient ? "success" : "warning";
+  };
+  
+  // Helper function to get priority status
+  const getPriorityStatus = (priority: string) => {
+    switch (priority.toLowerCase()) {
+      case "alta":
+        return "danger";
+      case "média":
+        return "warning";
+      default:
+        return "success";
+    }
+  };
+  
+  // Helper function to get impact status
+  const getImpactStatus = (impact: string) => {
+    switch (impact.toLowerCase()) {
+      case "alto":
+        return "danger";
+      case "médio":
+        return "warning";
+      default:
+        return "success";
+    }
+  };
+  
   return (
-    <section className="py-16 px-4 md:px-8 max-w-7xl mx-auto">
-      <div className="space-y-10">
-        {/* Section Header */}
-        <div ref={headerRef} className="animate-on-scroll space-y-3">
-          <h2 className="section-title flex items-center">
-            <PiggyBank className="mr-3 text-accent" />
-            Planejamento para Aposentadoria
-          </h2>
-          <p className="text-lg text-muted-foreground max-w-3xl">
-            Uma análise detalhada do seu caminho para a aposentadoria, com projeções baseadas em diferentes cenários e recomendações personalizadas para alcançar seus objetivos.
-          </p>
+    <section className="py-16 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div 
+          ref={headerRef as React.RefObject<HTMLDivElement>} 
+          className="mb-12 text-center animate-on-scroll"
+        >
+          <div className="inline-block">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-accent/10 p-3 rounded-full">
+                <PiggyBank size={28} className="text-accent" />
+              </div>
+            </div>
+            <h2 className="text-4xl font-bold mb-3">Planejamento para Aposentadoria</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Estratégias e projeções para garantir sua independência financeira e o padrão de vida desejado na aposentadoria.
+            </p>
+          </div>
         </div>
-
+        
         {/* Retirement Summary */}
-        <div ref={summaryRef} className="animate-on-scroll grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div 
+          ref={summaryCardRef as React.RefObject<HTMLDivElement>} 
+          className="mb-10 animate-on-scroll delay-1"
+        >
           <Card>
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center text-center p-2">
-                <div className="bg-accent/10 p-4 rounded-full mb-4">
-                  <CalendarClock className="h-8 w-8 text-accent" />
+            <CardHeader>
+              <CardTitle className="text-2xl font-semibold flex items-center">
+                <BarChart3 size={22} className="mr-2 text-accent" />
+                Resumo da Aposentadoria
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Situação Atual</h3>
+                  <ul className="space-y-3">
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">Idade atual:</span>
+                      <span className="font-medium">{retirementData.currentAge} anos</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">Idade desejada para aposentadoria:</span>
+                      <span className="font-medium">{retirementData.retirementAge} anos</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">Tempo até a aposentadoria:</span>
+                      <span className="font-medium">{retirementData.yearsToRetirement} anos</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">Renda mensal atual:</span>
+                      <span className="font-medium">{formatCurrency(retirementData.currentMonthlyIncome)}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">Renda desejada na aposentadoria:</span>
+                      <span className="font-medium">{formatCurrency(retirementData.desiredRetirementIncome)}</span>
+                    </li>
+                  </ul>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Idade Atual</h3>
-                <p className="text-3xl font-bold">{retirementData.currentAge} anos</p>
-                <p className="text-muted-foreground mt-2">Meta: {retirementData.targetRetirementAge} anos</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center text-center p-2">
-                <div className="bg-accent/10 p-4 rounded-full mb-4">
-                  <Wallet className="h-8 w-8 text-accent" />
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Projeções</h3>
+                  <ul className="space-y-3">
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">Patrimônio atual para aposentadoria:</span>
+                      <span className="font-medium">{formatCurrency(retirementData.currentSavings)}</span>
+                    </li>
+                    <li className="flex justify-between">
+                      <span className="text-muted-foreground">Patrimônio necessário (estimado):</span>
+                      <span className="font-medium">{formatCurrency(retirementData.requiredSavings)}</span>
+                    </li>
+                    <li className="mt-6">
+                      <div className="flex justify-between mb-2">
+                        <span className="text-muted-foreground">Progresso atual:</span>
+                        <span className="font-medium">{retirementData.currentProgress}%</span>
+                      </div>
+                      <div className="w-full bg-secondary rounded-full h-4">
+                        <div 
+                          className="bg-accent h-4 rounded-full"
+                          style={{ width: `${retirementData.currentProgress}%` }}
+                        ></div>
+                      </div>
+                    </li>
+                  </ul>
                 </div>
-                <h3 className="text-xl font-semibold mb-2">Poupança Atual</h3>
-                <p className="text-3xl font-bold">{formatCurrency(retirementData.currentSavings)}</p>
-                <p className="text-muted-foreground mt-2">
-                  Contribuição: {formatCurrency(retirementData.monthlyContribution)}/mês
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center text-center p-2">
-                <div className="bg-accent/10 p-4 rounded-full mb-4">
-                  <TrendingUp className="h-8 w-8 text-accent" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Anos até a Meta</h3>
-                <p className="text-3xl font-bold">{yearsToRetirement} anos</p>
-                <p className="text-muted-foreground mt-2">
-                  <StatusChip 
-                    status={yearsToRetirement <= 10 ? "warning" : "info"} 
-                    label={yearsToRetirement <= 10 ? "Médio Prazo" : "Longo Prazo"}
-                    className="mt-1"
-                  />
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="pt-6">
-              <div className="flex flex-col items-center text-center p-2">
-                <div className="bg-accent/10 p-4 rounded-full mb-4">
-                  <Calculator className="h-8 w-8 text-accent" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2">Renda Desejada</h3>
-                <p className="text-3xl font-bold">{formatCurrency(retirementData.monthlyTargetIncome)}</p>
-                <p className="text-muted-foreground mt-2">Renda mensal projetada</p>
               </div>
             </CardContent>
           </Card>
         </div>
-
-        {/* Scenario Selection & Projection */}
-        <div ref={scenariosRef} className="animate-on-scroll">
-          <Card className="border-accent/30">
+        
+        {/* Retirement Scenarios */}
+        <div 
+          ref={scenariosCardRef as React.RefObject<HTMLDivElement>} 
+          className="mb-10 animate-on-scroll delay-2"
+        >
+          <Card>
             <CardHeader>
-              <CardTitle>Cenários de Aposentadoria</CardTitle>
-              <CardDescription>
-                Selecione um cenário para visualizar as projeções correspondentes.
-              </CardDescription>
+              <CardTitle className="text-2xl font-semibold flex items-center">
+                <TrendingUp size={22} className="mr-2 text-accent" />
+                Cenários de Acumulação
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <ToggleGroup type="single" value={activeScenario} onValueChange={(value) => value && setActiveScenario(value)} className="justify-center mb-8">
-                {retirementData.scenarios.map((scenario) => (
-                  <ToggleGroupItem key={scenario.name} value={scenario.name} className="px-6 py-3">
-                    <span className="mr-2">{scenario.name}</span>
-                    <StatusChip 
-                      status={scenario.status} 
-                      label={scenario.status === 'success' ? 'Ótimo' : scenario.status === 'warning' ? 'Atenção' : 'Revisão'}
-                      className="ml-2"
-                    />
-                  </ToggleGroupItem>
+              <div className="grid md:grid-cols-3 gap-6">
+                {retirementData.scenarios.map((scenario, index) => (
+                  <div key={index} className="border border-border rounded-lg p-4">
+                    <div className="flex justify-between items-start mb-3">
+                      <h3 className="text-lg font-medium">{scenario.name}</h3>
+                      <StatusChip 
+                        status={getStatusColor(scenario.sufficient)}
+                        label={scenario.sufficient ? "Suficiente" : "Insuficiente"}
+                      />
+                    </div>
+                    <ul className="space-y-2">
+                      <li className="flex justify-between">
+                        <span className="text-muted-foreground">Aporte mensal:</span>
+                        <span className="font-medium">{formatCurrency(scenario.monthlySavings)}</span>
+                      </li>
+                      <li className="flex justify-between">
+                        <span className="text-muted-foreground">Retorno esperado:</span>
+                        <span className="font-medium">{(scenario.expectedReturn * 100).toFixed(1)}% a.a.</span>
+                      </li>
+                      <li className="flex justify-between">
+                        <span className="text-muted-foreground">Patrimônio projetado:</span>
+                        <span className="font-medium">{formatCurrency(scenario.projectedSavings)}</span>
+                      </li>
+                    </ul>
+                  </div>
                 ))}
-              </ToggleGroup>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-xl font-medium mb-4">Detalhes do Cenário</h3>
-                  <Table>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell className="font-medium">Contribuição Mensal</TableCell>
-                        <TableCell className="text-right">{formatCurrency(currentScenario.monthlyContribution)}</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">Retorno Esperado</TableCell>
-                        <TableCell className="text-right">{currentScenario.expectedReturn}% a.a.</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">Inflação Projetada</TableCell>
-                        <TableCell className="text-right">{currentScenario.inflationRate}% a.a.</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">Idade para Aposentadoria</TableCell>
-                        <TableCell className="text-right">{currentScenario.targetAge} anos</TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-                
-                <div>
-                  <h3 className="text-xl font-medium mb-4">Projeções</h3>
-                  <Table>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell className="font-medium">Capital Projetado</TableCell>
-                        <TableCell className="text-right font-bold text-lg">
-                          {formatCurrency(currentScenario.projectedSavings)}
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">Renda Mensal Projetada</TableCell>
-                        <TableCell className="text-right font-bold text-lg">
-                          {formatCurrency(currentScenario.projectedMonthlyIncome)}
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">Exaustão do Capital</TableCell>
-                        <TableCell className="text-right">Aos {currentScenario.capitalExhaustion} anos</TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell className="font-medium">Suficiência da Renda</TableCell>
-                        <TableCell className="text-right">
-                          <StatusChip 
-                            status={currentScenario.projectedMonthlyIncome >= retirementData.monthlyTargetIncome ? "success" : "warning"} 
-                            label={currentScenario.projectedMonthlyIncome >= retirementData.monthlyTargetIncome ? "Adequada" : "Abaixo da Meta"}
-                          />
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col items-stretch">
-              <div className="mb-2 space-y-2 w-full">
-                <div className="flex justify-between text-sm">
-                  <span>Progresso Para a Meta</span>
-                  <span>{currentScenario.savingsProgress}%</span>
-                </div>
-                <ProgressBar 
-                  value={currentScenario.savingsProgress} 
-                  max={100} 
-                  size="lg"
-                  color={currentScenario.status}
-                />
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">
-                Baseado na sua poupança atual, contribuições mensais e retorno esperado.
-              </p>
-            </CardFooter>
           </Card>
         </div>
-
+        
         {/* Recommendations */}
-        <div ref={projectionRef} className="animate-on-scroll">
+        <div 
+          ref={recommendationsCardRef as React.RefObject<HTMLDivElement>} 
+          className="animate-on-scroll delay-3"
+        >
           <Card>
             <CardHeader>
-              <CardTitle>Recomendações para Otimização</CardTitle>
-              <CardDescription>
-                Sugestões para melhorar suas projeções de aposentadoria.
-              </CardDescription>
+              <CardTitle className="text-2xl font-semibold flex items-center">
+                <CheckCircle size={22} className="mr-2 text-accent" />
+                Recomendações
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                <div className="flex items-start gap-4 p-4 border rounded-lg border-financial-success/30 bg-financial-success/5">
-                  <div className="mt-1 bg-financial-success/20 p-2 rounded-full">
-                    <TrendingUp className="h-5 w-5 text-financial-success" />
+              <div className="grid md:grid-cols-1 gap-6">
+                {retirementData.recommendations.map((recommendation, index) => (
+                  <div key={index} className="flex items-start border-b border-border last:border-0 pb-4 last:pb-0">
+                    <div className="bg-accent/10 p-2 rounded-full mt-1 mr-4">
+                      <AlertTriangle size={16} className="text-accent" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-medium mb-1">{recommendation.title}</h3>
+                        <div className="flex space-x-2">
+                          <StatusChip 
+                            status={getPriorityStatus(recommendation.priority)}
+                            label={`Prioridade: ${recommendation.priority}`}
+                          />
+                          <StatusChip 
+                            status={getImpactStatus(recommendation.impact)}
+                            label={`Impacto: ${recommendation.impact}`}
+                          />
+                        </div>
+                      </div>
+                      <p className="text-muted-foreground">{recommendation.description}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="text-lg font-medium">Aumente sua contribuição mensal</h4>
-                    <p className="text-muted-foreground mt-1">
-                      Aumentar sua contribuição mensal em R$ 2.000 pode melhorar significativamente suas projeções de aposentadoria, 
-                      resultando em um adicional de aproximadamente R$ 7.000 em renda mensal.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 p-4 border rounded-lg border-financial-info/30 bg-financial-info/5">
-                  <div className="mt-1 bg-financial-info/20 p-2 rounded-full">
-                    <PiggyBank className="h-5 w-5 text-financial-info" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-medium">Diversifique seus investimentos</h4>
-                    <p className="text-muted-foreground mt-1">
-                      Considere uma alocação mais diversificada para potencialmente aumentar seu retorno anual. 
-                      Um aumento de 1% no retorno pode resultar em um capital adicional de aproximadamente R$ 800.000 ao se aposentar.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-4 p-4 border rounded-lg border-financial-warning/30 bg-financial-warning/5">
-                  <div className="mt-1 bg-financial-warning/20 p-2 rounded-full">
-                    <Wallet className="h-5 w-5 text-financial-warning" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-medium">Revise sua meta de renda</h4>
-                    <p className="text-muted-foreground mt-1">
-                      Sua meta de renda atual é elevada em comparação com sua poupança. Considere revisar suas expectativas
-                      de estilo de vida na aposentadoria ou aumente significativamente suas contribuições.
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
             </CardContent>
           </Card>

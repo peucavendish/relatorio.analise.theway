@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-type StatusType = 'success' | 'warning' | 'danger' | 'info';
+type StatusType = 'success' | 'warning' | 'danger' | 'info' | 'default';
 
 interface StatusChipProps {
   status: StatusType;

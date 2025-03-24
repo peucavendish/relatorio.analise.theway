@@ -6,6 +6,7 @@ import FloatingActions from '@/components/layout/FloatingActions';
 import CoverPage from '@/components/sections/CoverPage';
 import FinancialSummary from '@/components/sections/FinancialSummary';
 import RetirementPlanning from '@/components/sections/RetirementPlanning';
+import BeachHouse from '@/components/sections/BeachHouse';
 
 // Mock client data
 const clientData = {
@@ -47,7 +48,34 @@ const clientData = {
     { tipo: "Casa de praia", valor: 800000, prazo: "5 anos" },
     { tipo: "Proteção patrimonial e sucessória", prazo: "imediato" },
     { tipo: "Otimização fiscal", prazo: "imediato" }
-  ]
+  ],
+  casaPraia: {
+    objetivo: {
+      valorImovel: 800000,
+      prazoDesejado: 5
+    },
+    comparativoEstrategias: [
+      {estrategia: "Consórcio", parcelaMensal: 5000, totalPago: 960000},
+      {estrategia: "Financiamento", parcelaMensal: 6500, totalPago: 1290000},
+      {estrategia: "Reserva Livre", parcelaMensal: 11000, totalPago: 800000}
+    ],
+    estrategiaRecomendada: "Consórcio",
+    vantagens: [
+      "Sem juros",
+      "Menor custo total",
+      "Flexibilidade para lance"
+    ],
+    desvantagens: [
+      "Tempo de contemplação incerto",
+      "Taxa administrativa"
+    ],
+    impactoFinanceiro: {
+      excedenteMensalAtual: 17000,
+      parcelaConsorcio: 5000,
+      excedenteMensalApos: 12000,
+      observacao: "O consórcio permite manter um excedente mensal significativo para outros objetivos financeiros, principalmente a aposentadoria."
+    }
+  }
 };
 
 const IndexPage = () => {
@@ -108,6 +136,11 @@ const IndexPage = () => {
           {/* Retirement Planning */}
           <div id="retirement">
             <RetirementPlanning />
+          </div>
+          
+          {/* Beach House */}
+          <div id="beach-house">
+            <BeachHouse data={clientData} />
           </div>
           
           {/* Other sections would be added here */}

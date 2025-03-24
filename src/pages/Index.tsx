@@ -7,6 +7,7 @@ import CoverPage from '@/components/sections/CoverPage';
 import FinancialSummary from '@/components/sections/FinancialSummary';
 import RetirementPlanning from '@/components/sections/RetirementPlanning';
 import BeachHouse from '@/components/sections/BeachHouse';
+import TaxPlanning from '@/components/sections/TaxPlanning';
 
 // Mock client data
 const clientData = {
@@ -75,6 +76,69 @@ const clientData = {
       excedenteMensalApos: 12000,
       observacao: "O consórcio permite manter um excedente mensal significativo para outros objetivos financeiros, principalmente a aposentadoria."
     }
+  },
+  tributario: {
+    resumo: {
+      objetivo: "Otimização fiscal e redução da carga tributária",
+      potencialEconomia: "Até 50% de redução em impostos",
+      prazoImplementacao: "90 dias"
+    },
+    estruturacaoPatrimonial: [
+      "Holding Familiar",
+      "Previdência VGBL",
+      "Doações com usufruto"
+    ],
+    investimentosIsentos: [
+      {"tipo": "LCI/LCA", "limite": "Até R$250 mil por CPF", "tributacao": "Isento de IR"},
+      {"tipo": "Dividendos de ações", "limite": "Sem limite", "tributacao": "Isento de IR"},
+      {"tipo": "FIIs", "limite": "Sem limite para pessoa física", "tributacao": "Isento de IR para dividendos"}
+    ],
+    deducoes: [
+      {"tipo": "PGBL", "percentual": "12% da renda tributável", "valor": "R$ 36.000/ano", "beneficio": "Dedução na base de cálculo do IR"},
+      {"tipo": "Dependentes", "quantidade": "2 filhos", "valor": "R$ 4.550/ano", "beneficio": "Dedução na base de cálculo do IR"},
+      {"tipo": "Despesas médicas", "limite": "Sem limite", "beneficio": "Dedução integral na base de cálculo do IR"}
+    ],
+    holdingFamiliar: {
+      "descricao": "Estrutura societária para centralização de bens e investimentos da família",
+      "custoConstrucao": 30000,
+      "tempoImplementacao": "60-90 dias",
+      "beneficios": [
+        "Redução de ITCMD (imposto sobre herança)",
+        "Simplificação do processo de inventário",
+        "Proteção patrimonial contra credores",
+        "Gestão centralizada dos ativos familiares"
+      ],
+      "recomendacao": "Recomendado para os imóveis e participação empresarial, representando 75% do patrimônio total"
+    },
+    previdenciaVGBL: {
+      "descricao": "Produto financeiro com vantagens tributárias e sucessórias",
+      "valorAtual": 300000,
+      "recomendacaoAdicional": "Aumento de aportes para otimização fiscal",
+      "vantagensSucessorias": [
+        "Não entra em inventário (pagamento via beneficiários indicados)",
+        "Tributa apenas o rendimento (não o capital principal)",
+        "Tabela regressiva de IR (mínimo 10% após 10 anos)"
+      ]
+    },
+    cidadaniaItaliana: {
+      "status": "Em processo",
+      "implicacoesFiscais": {
+        "impostoBrasilSP": "8% de imposto de herança",
+        "impostoItalia": "4-8% de imposto de herança",
+        "oportunidades": "Possibilidade de otimização fiscal internacional no planejamento sucessório"
+      }
+    },
+    economiaTributaria: {
+      "semPlanejamento": 320000,
+      "comPlanejamento": 160000,
+      "economia": 160000,
+      "periodoEstimado": "10 anos",
+      "itensConsiderados": [
+        "ITCMD em sucessão",
+        "IR sobre ganho de capital",
+        "Otimização de deduções fiscais"
+      ]
+    }
   }
 };
 
@@ -141,6 +205,11 @@ const IndexPage = () => {
           {/* Beach House */}
           <div id="beach-house">
             <BeachHouse data={clientData} />
+          </div>
+          
+          {/* Tax Planning */}
+          <div id="tax">
+            <TaxPlanning data={clientData} />
           </div>
           
           {/* Other sections would be added here */}

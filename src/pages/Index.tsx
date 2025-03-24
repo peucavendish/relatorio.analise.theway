@@ -5,6 +5,7 @@ import GammaNavigation from '@/components/layout/GammaNavigation';
 import FloatingActions from '@/components/layout/FloatingActions';
 import CoverPage from '@/components/sections/CoverPage';
 import FinancialSummary from '@/components/sections/FinancialSummary';
+import RetirementPlanning from '@/components/sections/RetirementPlanning';
 
 // Mock client data
 const clientData = {
@@ -102,6 +103,11 @@ const IndexPage = () => {
           {/* Financial Summary */}
           <div id="summary">
             <FinancialSummary data={clientData.financas} />
+          </div>
+          
+          {/* Retirement Planning */}
+          <div id="retirement">
+            <RetirementPlanning />
           </div>
           
           {/* Other sections would be added here */}

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   ArrowRight, 
@@ -11,13 +12,14 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import Card, { 
+import { 
+  Card, 
   CardContent, 
   CardDescription, 
   CardFooter, 
   CardHeader, 
   CardTitle 
-} from '@/components/ui/Card';
+} from '../ui/Card'; // Fixed import path with correct casing
 import StatusChip from '@/components/ui/StatusChip';
 import ProgressBar from '@/components/ui/ProgressBar';
 

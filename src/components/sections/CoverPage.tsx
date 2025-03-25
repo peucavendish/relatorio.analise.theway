@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
-import Card from '@/components/ui/Card';
+import { Card } from '../ui/Card'; // Fixed import path with correct casing
 import { Calendar, MapPin, User, Users } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 

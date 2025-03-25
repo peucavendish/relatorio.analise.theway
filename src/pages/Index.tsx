@@ -10,6 +10,7 @@ import BeachHouse from '@/components/sections/BeachHouse';
 import TaxPlanning from '@/components/sections/TaxPlanning';
 import ProtectionPlanning from '@/components/sections/ProtectionPlanning';
 import SuccessionPlanning from '@/components/sections/SuccessionPlanning';
+import ActionPlan from '@/components/sections/ActionPlan';
 
 // Mock client data
 const clientData = {
@@ -322,6 +323,10 @@ const IndexPage = () => {
           
           <div id="succession">
             <SuccessionPlanning />
+          </div>
+          
+          <div id="action-plan">
+            <ActionPlan data={clientData} />
           </div>
         </main>
         

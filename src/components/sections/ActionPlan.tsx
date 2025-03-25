@@ -12,9 +12,14 @@ import {
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import Card from '@/components/ui/Card';
+import Card, { 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/Card';
 import StatusChip from '@/components/ui/StatusChip';
-import { CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import ProgressBar from '@/components/ui/ProgressBar';
 
 interface ActionPlanProps {
@@ -22,11 +27,11 @@ interface ActionPlanProps {
 }
 
 const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
-  const titleRef = useScrollAnimation();
-  const securityIndexRef = useScrollAnimation({ threshold: 0.2 });
-  const timelineRef = useScrollAnimation({ threshold: 0.2 });
-  const priorityRef = useScrollAnimation({ threshold: 0.2 });
-  const nextStepsRef = useScrollAnimation({ threshold: 0.2 });
+  const titleRef = useScrollAnimation<HTMLDivElement>();
+  const securityIndexRef = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
+  const timelineRef = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
+  const priorityRef = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
+  const nextStepsRef = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
   
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -43,6 +48,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
   
   // Ensure data.planoAcao exists before accessing it
   if (!data || !data.planoAcao) {
+    console.error('Dados do plano de ação não disponíveis:', data);
     return <div className="py-12 px-4 text-center">Dados do plano de ação não disponíveis</div>;
   }
   

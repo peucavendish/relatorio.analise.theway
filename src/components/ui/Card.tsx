@@ -1,14 +1,14 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-// Use the absolute import to avoid casing issues
-import { 
+// Import directly from the original file to avoid casing issues
+import {
   Card as ShadcnCard,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
+  CardContent as ShadcnCardContent,
+  CardDescription as ShadcnCardDescription,
+  CardFooter as ShadcnCardFooter,
+  CardHeader as ShadcnCardHeader,
+  CardTitle as ShadcnCardTitle
 } from "@/components/ui/card";
 
 interface CardProps {
@@ -40,6 +40,13 @@ const Card: React.FC<CardProps> = ({
     </ShadcnCard>
   );
 };
+
+// Re-export the components with correct names
+const CardContent = ShadcnCardContent;
+const CardDescription = ShadcnCardDescription;
+const CardFooter = ShadcnCardFooter;
+const CardHeader = ShadcnCardHeader;
+const CardTitle = ShadcnCardTitle;
 
 export {
   Card,

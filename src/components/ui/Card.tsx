@@ -9,7 +9,7 @@ import {
   CardFooter as ShadcnCardFooter,
   CardHeader as ShadcnCardHeader,
   CardTitle as ShadcnCardTitle
-} from "./card";
+} from "./card"; // Using relative path with correct casing
 
 interface CardProps {
   children: React.ReactNode;

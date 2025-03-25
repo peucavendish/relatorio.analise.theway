@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   ArrowRight, 
@@ -46,7 +45,6 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
     }
   };
   
-  // Ensure data.planoAcao exists before accessing it
   if (!data || !data.planoAcao) {
     console.error('Dados do plano de ação não disponíveis:', data);
     return <div className="py-12 px-4 text-center">Dados do plano de ação não disponíveis</div>;
@@ -59,7 +57,6 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         <p className="text-muted-foreground mb-8">{data.planoAcao.resumo}</p>
       </div>
       
-      {/* Security Index */}
       <div ref={securityIndexRef} className="max-w-5xl mx-auto mb-12 animate-on-scroll">
         <Card className="border-accent/40">
           <CardHeader>
@@ -107,7 +104,6 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         </Card>
       </div>
       
-      {/* Timeline */}
       <div ref={timelineRef} className="max-w-5xl mx-auto mb-12 animate-on-scroll">
         <h3 className="section-subtitle mb-6">Cronograma de Implementação</h3>
         <div className="relative">
@@ -149,7 +145,6 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         </div>
       </div>
       
-      {/* Priority Actions */}
       <div ref={priorityRef} className="max-w-5xl mx-auto mb-12 animate-on-scroll">
         <h3 className="section-subtitle mb-6">Ações Prioritárias</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -199,7 +194,6 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         </div>
       </div>
       
-      {/* Short-term Goals */}
       <div className="max-w-5xl mx-auto mb-12 animate-on-scroll">
         <h3 className="section-subtitle mb-6">Metas de Curto Prazo</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -235,7 +229,6 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         </div>
       </div>
       
-      {/* Progress Monitoring */}
       <div className="max-w-5xl mx-auto mb-12 animate-on-scroll">
         <Card>
           <CardHeader>
@@ -273,7 +266,6 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         </Card>
       </div>
       
-      {/* Next Steps */}
       <div ref={nextStepsRef} className="max-w-5xl mx-auto animate-on-scroll">
         <Card className="bg-gradient-to-br from-accent/10 to-background border-accent/30">
           <CardHeader>

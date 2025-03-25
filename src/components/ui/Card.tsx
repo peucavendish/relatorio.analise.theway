@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-// Import directly from the original file to avoid casing issues
+// Import using relative path to avoid casing issues
 import {
   Card as ShadcnCard,
   CardContent as ShadcnCardContent,
@@ -9,7 +9,7 @@ import {
   CardFooter as ShadcnCardFooter,
   CardHeader as ShadcnCardHeader,
   CardTitle as ShadcnCardTitle
-} from "@/components/ui/card";
+} from "./card";
 
 interface CardProps {
   children: React.ReactNode;

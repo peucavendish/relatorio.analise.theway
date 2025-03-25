@@ -252,6 +252,169 @@ const clientData = {
         "Implementação de medidas de segurança física para residências (alarmes, monitoramento)"
       ]
     }
+  },
+  planoAcao: {
+    titulo: "Plano de Ação Financeira",
+    resumo: "Conjunto de ações estratégicas para alcançar seus objetivos financeiros e patrimoniais",
+    indicadorSegurancaFinanceira: {
+      titulo: "Indicador de Segurança Financeira",
+      descricao: "Medida da solidez e resiliência da sua situação financeira atual",
+      valor: 72,
+      nivel: "Adequado",
+      elementosAvaliados: [
+        "Reserva de emergência",
+        "Diversificação de ativos",
+        "Proteção patrimonial",
+        "Fluxo de caixa mensal",
+        "Endividamento"
+      ]
+    },
+    cronograma: [
+      {
+        periodo: "Curto Prazo (1-3 meses)",
+        objetivoPrincipal: "Estruturação inicial",
+        descricao: "Implementar medidas imediatas para otimizar fluxo financeiro atual",
+        acoes: [
+          "Revisão do orçamento familiar",
+          "Estruturação da reserva de emergência",
+          "Contratação de seguros essenciais",
+          "Revisão da carteira de investimentos"
+        ]
+      },
+      {
+        periodo: "Médio Prazo (4-12 meses)",
+        objetivoPrincipal: "Otimização fiscal e proteção",
+        descricao: "Implementar estratégias de proteção patrimonial e planejamento tributário",
+        acoes: [
+          "Constituição da holding familiar",
+          "Implementação das estratégias de planejamento tributário",
+          "Reestruturação das participações societárias",
+          "Início do consórcio para casa de praia"
+        ]
+      },
+      {
+        periodo: "Longo Prazo (1-3 anos)",
+        objetivoPrincipal: "Acumulação patrimonial",
+        descricao: "Foco em crescimento e acumulação patrimonial",
+        acoes: [
+          "Revisão e ajuste da estratégia de investimentos",
+          "Acompanhamento do plano de aposentadoria",
+          "Avaliação de novas oportunidades imobiliárias",
+          "Revisão do planejamento sucessório"
+        ]
+      }
+    ],
+    acoesPrioritarias: [
+      {
+        titulo: "Holding Familiar",
+        descricao: "Constituição de holding patrimonial para proteção de bens e otimização fiscal",
+        prioridade: "Alta",
+        prazo: "90 dias",
+        responsavel: "Advogado societário",
+        passos: [
+          "Análise da estrutura patrimonial atual",
+          "Definição do tipo societário",
+          "Elaboração de contrato/estatuto social",
+          "Integralização dos bens imóveis"
+        ],
+        impacto: "Redução de até 50% em impostos sucessórios",
+        status: "Não iniciado"
+      },
+      {
+        titulo: "Planejamento Sucessório",
+        descricao: "Estruturação de instrumentos jurídicos para proteção sucessória",
+        prioridade: "Alta",
+        prazo: "120 dias",
+        responsavel: "Advogado especialista",
+        passos: [
+          "Elaboração de testamento",
+          "Estruturação de doações em vida",
+          "Definição de beneficiários de previdência",
+          "Criação de mandato duradouro"
+        ],
+        impacto: "Segurança jurídica e financeira para a família",
+        status: "Não iniciado"
+      },
+      {
+        titulo: "Consórcio Casa de Praia",
+        descricao: "Contratação de consórcio para aquisição da casa de praia",
+        prioridade: "Média",
+        prazo: "30 dias",
+        responsavel: "Consultor financeiro",
+        passos: [
+          "Pesquisa das melhores administradoras",
+          "Análise das condições contratuais",
+          "Definição do valor da carta",
+          "Contratação e início dos pagamentos"
+        ],
+        impacto: "Aquisição do imóvel em até 5 anos",
+        status: "Em progresso"
+      },
+      {
+        titulo: "Diversificação de Investimentos",
+        descricao: "Reestruturação da carteira para maior diversificação e proteção",
+        prioridade: "Média",
+        prazo: "60 dias",
+        responsavel: "Consultor de investimentos",
+        passos: [
+          "Análise da carteira atual",
+          "Definição de nova alocação estratégica",
+          "Implementação das mudanças",
+          "Monitoramento de resultados"
+        ],
+        impacto: "Redução de volatilidade e potencial aumento de retorno",
+        status: "Não iniciado"
+      }
+    ],
+    metasCurtoPrazo: [
+      {
+        acao: "Constituir reserva de emergência",
+        objetivoEspecifico: "Atingir 6 meses de despesas fixas",
+        prazo: "90 dias",
+        responsavel: "Cliente",
+        resultadoEsperado: "Segurança financeira para imprevistos"
+      },
+      {
+        acao: "Contratar seguros essenciais",
+        objetivoEspecifico: "Proteção contra riscos prioritários",
+        prazo: "45 dias",
+        responsavel: "Consultor de seguros",
+        resultadoEsperado: "Cobertura adequada para riscos pessoais e patrimoniais"
+      },
+      {
+        acao: "Revisar carteira de investimentos",
+        objetivoEspecifico: "Alinhamento com objetivos de curto e longo prazo",
+        prazo: "60 dias",
+        responsavel: "Consultor de investimentos",
+        resultadoEsperado: "Portfólio otimizado para objetivos financeiros"
+      },
+      {
+        acao: "Iniciar consórcio para casa de praia",
+        objetivoEspecifico: "Contratar carta de valor adequado",
+        prazo: "30 dias",
+        responsavel: "Cliente e consultor",
+        resultadoEsperado: "Início do plano de aquisição da casa de praia"
+      }
+    ],
+    acompanhamentoProgresso: {
+      titulo: "Monitoramento e Acompanhamento",
+      frequenciaRevisao: "Trimestral",
+      proximaReuniao: "15/04/2023",
+      responsavelAcompanhamento: "Consultor financeiro",
+      metricasSucesso: [
+        "Redução de carga tributária",
+        "Aumento de patrimônio líquido",
+        "Adequação da proteção patrimonial",
+        "Progresso nos objetivos financeiros",
+        "Eficiência na gestão de caixa mensal"
+      ]
+    },
+    conclusao: {
+      titulo: "Próximos Passos e Conclusão",
+      mensagemPrincipal: "Este plano de ação representa um roteiro personalizado para maximizar sua segurança financeira e alcançar seus objetivos patrimoniais.",
+      compromissoAssessoria: "Nossa equipe estará disponível para acompanhar cada etapa deste processo, oferecendo suporte contínuo e ajustes conforme necessário.",
+      recomendacaoFinal: "Recomendamos iniciar imediatamente pelas ações de alta prioridade, especialmente a constituição da holding familiar e a implementação das estratégias de proteção patrimonial."
+    }
   }
 };
 

@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { BarChart, Wallet, PiggyBank, LineChart, Calculator } from 'lucide-react';
+import { BarChart, Wallet, PiggyBank, LineChart, Calculator, Calendar, ArrowRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import StatusChip from "@/components/ui/StatusChip";
 import { formatCurrency } from '@/utils/formatCurrency';
@@ -238,4 +239,3 @@ const RetirementPlanning = () => {
 };
 
 export default RetirementPlanning;
-

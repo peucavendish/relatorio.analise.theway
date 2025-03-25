@@ -1,8 +1,15 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-// Fix the import to match the exact casing of the file
-import { Card as ShadcnCard } from '@/components/ui/card';
+// Use the absolute import to avoid casing issues
+import { 
+  Card as ShadcnCard,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
 
 interface CardProps {
   children: React.ReactNode;
@@ -32,6 +39,15 @@ const Card: React.FC<CardProps> = ({
       {children}
     </ShadcnCard>
   );
+};
+
+export {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 };
 
 export default Card;

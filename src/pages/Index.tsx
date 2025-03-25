@@ -9,6 +9,7 @@ import RetirementPlanning from '@/components/sections/RetirementPlanning';
 import BeachHouse from '@/components/sections/BeachHouse';
 import TaxPlanning from '@/components/sections/TaxPlanning';
 import ProtectionPlanning from '@/components/sections/ProtectionPlanning';
+import SuccessionPlanning from '@/components/sections/SuccessionPlanning';
 
 // Mock client data
 const clientData = {
@@ -258,7 +259,6 @@ const IndexPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate loading
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -266,10 +266,8 @@ const IndexPage = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle section change
   const handleSectionChange = (sectionId: string) => {
     setActiveSection(sectionId);
-    // Scroll to section (future implementation)
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
@@ -298,37 +296,33 @@ const IndexPage = () => {
         />
         
         <main>
-          {/* Cover Page */}
           <div id="cover">
             <CoverPage clientData={clientData.cliente} />
           </div>
           
-          {/* Financial Summary */}
           <div id="summary">
             <FinancialSummary data={clientData.financas} />
           </div>
           
-          {/* Retirement Planning */}
           <div id="retirement">
             <RetirementPlanning />
           </div>
           
-          {/* Beach House */}
           <div id="beach-house">
             <BeachHouse data={clientData} />
           </div>
           
-          {/* Tax Planning */}
           <div id="tax">
             <TaxPlanning data={clientData} />
           </div>
           
-          {/* Protection Planning */}
           <div id="protection">
             <ProtectionPlanning data={clientData} />
           </div>
           
-          {/* Other sections would be added here */}
+          <div id="succession">
+            <SuccessionPlanning />
+          </div>
         </main>
         
         <FloatingActions />

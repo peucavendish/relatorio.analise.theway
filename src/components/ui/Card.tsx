@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { Card as ShadcnCard } from '@/components/ui/card';
 
 interface CardProps {
   children: React.ReactNode;
@@ -18,7 +19,7 @@ const Card: React.FC<CardProps> = ({
   interactive = false
 }) => {
   return (
-    <div 
+    <ShadcnCard
       className={cn(
         'financial-card',
         highlight && 'bg-accent/10 border-accent/30',
@@ -28,7 +29,7 @@ const Card: React.FC<CardProps> = ({
       onClick={onClick}
     >
       {children}
-    </div>
+    </ShadcnCard>
   );
 };
 

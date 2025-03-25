@@ -41,6 +41,11 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
     }
   };
   
+  // Ensure data.planoAcao exists before accessing it
+  if (!data || !data.planoAcao) {
+    return <div className="py-12 px-4 text-center">Dados do plano de ação não disponíveis</div>;
+  }
+  
   return (
     <section className="py-12 px-4 md:px-8">
       <div ref={titleRef} className="max-w-5xl mx-auto animate-on-scroll">

@@ -6,8 +6,8 @@ interface ScrollAnimationOptions {
   rootMargin?: string;
 }
 
-export const useScrollAnimation = (options: ScrollAnimationOptions = {}) => {
-  const elementRef = useRef<HTMLElement>(null);
+export const useScrollAnimation = <T extends HTMLElement = HTMLDivElement>(options: ScrollAnimationOptions = {}) => {
+  const elementRef = useRef<T>(null);
   
   useEffect(() => {
     const element = elementRef.current;

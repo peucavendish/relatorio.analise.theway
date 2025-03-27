@@ -47,20 +47,30 @@ export function useSectionObserver() {
   const navigateToSection = useCallback((sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      // Ajuste para levar em conta o header e garantir que a seção começa no topo
-      const headerHeight = 80; // Altura aproximada do header
-      const elementPosition = element.getBoundingClientRect().top + window.scrollY;
-      const offsetPosition = elementPosition - headerHeight;
-      
-      // Scroll suave para a seção
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-      
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
       setActiveSection(sectionId);
     }
   }, []);
+
+  // Controle de navegação com teclado
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const currentIndex = sectionIds.indexOf(activeSection);
+      
+      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        const nextIndex = Math.min(currentIndex + 1, sectionIds.length - 1);
+        navigateToSection(sectionIds[nextIndex]);
+      } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const prevIndex = Math.max(currentIndex - 1, 0);
+        navigateToSection(sectionIds[prevIndex]);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeSection, navigateToSection]);
 
   useEffect(() => {
     // Aguardar um momento para garantir que os elementos estejam renderizados

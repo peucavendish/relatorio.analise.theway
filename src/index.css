@@ -85,7 +85,7 @@
 
   /* Section styles for better scroll snap */
   main {
-    scroll-snap-type: y mandatory;
+    scroll-snap-type: y proximity;
     overflow-y: auto;
     height: 100vh;
     scroll-behavior: smooth;
@@ -93,15 +93,16 @@
 
   main > div {
     scroll-snap-align: start;
-    scroll-snap-stop: always;
+    scroll-snap-stop: normal;
     padding-top: 5rem;
     padding-bottom: 5rem;
-    scroll-margin-top: 1rem;
+    scroll-margin-top: 5rem;
   }
 
   /* Espaçamento específico para a seção de capa */
   #cover {
     padding-top: 1rem !important;
+    scroll-margin-top: 0;
   }
 
   h1, h2, h3, h4, h5, h6 {

@@ -3,7 +3,7 @@ import { useTheme } from '@/context/ThemeContext';
 import { Sun, Moon } from 'lucide-react';
 
 interface HeaderProps {
-  title: string;
+  title?: string;
   subtitle?: string;
 }
 

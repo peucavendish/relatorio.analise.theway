@@ -443,7 +443,7 @@ const IndexPage = () => {
   return (
     <ThemeProvider>
       <div className="relative">
-        <Header title="Relatório Financeiro" />
+        <Header />
         <main>
           <div className="min-h-screen">
             <CoverPage clientData={clientData.cliente} />

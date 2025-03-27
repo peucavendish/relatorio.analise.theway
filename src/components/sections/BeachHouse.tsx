@@ -2,7 +2,7 @@ import React from 'react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { formatCurrency } from '@/utils/formatCurrency';
 import StatusChip from '@/components/ui/StatusChip';
-import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Home, Umbrella, Calculator, Check, X, PiggyBank, ArrowRight, TrendingDown, Calendar } from 'lucide-react';
 
 interface Strategy {
@@ -12,22 +12,20 @@ interface Strategy {
 }
 
 interface BeachHouseProps {
-  data?: {
-    casaPraia: {
-      objetivo: {
-        valorImovel: number;
-        prazoDesejado: number;
-      };
-      comparativoEstrategias: Strategy[];
-      estrategiaRecomendada: string;
-      vantagens: string[];
-      desvantagens: string[];
-      impactoFinanceiro: {
-        excedenteMensalAtual: number;
-        parcelaConsorcio: number;
-        excedenteMensalApos: number;
-        observacao: string;
-      };
+  casaPraia?: {
+    objetivo: {
+      valorImovel: number;
+      prazoDesejado: number;
+    };
+    comparativoEstrategias: Strategy[];
+    estrategiaRecomendada: string;
+    vantagens: string[];
+    desvantagens: string[];
+    impactoFinanceiro: {
+      excedenteMensalAtual: number;
+      parcelaConsorcio: number;
+      excedenteMensalApos: number;
+      observacao: string;
     };
   };
 }
@@ -63,13 +61,11 @@ const defaultData = {
   }
 };
 
-const BeachHouse: React.FC<BeachHouseProps> = ({ data = defaultData }) => {
+const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPraia }) => {
   const headerRef = useScrollAnimation();
   const objectiveCardRef = useScrollAnimation();
   const strategiesCardRef = useScrollAnimation();
   const impactCardRef = useScrollAnimation();
-  
-  const { casaPraia } = data;
   
   // Find details of recommended strategy
   const recommendedStrategy = casaPraia.comparativoEstrategias.find(

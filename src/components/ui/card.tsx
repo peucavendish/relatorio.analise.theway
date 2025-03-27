@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-// Import using relative path to avoid casing issues
+// Import directly from shadcn/ui
 import {
   Card as ShadcnCard,
   CardContent as ShadcnCardContent,
@@ -9,7 +9,7 @@ import {
   CardFooter as ShadcnCardFooter,
   CardHeader as ShadcnCardHeader,
   CardTitle as ShadcnCardTitle
-} from "../ui/card"; // Changed to use the proper path with correct casing
+} from "../ui/card.tsx"; // Keep the import path but fix the naming
 
 interface CardProps {
   children: React.ReactNode;
@@ -41,20 +41,14 @@ const Card: React.FC<CardProps> = ({
   );
 };
 
-// Re-export the components with correct names
-const CardContent = ShadcnCardContent;
-const CardDescription = ShadcnCardDescription;
-const CardFooter = ShadcnCardFooter;
-const CardHeader = ShadcnCardHeader;
-const CardTitle = ShadcnCardTitle;
-
+// Export the components directly instead of creating aliases that cause circular references
 export {
   Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle
+  ShadcnCardContent as CardContent,
+  ShadcnCardDescription as CardDescription,
+  ShadcnCardFooter as CardFooter,
+  ShadcnCardHeader as CardHeader,
+  ShadcnCardTitle as CardTitle
 };
 
 export default Card;

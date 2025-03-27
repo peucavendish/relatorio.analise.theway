@@ -1,17 +1,25 @@
+
 import React from 'react';
 import { BarChart, Wallet, PiggyBank, LineChart, Calculator, Calendar, ArrowRight } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import { CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import StatusChip from "@/components/ui/StatusChip";
 import { formatCurrency } from '@/utils/formatCurrency';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
+// Define proper interface for the component props
+interface RetirementPlanningProps {
+  data?: any; // Accept the data prop
+}
+
 // This is a simplified version of the retirement planning section
-const RetirementPlanning = () => {
+const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
   const headerRef = useScrollAnimation();
   const currentSituationRef = useScrollAnimation();
   const objetivoRef = useScrollAnimation();
   const estrategiaRef = useScrollAnimation();
   
+  // We can still use the hardcoded values since we're not using the data prop yet
   return (
     <section className="min-h-screen py-16 px-4" id="retirement">
       <div className="max-w-4xl mx-auto">

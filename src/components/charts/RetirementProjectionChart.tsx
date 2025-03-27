@@ -77,8 +77,16 @@ const RetirementProjectionChart = () => {
   const [selectedView, setSelectedView] = useState('completo');
   const projectionData = generateProjectionData();
   
+  // Filtrar os dados conforme a visualização selecionada
+  const filteredData = React.useMemo(() => {
+    if (selectedView === '10anos') {
+      return projectionData.filter(item => item.age <= projectionData[0].age + 10);
+    }
+    return projectionData;
+  }, [projectionData, selectedView]);
+  
   // Formatação dos valores no eixo Y
-  const formatYAxis = (value) => {
+  const formatYAxis = (value: number) => {
     if (value === 0) return 'R$ 0';
     if (value >= 1000000) return `R$ ${Math.floor(value / 1000000)}M`;
     return formatCurrency(value);
@@ -108,50 +116,74 @@ const RetirementProjectionChart = () => {
       
       <div className="rounded-lg border bg-card p-4 h-80">
         <ChartContainer config={chartConfig} className="h-full">
-          <LineChart data={projectionData}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-            <XAxis 
-              dataKey="age" 
-              label={{ value: 'Idade', position: 'insideBottom', offset: -5 }} 
-              padding={{ left: 20, right: 20 }}
-            />
-            <YAxis 
-              tickFormatter={formatYAxis} 
-              domain={[0, 'auto']}
-              label={{ value: 'Patrimônio', angle: -90, position: 'insideLeft' }}
-            />
-            <Tooltip content={<ChartTooltipContent formatter={(value) => formatCurrency(value)} />} />
-            <Legend />
-            
-            {/* Linha de referência na idade planejada de aposentadoria */}
-            <ReferenceLine x={60} stroke="#888" strokeDasharray="3 3" label="Aposentadoria" />
-            
-            {/* Linhas para cada cenário */}
-            <Line 
-              type="monotone" 
-              dataKey="current" 
-              name="Projeção Atual" 
-              strokeWidth={2} 
-              dot={false} 
-              activeDot={{ r: 6 }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="maintain" 
-              name="Manutenção do Patrimônio" 
-              strokeWidth={2} 
-              dot={false} 
-              activeDot={{ r: 6 }}
-            />
-            <Line 
-              type="monotone" 
-              dataKey="consume" 
-              name="Consumo do Patrimônio" 
-              strokeWidth={2} 
-              dot={false} 
-              activeDot={{ r: 6 }}
-            />
-          </LineChart>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={filteredData}
+              margin={{ top: 5, right: 30, left: 20, bottom: 25 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis 
+                dataKey="age" 
+                label={{ value: 'Idade', position: 'insideBottom', offset: -5 }} 
+                padding={{ left: 20, right: 20 }}
+              />
+              <YAxis 
+                tickFormatter={formatYAxis} 
+                domain={[0, 'auto']}
+                label={{ value: 'Patrimônio', angle: -90, position: 'insideLeft', offset: -5 }}
+              />
+              <Tooltip 
+                content={({ active, payload }) => {
+                  if (active && payload && payload.length) {
+                    return (
+                      <div className="bg-card border border-border p-2 rounded-md shadow-md">
+                        <p className="font-medium">{`Idade: ${payload[0]?.payload.age}`}</p>
+                        {payload.map((entry, index) => (
+                          <p key={`item-${index}`} style={{ color: entry.color }}>
+                            {entry.name}: {formatCurrency(entry.value as number)}
+                          </p>
+                        ))}
+                      </div>
+                    );
+                  }
+                  return null;
+                }}
+              />
+              <Legend />
+              
+              {/* Linha de referência na idade planejada de aposentadoria */}
+              <ReferenceLine x={60} stroke="#888" strokeDasharray="3 3" label={{ value: "Aposentadoria", position: "top", fill: "#888" }} />
+              
+              {/* Linhas para cada cenário */}
+              <Line 
+                type="monotone" 
+                dataKey="current" 
+                name="Projeção Atual" 
+                stroke="#0EA5E9" 
+                strokeWidth={2} 
+                dot={false} 
+                activeDot={{ r: 6 }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="maintain" 
+                name="Manutenção do Patrimônio" 
+                stroke="#7EC866" 
+                strokeWidth={2} 
+                dot={false} 
+                activeDot={{ r: 6 }}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="consume" 
+                name="Consumo do Patrimônio" 
+                stroke="#C8686D" 
+                strokeWidth={2} 
+                dot={false} 
+                activeDot={{ r: 6 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </ChartContainer>
       </div>
     </div>

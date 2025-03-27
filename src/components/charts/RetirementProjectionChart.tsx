@@ -13,6 +13,8 @@ import {
 } from 'recharts';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
 // Dados simulados para a projeção de aposentadoria
 const generateProjectionData = () => {
@@ -53,7 +55,7 @@ const chartConfig = {
   current: {
     label: "Projeção Atual",
     theme: {
-      light: "#0353A4",
+      light: "#0EA5E9",
       dark: "#0EA5E9",
     }
   },
@@ -74,7 +76,7 @@ const chartConfig = {
 };
 
 const RetirementProjectionChart = () => {
-  const [selectedView, setSelectedView] = useState('completo');
+  const [selectedView, setSelectedView] = useState<'completo' | '10anos'>('completo');
   const projectionData = generateProjectionData();
   
   // Filtrar os dados conforme a visualização selecionada
@@ -93,66 +95,112 @@ const RetirementProjectionChart = () => {
   };
   
   return (
-    <div className="w-full h-full">
-      <div className="flex justify-between items-center mb-4">
-        <h4 className="font-medium">Projeção Financeira</h4>
-        <div className="flex items-center space-x-4">
-          <div className="p-1 bg-muted rounded-lg flex text-xs">
-            <button
-              className={`px-3 py-1 rounded ${selectedView === 'completo' ? 'bg-card shadow-sm' : ''}`}
-              onClick={() => setSelectedView('completo')}
+    <Card className="w-full h-full border-border/80 shadow-sm">
+      <CardHeader className="px-6 pb-0">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full gap-4">
+          <div>
+            <CardTitle className="text-xl font-semibold">Projeção Patrimonial</CardTitle>
+            <CardDescription className="mt-1">
+              Evolução do patrimônio em diferentes cenários ao longo do tempo
+            </CardDescription>
+          </div>
+          <ToggleGroup 
+            type="single" 
+            value={selectedView}
+            onValueChange={(value) => value && setSelectedView(value as 'completo' | '10anos')}
+            className="bg-muted/30 p-1 rounded-lg"
+          >
+            <ToggleGroupItem 
+              value="completo" 
+              size="sm"
+              className="text-xs font-medium rounded data-[state=on]:bg-card data-[state=on]:shadow-sm"
             >
               Completo
-            </button>
-            <button
-              className={`px-3 py-1 rounded ${selectedView === '10anos' ? 'bg-card shadow-sm' : ''}`}
-              onClick={() => setSelectedView('10anos')}
+            </ToggleGroupItem>
+            <ToggleGroupItem 
+              value="10anos" 
+              size="sm"
+              className="text-xs font-medium rounded data-[state=on]:bg-card data-[state=on]:shadow-sm"
             >
               10 Anos
-            </button>
-          </div>
+            </ToggleGroupItem>
+          </ToggleGroup>
         </div>
-      </div>
+      </CardHeader>
       
-      <div className="rounded-lg border bg-card p-4 h-80">
-        <ChartContainer config={chartConfig} className="h-full">
+      <CardContent className="p-6 pt-4 h-[320px]">
+        <ChartContainer config={chartConfig} className="h-full w-full">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={filteredData}
-              margin={{ top: 5, right: 30, left: 20, bottom: 25 }}
+              margin={{ top: 15, right: 20, left: 20, bottom: 30 }}
             >
-              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
               <XAxis 
                 dataKey="age" 
-                label={{ value: 'Idade', position: 'insideBottom', offset: -5 }} 
-                padding={{ left: 20, right: 20 }}
+                label={{ value: 'Idade', position: 'insideBottom', offset: -15, fill: '#6b7280', fontSize: 12 }} 
+                tick={{ fill: '#6b7280', fontSize: 11 }}
+                tickLine={{ stroke: '#9CA3AF' }}
+                axisLine={{ stroke: '#d1d5db' }}
+                padding={{ left: 10, right: 10 }}
               />
               <YAxis 
                 tickFormatter={formatYAxis} 
                 domain={[0, 'auto']}
-                label={{ value: 'Patrimônio', angle: -90, position: 'insideLeft', offset: -5 }}
+                tick={{ fill: '#6b7280', fontSize: 11 }}
+                tickLine={{ stroke: '#9CA3AF' }}
+                axisLine={{ stroke: '#d1d5db' }}
+                label={{ 
+                  value: 'Patrimônio', 
+                  angle: -90, 
+                  position: 'insideLeft', 
+                  offset: -5, 
+                  fill: '#6b7280', 
+                  fontSize: 12 
+                }}
               />
               <Tooltip 
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="bg-card border border-border p-2 rounded-md shadow-md">
-                        <p className="font-medium">{`Idade: ${payload[0]?.payload.age}`}</p>
-                        {payload.map((entry, index) => (
-                          <p key={`item-${index}`} style={{ color: entry.color }}>
-                            {entry.name}: {formatCurrency(entry.value as number)}
-                          </p>
-                        ))}
+                      <div className="bg-card/95 backdrop-blur-sm border border-border/80 px-3 py-2 rounded-md shadow-lg">
+                        <p className="font-medium text-xs mb-1">{`Idade: ${payload[0]?.payload.age} anos`}</p>
+                        <div className="space-y-1">
+                          {payload.map((entry) => (
+                            <div key={entry.name} className="flex items-center justify-between gap-3 text-xs">
+                              <div className="flex items-center gap-1.5">
+                                <div 
+                                  className="w-2.5 h-2.5 rounded-[2px]" 
+                                  style={{ backgroundColor: entry.color }}
+                                />
+                                <span className="text-muted-foreground">{entry.name}:</span>
+                              </div>
+                              <span className="font-medium tabular-nums">
+                                {formatCurrency(entry.value as number)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     );
                   }
                   return null;
                 }}
+                wrapperStyle={{ outline: 'none' }}
               />
-              <Legend />
               
               {/* Linha de referência na idade planejada de aposentadoria */}
-              <ReferenceLine x={60} stroke="#888" strokeDasharray="3 3" label={{ value: "Aposentadoria", position: "top", fill: "#888" }} />
+              <ReferenceLine 
+                x={60} 
+                stroke="#9CA3AF" 
+                strokeDasharray="3 3" 
+                label={{ 
+                  value: "Aposentadoria", 
+                  position: "top", 
+                  fill: "#6b7280", 
+                  fontSize: 11 
+                }} 
+              />
               
               {/* Linhas para cada cenário */}
               <Line 
@@ -162,7 +210,7 @@ const RetirementProjectionChart = () => {
                 stroke="#0EA5E9" 
                 strokeWidth={2} 
                 dot={false} 
-                activeDot={{ r: 6 }}
+                activeDot={{ r: 5, strokeWidth: 1 }}
               />
               <Line 
                 type="monotone" 
@@ -171,7 +219,7 @@ const RetirementProjectionChart = () => {
                 stroke="#7EC866" 
                 strokeWidth={2} 
                 dot={false} 
-                activeDot={{ r: 6 }}
+                activeDot={{ r: 5, strokeWidth: 1 }}
               />
               <Line 
                 type="monotone" 
@@ -180,13 +228,26 @@ const RetirementProjectionChart = () => {
                 stroke="#C8686D" 
                 strokeWidth={2} 
                 dot={false} 
-                activeDot={{ r: 6 }}
+                activeDot={{ r: 5, strokeWidth: 1 }}
+              />
+              
+              <Legend 
+                layout="horizontal" 
+                verticalAlign="bottom" 
+                align="center"
+                wrapperStyle={{ 
+                  paddingTop: 15,
+                  fontSize: 12,
+                  lineHeight: '1.2em'
+                }}
+                iconType="line"
+                iconSize={12}
               />
             </LineChart>
           </ResponsiveContainer>
         </ChartContainer>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

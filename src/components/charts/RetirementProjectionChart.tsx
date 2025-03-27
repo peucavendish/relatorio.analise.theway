@@ -113,14 +113,14 @@ const RetirementProjectionChart = () => {
             <ToggleGroupItem 
               value="completo" 
               size="sm"
-              className="text-xs font-medium rounded data-[state=on]:bg-card data-[state=on]:shadow-sm"
+              className="text-xs px-4 py-1.5 rounded font-medium hover:bg-transparent"
             >
               Completo
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="10anos" 
               size="sm"
-              className="text-xs font-medium rounded data-[state=on]:bg-card data-[state=on]:shadow-sm"
+              className="text-xs px-4 py-1.5 rounded font-medium hover:bg-transparent"
             >
               10 Anos
             </ToggleGroupItem>

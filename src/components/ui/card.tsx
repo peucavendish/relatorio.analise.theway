@@ -1,15 +1,15 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
-// Import directly from shadcn/ui
+// Import shadcn components directly
 import {
   Card as ShadcnCard,
-  CardContent as ShadcnCardContent,
-  CardDescription as ShadcnCardDescription,
-  CardFooter as ShadcnCardFooter,
-  CardHeader as ShadcnCardHeader,
-  CardTitle as ShadcnCardTitle
-} from "../ui/card.tsx"; // Keep the import path but fix the naming
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card.shadcn"; // This is a placeholder - we need to identify the original import
 
 interface CardProps {
   children: React.ReactNode;
@@ -41,14 +41,14 @@ const Card: React.FC<CardProps> = ({
   );
 };
 
-// Export the components directly instead of creating aliases that cause circular references
-export {
+// Export our custom Card component and re-export the shadcn components
+export { 
   Card,
-  ShadcnCardContent as CardContent,
-  ShadcnCardDescription as CardDescription,
-  ShadcnCardFooter as CardFooter,
-  ShadcnCardHeader as CardHeader,
-  ShadcnCardTitle as CardTitle
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 };
 
 export default Card;

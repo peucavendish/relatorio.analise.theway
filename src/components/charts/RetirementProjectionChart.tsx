@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   LineChart, 
@@ -16,7 +15,6 @@ import { ChartContainer, ChartTooltipContent } from '@/components/ui/chart';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 
-// Dados simulados para a projeção de aposentadoria
 const generateProjectionData = () => {
   const data = [];
   const currentAge = 43; // Idade atual
@@ -50,7 +48,6 @@ const generateProjectionData = () => {
   return data;
 };
 
-// Configurações para o gráfico
 const chartConfig = {
   current: {
     label: "Projeção Atual",
@@ -79,7 +76,6 @@ const RetirementProjectionChart = () => {
   const [selectedView, setSelectedView] = useState<'completo' | '10anos'>('completo');
   const projectionData = generateProjectionData();
   
-  // Filtrar os dados conforme a visualização selecionada
   const filteredData = React.useMemo(() => {
     if (selectedView === '10anos') {
       return projectionData.filter(item => item.age <= projectionData[0].age + 10);
@@ -87,7 +83,6 @@ const RetirementProjectionChart = () => {
     return projectionData;
   }, [projectionData, selectedView]);
   
-  // Formatação dos valores no eixo Y
   const formatYAxis = (value: number) => {
     if (value === 0) return 'R$ 0';
     if (value >= 1000000) return `R$ ${Math.floor(value / 1000000)}M`;
@@ -113,14 +108,14 @@ const RetirementProjectionChart = () => {
             <ToggleGroupItem 
               value="completo" 
               size="sm"
-              className="text-xs px-4 py-1.5 rounded font-medium hover:bg-transparent"
+              className="text-xs px-3 py-1.5 rounded bg-transparent hover:bg-muted/50"
             >
               Completo
             </ToggleGroupItem>
             <ToggleGroupItem 
               value="10anos" 
               size="sm"
-              className="text-xs px-4 py-1.5 rounded font-medium hover:bg-transparent"
+              className="text-xs px-3 py-1.5 rounded bg-transparent hover:bg-muted/50"
             >
               10 Anos
             </ToggleGroupItem>
@@ -189,7 +184,6 @@ const RetirementProjectionChart = () => {
                 wrapperStyle={{ outline: 'none' }}
               />
               
-              {/* Linha de referência na idade planejada de aposentadoria */}
               <ReferenceLine 
                 x={60} 
                 stroke="#9CA3AF" 
@@ -202,7 +196,6 @@ const RetirementProjectionChart = () => {
                 }} 
               />
               
-              {/* Linhas para cada cenário */}
               <Line 
                 type="monotone" 
                 dataKey="current" 

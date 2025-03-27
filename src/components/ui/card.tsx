@@ -1,79 +1,60 @@
-import * as React from "react"
 
-import { cn } from "@/lib/utils"
+import React from 'react';
+import { cn } from '@/lib/utils';
+// Import using relative path to avoid casing issues
+import {
+  Card as ShadcnCard,
+  CardContent as ShadcnCardContent,
+  CardDescription as ShadcnCardDescription,
+  CardFooter as ShadcnCardFooter,
+  CardHeader as ShadcnCardHeader,
+  CardTitle as ShadcnCardTitle
+} from "../ui/card"; // Changed to use the proper path with correct casing
 
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn(
-      "rounded-lg border bg-card text-card-foreground shadow-sm",
-      className
-    )}
-    {...props}
-  />
-))
-Card.displayName = "Card"
+interface CardProps {
+  children: React.ReactNode;
+  className?: string;
+  highlight?: boolean;
+  onClick?: () => void;
+  interactive?: boolean;
+}
 
-const CardHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-8", className)}
-    {...props}
-  />
-))
-CardHeader.displayName = "CardHeader"
+const Card: React.FC<CardProps> = ({ 
+  children, 
+  className,
+  highlight = false,
+  onClick,
+  interactive = false
+}) => {
+  return (
+    <ShadcnCard
+      className={cn(
+        'financial-card',
+        highlight && 'bg-accent/10 border-accent/30',
+        interactive && 'cursor-pointer',
+        className
+      )}
+      onClick={onClick}
+    >
+      {children}
+    </ShadcnCard>
+  );
+};
 
-const CardTitle = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => (
-  <h3
-    ref={ref}
-    className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
-      className
-    )}
-    {...props}
-  />
-))
-CardTitle.displayName = "CardTitle"
+// Re-export the components with correct names
+const CardContent = ShadcnCardContent;
+const CardDescription = ShadcnCardDescription;
+const CardFooter = ShadcnCardFooter;
+const CardHeader = ShadcnCardHeader;
+const CardTitle = ShadcnCardTitle;
 
-const CardDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
-    {...props}
-  />
-))
-CardDescription.displayName = "CardDescription"
+export {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+};
 
-const CardContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-8 pt-0", className)} {...props} />
-))
-CardContent.displayName = "CardContent"
-
-const CardFooter = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn("flex items-center p-8 pt-0", className)}
-    {...props}
-  />
-))
-CardFooter.displayName = "CardFooter"
-
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+export default Card;

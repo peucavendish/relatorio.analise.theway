@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BarChart, Wallet, PiggyBank, LineChart, Calculator, Calendar, ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
@@ -6,24 +5,22 @@ import { CardHeader, CardTitle, CardDescription, CardContent } from '@/component
 import StatusChip from "@/components/ui/StatusChip";
 import { formatCurrency } from '@/utils/formatCurrency';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import RetirementProjectionChart from '@/components/charts/RetirementProjectionChart';
 
-// Define proper interface for the component props
 interface RetirementPlanningProps {
   data?: any; // Accept the data prop
 }
 
-// This is a simplified version of the retirement planning section
 const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
   const headerRef = useScrollAnimation();
   const currentSituationRef = useScrollAnimation();
   const objetivoRef = useScrollAnimation();
+  const projecaoRef = useScrollAnimation();
   const estrategiaRef = useScrollAnimation();
   
-  // We can still use the hardcoded values since we're not using the data prop yet
   return (
     <section className="min-h-screen py-16 px-4" id="retirement">
       <div className="max-w-4xl mx-auto">
-        {/* Section Header */}
         <div 
           ref={headerRef as React.RefObject<HTMLDivElement>}
           className="mb-12 text-center animate-on-scroll"
@@ -42,7 +39,6 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
           </div>
         </div>
 
-        {/* Current Financial Situation */}
         <div 
           ref={currentSituationRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-1"
@@ -88,7 +84,6 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
           </Card>
         </div>
         
-        {/* Retirement Goal */}
         <div 
           ref={objetivoRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-2"
@@ -155,7 +150,23 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
           </Card>
         </div>
         
-        {/* Retirement Strategy */}
+        <div 
+          ref={projecaoRef as React.RefObject<HTMLDivElement>}
+          className="mb-8 animate-on-scroll delay-2"
+        >
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-xl">Projeção Patrimonial</CardTitle>
+              <CardDescription>
+                Análise da evolução do seu patrimônio ao longo do tempo em diferentes cenários
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RetirementProjectionChart />
+            </CardContent>
+          </Card>
+        </div>
+        
         <div 
           ref={estrategiaRef as React.RefObject<HTMLDivElement>}
           className="animate-on-scroll delay-3"

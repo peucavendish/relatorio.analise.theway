@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { CircleDollarSign, Shield, Briefcase, Umbrella, Plane, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,13 +17,20 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
   }
 
   return (
-    <section className="py-12 px-4">
+    <section className="py-16 px-4" id="protection">
       <div className="container mx-auto max-w-5xl">
-        <div className="mb-10 text-center">
-          <h2 className="text-3xl font-bold mb-3">{protectionData.titulo}</h2>
-          <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
-            {protectionData.resumo}
-          </p>
+        <div className="mb-12 text-center">
+          <div className="inline-block">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-accent/10 p-3 rounded-full">
+                <Shield size={28} className="text-accent" />
+              </div>
+            </div>
+            <h2 className="text-4xl font-bold mb-3">{protectionData.titulo}</h2>
+            <p className="text-muted-foreground text-lg max-w-3xl mx-auto">
+              {protectionData.resumo}
+            </p>
+          </div>
         </div>
 
         {/* Insurance Needs Analysis */}

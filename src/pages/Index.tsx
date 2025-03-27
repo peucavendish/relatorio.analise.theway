@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import Header from '@/components/layout/Header';
-import GammaNavigation from '@/components/layout/GammaNavigation';
-import FloatingActions from '@/components/layout/FloatingActions';
 import CoverPage from '@/components/sections/CoverPage';
 import FinancialSummary from '@/components/sections/FinancialSummary';
 import RetirementPlanning from '@/components/sections/RetirementPlanning';
@@ -11,6 +9,11 @@ import TaxPlanning from '@/components/sections/TaxPlanning';
 import ProtectionPlanning from '@/components/sections/ProtectionPlanning';
 import SuccessionPlanning from '@/components/sections/SuccessionPlanning';
 import ActionPlan from '@/components/sections/ActionPlan';
+import FloatingActions from '@/components/layout/FloatingActions';
+import { DotNavigation, MobileDotNavigation } from '@/components/layout/DotNavigation';
+import { useSectionObserver } from '@/hooks/useSectionObserver';
+import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // Mock client data
 const clientData = {
@@ -419,85 +422,57 @@ const clientData = {
 };
 
 const IndexPage = () => {
-  const [activeSection, setActiveSection] = useState('cover');
+  const { activeSection, navigateToSection } = useSectionObserver();
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
-    
     return () => clearTimeout(timer);
   }, []);
-
-  const handleSectionChange = (sectionId: string) => {
-    setActiveSection(sectionId);
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="mb-4 animate-pulse">
-            <div className="w-12 h-12 rounded-full bg-accent/30 mx-auto"></div>
-          </div>
-          <p className="text-muted-foreground animate-pulse">Carregando relatório...</p>
-        </div>
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
       </div>
     );
   }
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen pb-28">
-        <Header 
-          title="Relatório Financeiro Visionário" 
-          subtitle="Planejamento financeiro personalizado"
-        />
-        
+      <div className="relative">
+        <Header title="Relatório Financeiro" />
         <main>
-          <div id="cover">
+          <div className="min-h-screen">
             <CoverPage clientData={clientData.cliente} />
           </div>
-          
-          <div id="summary">
+          <div className="min-h-screen">
             <FinancialSummary data={clientData.financas} />
           </div>
-          
-          <div id="retirement">
-            <RetirementPlanning />
+          <div className="min-h-screen">
+            <RetirementPlanning data={clientData} />
           </div>
-          
-          <div id="beach-house">
-            <BeachHouse data={clientData} />
+          <div className="min-h-screen">
+            <BeachHouse casaPraia={clientData.casaPraia} />
           </div>
-          
-          <div id="tax">
+          <div className="min-h-screen">
             <TaxPlanning data={clientData} />
           </div>
-          
-          <div id="protection">
+          <div className="min-h-screen">
             <ProtectionPlanning data={clientData} />
           </div>
-          
-          <div id="succession">
-            <SuccessionPlanning />
+          <div className="min-h-screen">
+            <SuccessionPlanning data={clientData} />
           </div>
-          
-          <div id="action-plan">
+          <div className="min-h-screen">
             <ActionPlan data={clientData} />
           </div>
         </main>
-        
+        <DotNavigation />
+        <MobileDotNavigation />
         <FloatingActions />
-        <GammaNavigation 
-          activeSection={activeSection} 
-          onChange={handleSectionChange} 
-        />
       </div>
     </ThemeProvider>
   );

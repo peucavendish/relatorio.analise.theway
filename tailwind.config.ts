@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -65,11 +64,11 @@ export default {
 				},
 				// Financial report specific colors
 				financial: {
-					success: '#34D399',
-					warning: '#FBBF24',
-					danger: '#F87171',
-					info: '#60A5FA',
-					highlight: '#8B5CF6',
+					success: '#7EC866',
+					warning: '#FFC971',
+					danger: '#C8686D',
+					info: '#0353A4',
+					highlight: '#FFC971',
 					muted: '#9CA3AF'
 				}
 			},

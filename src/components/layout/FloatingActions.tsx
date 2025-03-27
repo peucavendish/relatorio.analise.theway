@@ -1,7 +1,5 @@
-
 import React from 'react';
-import { Sun, Moon, Download } from 'lucide-react';
-import { useTheme } from '@/context/ThemeContext';
+import { Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FloatingActionsProps {
@@ -9,8 +7,6 @@ interface FloatingActionsProps {
 }
 
 const FloatingActions: React.FC<FloatingActionsProps> = ({ className }) => {
-  const { theme, toggleTheme } = useTheme();
-
   return (
     <div 
       className={cn(
@@ -27,13 +23,6 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ className }) => {
         aria-label="Export to PDF"
       >
         <Download size={18} />
-      </button>
-      <button
-        onClick={toggleTheme}
-        className="w-10 h-10 rounded-full flex items-center justify-center bg-card border border-border shadow-lg hover:bg-secondary/80 transition-colors"
-        aria-label="Toggle theme"
-      >
-        {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
       </button>
     </div>
   );

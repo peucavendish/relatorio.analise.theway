@@ -1,8 +1,8 @@
-
 import React, { useEffect, useRef } from 'react';
-import { Card } from '../ui/Card'; // Fixed import path with correct casing
+import { Card } from '../ui/card';
 import { Calendar, MapPin, User, Users } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { cn } from '@/lib/utils';
 
 interface ClientData {
   nome: string;
@@ -17,6 +17,23 @@ interface CoverPageProps {
   date?: string;
 }
 
+// Componente customizado que estende o Card básico
+const CardWithHighlight = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & { highlight?: boolean }
+>(({ className, highlight, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "rounded-lg border bg-card text-card-foreground shadow-sm p-6",
+      highlight && "border-accent/50 bg-accent/5",
+      className
+    )}
+    {...props}
+  />
+));
+CardWithHighlight.displayName = "CardWithHighlight";
+
 const CoverPage: React.FC<CoverPageProps> = ({ 
   clientData,
   date = new Date().toLocaleDateString('pt-BR', { 
@@ -30,18 +47,18 @@ const CoverPage: React.FC<CoverPageProps> = ({
   const cardRef2 = useScrollAnimation();
   
   return (
-    <section className="min-h-screen flex flex-col items-center justify-center py-16 px-4">
+    <section id="cover" className="min-h-screen flex flex-col items-center justify-center py-8 px-4">
       <div className="max-w-4xl w-full">
         {/* Header */}
         <div 
           ref={headerRef as React.RefObject<HTMLDivElement>} 
-          className="text-center mb-16 animate-on-scroll"
+          className="text-center mb-8 animate-on-scroll"
         >
           <div className="mb-2 inline-block">
             <div className="text-sm font-medium text-accent mb-2 tracking-wider">
-              RELATÓRIO DE PLANEJAMENTO FINANCEIRO
+              ALTA VISTA INVESTIMENTOS
             </div>
-            <h1 className="text-5xl font-bold mb-2">Relatório Visionário</h1>
+            <h1 className="text-5xl font-bold mb-2">Planejamento Financeiro</h1>
             <p className="text-muted-foreground">
               Preparado especialmente para <span className="font-medium text-foreground">{clientData.nome}</span>
             </p>
@@ -51,7 +68,7 @@ const CoverPage: React.FC<CoverPageProps> = ({
         {/* Client Info Card */}
         <div 
           ref={cardRef1 as React.RefObject<HTMLDivElement>} 
-          className="mb-8 animate-on-scroll delay-1"
+          className="mb-6 animate-on-scroll delay-1"
         >
           <Card className="md:p-8">
             <h2 className="text-2xl font-semibold mb-4">Informações do Cliente</h2>
@@ -108,7 +125,7 @@ const CoverPage: React.FC<CoverPageProps> = ({
           ref={cardRef2 as React.RefObject<HTMLDivElement>} 
           className="animate-on-scroll delay-2"
         >
-          <Card highlight>
+          <CardWithHighlight highlight>
             <h2 className="text-2xl font-semibold mb-4">Sobre este relatório</h2>
             <p className="mb-4">
               Este documento apresenta um planejamento financeiro personalizado, elaborado 
@@ -119,7 +136,7 @@ const CoverPage: React.FC<CoverPageProps> = ({
               Navegue pelas seções usando a barra inferior ou os botões de navegação para 
               explorar cada aspecto do seu planejamento financeiro.
             </p>
-          </Card>
+          </CardWithHighlight>
         </div>
       </div>
     </section>

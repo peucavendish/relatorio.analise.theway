@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -7,65 +6,65 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 220 15% 93%;
+    --foreground: 220 100% 14%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 220 15% 100%;
+    --card-foreground: 220 100% 14%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 220 15% 100%;
+    --popover-foreground: 220 100% 14%;
 
-    --primary: 222 47% 11%;
+    --primary: 210 97% 25%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 15% 96%;
+    --secondary-foreground: 220 100% 14%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 15% 90%;
+    --muted-foreground: 220 25% 40%;
 
-    --accent: 245 58% 51%;
+    --accent: 210 95% 40%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 354 50% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 220 25% 85%;
+    --input: 220 25% 85%;
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 222 100% 7%;
+    --foreground: 220 15% 93%;
 
-    --card: 222.2 47.4% 11.2%;
-    --card-foreground: 210 40% 98%;
+    --card: 210 70% 15%;
+    --card-foreground: 220 15% 93%;
 
-    --popover: 222.2 47.4% 11.2%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 210 70% 15%;
+    --popover-foreground: 220 15% 93%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 210 95% 45%;
+    --primary-foreground: 220 15% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 210 50% 20%;
+    --secondary-foreground: 220 15% 93%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 210 30% 20%;
+    --muted-foreground: 210 15% 70%;
 
-    --accent: 245 58% 65%;
+    --accent: 210 95% 45%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 354 45% 55%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 210 40% 20%;
+    --input: 210 40% 20%;
+    --ring: 210 60% 50%;
   }
 }
 
@@ -82,6 +81,27 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+  }
+
+  /* Section styles for better scroll snap */
+  main {
+    scroll-snap-type: y mandatory;
+    overflow-y: auto;
+    height: 100vh;
+    scroll-behavior: smooth;
+  }
+
+  main > div {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    padding-top: 5rem;
+    padding-bottom: 5rem;
+    scroll-margin-top: 1rem;
+  }
+
+  /* Espaçamento específico para a seção de capa */
+  #cover {
+    padding-top: 1rem !important;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -101,7 +121,7 @@
   }
 
   .financial-card {
-    @apply rounded-xl bg-card p-6 shadow-sm border border-border/80 transition-all duration-300 hover:shadow-md hover:translate-y-[-2px];
+    @apply rounded-xl bg-card p-8 shadow-sm border border-border/80 transition-all duration-300 hover:shadow-md hover:translate-y-[-2px];
   }
 
   .section-title {
@@ -137,6 +157,13 @@
 
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Ajustes para melhorar suavidade do scroll */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
   }
 }
 
@@ -178,5 +205,25 @@
     to {
       transform: rotate(360deg);
     }
+  }
+
+  /* Estilos específicos para navegação */
+  .dot-nav-tooltip {
+    opacity: 0;
+    transform: translateX(10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+  }
+
+  .dot-nav-button:hover .dot-nav-tooltip {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Otimizações para performance */
+  .dot-nav-button,
+  .dot-nav-tooltip {
+    will-change: transform, opacity;
+    backface-visibility: hidden;
   }
 }

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BarChart, Wallet, PiggyBank, LineChart, Calculator, Calendar, ArrowRight } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -14,23 +13,25 @@ const RetirementPlanning = () => {
   const estrategiaRef = useScrollAnimation();
   
   return (
-    <section className="min-h-screen py-16 px-4">
+    <section className="min-h-screen py-16 px-4" id="retirement">
       <div className="max-w-4xl mx-auto">
         {/* Section Header */}
         <div 
           ref={headerRef as React.RefObject<HTMLDivElement>}
-          className="text-center mb-12 animate-on-scroll"
+          className="mb-12 text-center animate-on-scroll"
         >
-          <div className="inline-flex items-center gap-2 mb-3">
-            <div className="bg-financial-success/30 text-financial-success p-2 rounded-full">
-              <PiggyBank size={24} />
+          <div className="inline-block">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-financial-success/30 p-3 rounded-full">
+                <PiggyBank size={28} className="text-financial-success" />
+              </div>
             </div>
-            <h2 className="text-3xl font-bold tracking-tight">Planejamento de Aposentadoria</h2>
+            <h2 className="text-4xl font-bold mb-3">Planejamento de Aposentadoria</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Estratégias e projeções para garantir sua independência financeira e 
+              qualidade de vida na aposentadoria.
+            </p>
           </div>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Estratégias e projeções para garantir sua independência financeira e 
-            qualidade de vida na aposentadoria.
-          </p>
         </div>
 
         {/* Current Financial Situation */}

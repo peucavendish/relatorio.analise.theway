@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   ArrowRight, 
@@ -19,13 +18,31 @@ import {
   CardFooter, 
   CardHeader, 
   CardTitle 
-} from '../ui/Card'; // Fixed import path with correct casing
+} from '../ui/card';
 import StatusChip from '@/components/ui/StatusChip';
 import ProgressBar from '@/components/ui/ProgressBar';
+import { cn } from '@/lib/utils';
 
 interface ActionPlanProps {
   data: any;
 }
+
+// Componente customizado que estende o Card básico
+const CardWithHighlight = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement> & { highlight?: boolean }
+>(({ className, highlight, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn(
+      "rounded-lg border bg-card text-card-foreground shadow-sm",
+      highlight && "border-accent/50 bg-accent/5",
+      className
+    )}
+    {...props}
+  />
+));
+CardWithHighlight.displayName = "CardWithHighlight";
 
 const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
   const titleRef = useScrollAnimation<HTMLDivElement>();
@@ -53,13 +70,22 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
   }
   
   return (
-    <section className="py-12 px-4 md:px-8">
-      <div ref={titleRef} className="max-w-5xl mx-auto animate-on-scroll">
-        <h2 className="section-title">{data.planoAcao.titulo}</h2>
-        <p className="text-muted-foreground mb-8">{data.planoAcao.resumo}</p>
+    <section className="py-16 px-4 md:px-8" id="action-plan">
+      <div ref={titleRef} className="max-w-5xl mx-auto mb-12 text-center animate-on-scroll">
+        <div className="inline-block">
+          <div className="flex items-center justify-center mb-4">
+            <div className="bg-accent/10 p-3 rounded-full">
+              <ListChecks size={28} className="text-accent" />
+            </div>
+          </div>
+          <h2 className="text-4xl font-bold mb-3">{data.planoAcao.titulo}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            {data.planoAcao.resumo}
+          </p>
+        </div>
       </div>
       
-      <div ref={securityIndexRef} className="max-w-5xl mx-auto mb-12 animate-on-scroll">
+      <div ref={securityIndexRef} className="max-w-5xl mx-auto mb-8 animate-on-scroll">
         <Card className="border-accent/40">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -106,14 +132,14 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         </Card>
       </div>
       
-      <div ref={timelineRef} className="max-w-5xl mx-auto mb-12 animate-on-scroll">
+      <div ref={timelineRef} className="max-w-5xl mx-auto mb-8 animate-on-scroll">
         <h3 className="section-subtitle mb-6">Cronograma de Implementação</h3>
         <div className="relative">
           {data.planoAcao.cronograma.map((fase: any, index: number) => (
             <div key={index} className="mb-8 md:mb-10">
               <div className="flex flex-col md:flex-row gap-4 md:gap-8">
                 <div className="md:w-1/4">
-                  <Card highlight={index === 0} className={index === 0 ? 'border-accent' : ''}>
+                  <CardWithHighlight highlight={index === 0} className={index === 0 ? 'border-accent' : ''}>
                     <CardContent className="p-4">
                       <div className="flex items-center gap-2 mb-2">
                         <Calendar className="h-5 w-5 text-accent" />
@@ -121,7 +147,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
                       </div>
                       <p className="text-sm text-muted-foreground">{fase.objetivoPrincipal}</p>
                     </CardContent>
-                  </Card>
+                  </CardWithHighlight>
                 </div>
                 <div className="md:w-3/4">
                   <Card>
@@ -147,7 +173,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         </div>
       </div>
       
-      <div ref={priorityRef} className="max-w-5xl mx-auto mb-12 animate-on-scroll">
+      <div ref={priorityRef} className="max-w-5xl mx-auto mb-6 animate-on-scroll">
         <h3 className="section-subtitle mb-6">Ações Prioritárias</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {data.planoAcao.acoesPrioritarias.map((acao: any, index: number) => (
@@ -196,7 +222,26 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         </div>
       </div>
       
-      <div className="max-w-5xl mx-auto mb-12 animate-on-scroll">
+      <div ref={nextStepsRef} className="max-w-5xl mx-auto mb-6 animate-on-scroll delay-1">
+        <Card className="bg-gradient-to-br from-accent/10 to-background border-accent/30">
+          <CardHeader className="pb-3">
+            <CardTitle>{data.planoAcao.conclusao.titulo}</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0 pb-6">
+            <p className="text-lg mb-4">{data.planoAcao.conclusao.mensagemPrincipal}</p>
+            <p className="mb-4">{data.planoAcao.conclusao.compromissoAssessoria}</p>
+            <div className="bg-accent/10 border border-accent/20 p-4 rounded-lg">
+              <h4 className="flex items-center gap-2 font-medium mb-2">
+                <ArrowRight className="text-accent" />
+                Recomendação Final
+              </h4>
+              <p>{data.planoAcao.conclusao.recomendacaoFinal}</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      
+      <div className="max-w-5xl mx-auto mb-6 animate-on-scroll delay-2">
         <h3 className="section-subtitle mb-6">Metas de Curto Prazo</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {data.planoAcao.metasCurtoPrazo.map((meta: any, index: number) => (
@@ -231,7 +276,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         </div>
       </div>
       
-      <div className="max-w-5xl mx-auto mb-12 animate-on-scroll">
+      <div className="max-w-5xl mx-auto mb-6 animate-on-scroll delay-3">
         <Card>
           <CardHeader>
             <CardTitle>{data.planoAcao.acompanhamentoProgresso.titulo}</CardTitle>
@@ -263,25 +308,6 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
                 <span className="text-sm text-muted-foreground">Responsável:</span>
                 <p className="font-medium">{data.planoAcao.acompanhamentoProgresso.responsavelAcompanhamento}</p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-      
-      <div ref={nextStepsRef} className="max-w-5xl mx-auto animate-on-scroll">
-        <Card className="bg-gradient-to-br from-accent/10 to-background border-accent/30">
-          <CardHeader>
-            <CardTitle>{data.planoAcao.conclusao.titulo}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-lg mb-4">{data.planoAcao.conclusao.mensagemPrincipal}</p>
-            <p className="mb-4">{data.planoAcao.conclusao.compromissoAssessoria}</p>
-            <div className="bg-accent/10 border border-accent/20 p-4 rounded-lg">
-              <h4 className="flex items-center gap-2 font-medium mb-2">
-                <ArrowRight className="text-accent" />
-                Recomendação Final
-              </h4>
-              <p>{data.planoAcao.conclusao.recomendacaoFinal}</p>
             </div>
           </CardContent>
         </Card>

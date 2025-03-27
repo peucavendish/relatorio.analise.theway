@@ -1,6 +1,5 @@
-
 import React from 'react';
-import Card from '@/components/ui/Card';
+import { Card } from '@/components/ui/card';
 import StatusChip from '@/components/ui/StatusChip';
 import DonutChart from '@/components/charts/DonutChart';
 import ProgressBar from '@/components/ui/ProgressBar';
@@ -49,18 +48,25 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
   ];
   
   return (
-    <section className="py-16 px-4">
+    <section className="py-16 px-4" id="summary">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div 
           ref={headerRef as React.RefObject<HTMLDivElement>} 
-          className="mb-10 text-center animate-on-scroll"
+          className="mb-12 text-center animate-on-scroll"
         >
-          <h2 className="text-4xl font-bold mb-4">Resumo Financeiro</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Visão geral da sua situação financeira atual, incluindo patrimônio, 
-            renda, gastos e composição patrimonial.
-          </p>
+          <div className="inline-block">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-financial-info/10 p-3 rounded-full">
+                <DollarSign size={28} className="text-financial-info" />
+              </div>
+            </div>
+            <h2 className="text-4xl font-bold mb-3">Resumo Financeiro</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Visão geral da sua situação financeira atual, incluindo patrimônio, 
+              renda, gastos e composição patrimonial.
+            </p>
+          </div>
         </div>
         
         {/* Financial Overview */}
@@ -69,7 +75,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
           className="mb-10 animate-on-scroll"
         >
           <Card>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-6 p-8">
               <div className="text-center">
                 <h3 className="text-muted-foreground text-sm mb-1">Patrimônio Líquido</h3>
                 <div className="text-3xl font-bold mb-1">
@@ -123,50 +129,54 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
         >
           <div className="grid md:grid-cols-2 gap-6">
             <Card>
-              <h3 className="text-xl font-semibold mb-4">Renda vs. Despesas</h3>
-              <div className="mb-6">
-                <div className="flex justify-between mb-2">
-                  <span>Renda Total</span>
-                  <span className="font-medium">{formatCurrency(data.rendaMensal.total)}</span>
-                </div>
-                <ProgressBar 
-                  value={data.rendaMensal.total} 
-                  max={data.rendaMensal.total} 
-                  size="lg" 
-                  color="success" 
-                />
-              </div>
-              
-              <div className="mb-2">
-                <div className="flex justify-between mb-2">
-                  <span>Despesas</span>
-                  <span className="font-medium">{formatCurrency(data.despesasMensais)}</span>
-                </div>
-                <ProgressBar 
-                  value={data.despesasMensais} 
-                  max={data.rendaMensal.total} 
-                  size="lg" 
-                  color={data.despesasMensais > data.rendaMensal.total ? "danger" : "warning"} 
-                />
-              </div>
-              
-              <div className="mt-4 pt-4 border-t border-border flex justify-between items-center">
-                <div>
-                  <span className="text-sm text-muted-foreground">Excedente Mensal</span>
-                  <div className="text-xl font-semibold">
-                    {formatCurrency(data.excedenteMensal)}
+              <div className="p-8">
+                <h3 className="text-xl font-semibold mb-4">Renda vs. Despesas</h3>
+                <div className="mb-6">
+                  <div className="flex justify-between mb-2">
+                    <span>Renda Total</span>
+                    <span className="font-medium">{formatCurrency(data.rendaMensal.total)}</span>
                   </div>
+                  <ProgressBar 
+                    value={data.rendaMensal.total} 
+                    max={data.rendaMensal.total} 
+                    size="lg" 
+                    color="success" 
+                  />
                 </div>
-                <StatusChip 
-                  status={data.excedenteMensal > 0 ? "success" : "danger"} 
-                  label={`${Math.round((data.excedenteMensal / data.rendaMensal.total) * 100)}% da renda`}
-                />
+                
+                <div className="mb-2">
+                  <div className="flex justify-between mb-2">
+                    <span>Despesas</span>
+                    <span className="font-medium">{formatCurrency(data.despesasMensais)}</span>
+                  </div>
+                  <ProgressBar 
+                    value={data.despesasMensais} 
+                    max={data.rendaMensal.total} 
+                    size="lg" 
+                    color={data.despesasMensais > data.rendaMensal.total ? "danger" : "warning"} 
+                  />
+                </div>
+                
+                <div className="mt-4 pt-4 border-t border-border flex justify-between items-center">
+                  <div>
+                    <span className="text-sm text-muted-foreground">Excedente Mensal</span>
+                    <div className="text-xl font-semibold">
+                      {formatCurrency(data.excedenteMensal)}
+                    </div>
+                  </div>
+                  <StatusChip 
+                    status={data.excedenteMensal > 0 ? "success" : "danger"} 
+                    label={`${Math.round((data.excedenteMensal / data.rendaMensal.total) * 100)}% da renda`}
+                  />
+                </div>
               </div>
             </Card>
             
             <Card>
-              <h3 className="text-xl font-semibold mb-4">Composição Patrimonial</h3>
-              <DonutChart data={compositionChartData} />
+              <div className="p-8">
+                <h3 className="text-xl font-semibold mb-4">Composição Patrimonial</h3>
+                <DonutChart data={compositionChartData} />
+              </div>
             </Card>
           </div>
         </div>
@@ -178,22 +188,24 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
             className="animate-on-scroll delay-2"
           >
             <Card>
-              <h3 className="text-xl font-semibold mb-4">Ativos</h3>
-              <div className="space-y-4">
-                {data.ativos.map((asset, index) => (
-                  <div key={index} className="flex justify-between items-center">
-                    <span>{asset.tipo}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{formatCurrency(asset.valor)}</span>
-                      <span className="text-xs text-muted-foreground">
-                        ({Math.round((asset.valor / totalAssets) * 100)}%)
-                      </span>
+              <div className="p-8">
+                <h3 className="text-xl font-semibold mb-4">Ativos</h3>
+                <div className="space-y-4">
+                  {data.ativos.map((asset, index) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <span>{asset.tipo}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{formatCurrency(asset.valor)}</span>
+                        <span className="text-xs text-muted-foreground">
+                          ({Math.round((asset.valor / totalAssets) * 100)}%)
+                        </span>
+                      </div>
                     </div>
+                  ))}
+                  <div className="pt-4 border-t border-border flex justify-between items-center">
+                    <span className="font-semibold">Total de Ativos</span>
+                    <span className="font-semibold">{formatCurrency(totalAssets)}</span>
                   </div>
-                ))}
-                <div className="pt-4 border-t border-border flex justify-between items-center">
-                  <span className="font-semibold">Total de Ativos</span>
-                  <span className="font-semibold">{formatCurrency(totalAssets)}</span>
                 </div>
               </div>
             </Card>
@@ -204,30 +216,32 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
             className="animate-on-scroll delay-3"
           >
             <Card>
-              <h3 className="text-xl font-semibold mb-4">Passivos</h3>
-              {data.passivos.length > 0 ? (
-                <div className="space-y-4">
-                  {data.passivos.map((liability, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <span>{liability.tipo}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{formatCurrency(liability.valor)}</span>
-                        <span className="text-xs text-muted-foreground">
-                          ({Math.round((liability.valor / totalLiabilities) * 100)}%)
-                        </span>
+              <div className="p-8">
+                <h3 className="text-xl font-semibold mb-4">Passivos</h3>
+                {data.passivos.length > 0 ? (
+                  <div className="space-y-4">
+                    {data.passivos.map((liability, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <span>{liability.tipo}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{formatCurrency(liability.valor)}</span>
+                          <span className="text-xs text-muted-foreground">
+                            ({Math.round((liability.valor / totalLiabilities) * 100)}%)
+                          </span>
+                        </div>
                       </div>
+                    ))}
+                    <div className="pt-4 border-t border-border flex justify-between items-center">
+                      <span className="font-semibold">Total de Passivos</span>
+                      <span className="font-semibold">{formatCurrency(totalLiabilities)}</span>
                     </div>
-                  ))}
-                  <div className="pt-4 border-t border-border flex justify-between items-center">
-                    <span className="font-semibold">Total de Passivos</span>
-                    <span className="font-semibold">{formatCurrency(totalLiabilities)}</span>
                   </div>
-                </div>
-              ) : (
-                <div className="py-6 text-center">
-                  <p className="text-muted-foreground">Nenhum passivo registrado</p>
-                </div>
-              )}
+                ) : (
+                  <div className="py-6 text-center">
+                    <p className="text-muted-foreground">Nenhum passivo registrado</p>
+                  </div>
+                )}
+              </div>
             </Card>
           </div>
         </div>

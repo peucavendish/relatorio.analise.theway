@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Card, 
@@ -47,23 +46,25 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
   );
 
   return (
-    <section className="min-h-screen py-16 px-4">
+    <section className="min-h-screen py-16 px-4" id="tax">
       <div className="max-w-4xl mx-auto">
         {/* Section Header */}
         <div 
           ref={headerRef as React.RefObject<HTMLDivElement>}
-          className="text-center mb-12 animate-on-scroll"
+          className="mb-12 text-center animate-on-scroll"
         >
-          <div className="inline-flex items-center gap-2 mb-3">
-            <div className="bg-financial-info/30 text-financial-info p-2 rounded-full">
-              <Calculator size={24} />
+          <div className="inline-block">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-financial-info/30 p-3 rounded-full">
+                <Calculator size={28} className="text-financial-info" />
+              </div>
             </div>
-            <h2 className="text-3xl font-bold tracking-tight">Planejamento Tributário</h2>
+            <h2 className="text-4xl font-bold mb-3">Planejamento Tributário</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Estratégias para otimização fiscal e redução da carga tributária através de estruturação 
+              patrimonial e organização financeira.
+            </p>
           </div>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Estratégias para otimização fiscal e redução da carga tributária através de estruturação 
-            patrimonial e organização financeira.
-          </p>
         </div>
 
         {/* Summary Card */}
@@ -250,8 +251,87 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
           </Card>
         </div>
 
+        {/* Tax Savings - Movido para logo após o Holding Familiar */}
+        <div 
+          ref={savingsRef as React.RefObject<HTMLDivElement>}
+          className="mb-8 animate-on-scroll delay-5"
+        >
+          <Card className="border-financial-success/30 bg-financial-success/5">
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center gap-2">
+                <Calculator size={20} className="text-financial-success" />
+                Economia Tributária Estimada
+              </CardTitle>
+              <CardDescription>
+                Projeção de economia com a implementação do planejamento tributário no período de {tributario.economiaTributaria.periodoEstimado}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Savings Overview */}
+              <div className="grid md:grid-cols-3 gap-4">
+                <div className="flex flex-col">
+                  <span className="text-sm text-muted-foreground mb-1">Sem Planejamento</span>
+                  <div className="flex items-center gap-1">
+                    <ArrowUp size={16} className="text-financial-danger" />
+                    <span className="font-medium text-financial-danger">
+                      {formatCurrency(tributario.economiaTributaria.semPlanejamento)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm text-muted-foreground mb-1">Com Planejamento</span>
+                  <div className="flex items-center gap-1">
+                    <ArrowDown size={16} className="text-financial-success" />
+                    <span className="font-medium text-financial-success">
+                      {formatCurrency(tributario.economiaTributaria.comPlanejamento)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm text-muted-foreground mb-1">Economia Total</span>
+                  <span className="font-medium text-xl text-financial-success">
+                    {formatCurrency(tributario.economiaTributaria.economia)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Savings Progress */}
+              <div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm font-medium">Percentual de economia</span>
+                  <span className="text-sm font-medium text-financial-success">
+                    {savingsPercentage}%
+                  </span>
+                </div>
+                <Progress value={savingsPercentage} className="h-2.5 bg-financial-danger/20">
+                  <div 
+                    className={cn(
+                      "h-full w-full flex-1 transition-all rounded-full",
+                      "bg-financial-success"
+                    )}
+                    style={{ transform: `translateX(-${100 - savingsPercentage}%)` }}
+                  />
+                </Progress>
+              </div>
+
+              {/* Items Considered */}
+              <div>
+                <h4 className="font-medium mb-2">Itens Considerados na Análise</h4>
+                <ul className="grid md:grid-cols-2 gap-2">
+                  {tributario.economiaTributaria.itensConsiderados.map((item: string, index: number) => (
+                    <li key={index} className="flex items-center gap-2">
+                      <ChevronRight size={16} className="text-financial-success" />
+                      <span className="text-sm">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* VGBL Pension and Italian Citizenship */}
-        <div className="mb-8 grid md:grid-cols-2 gap-6 animate-on-scroll delay-5">
+        <div className="mb-8 grid md:grid-cols-2 gap-6 animate-on-scroll delay-6">
           {/* VGBL Pension */}
           <Card>
             <CardHeader className="pb-3">
@@ -323,85 +403,6 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
                   <span className="font-medium">Oportunidade: </span>
                   {tributario.cidadaniaItaliana.implicacoesFiscais.oportunidades}
                 </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Tax Savings */}
-        <div 
-          ref={savingsRef as React.RefObject<HTMLDivElement>}
-          className="animate-on-scroll delay-6"
-        >
-          <Card className="border-financial-success/30 bg-financial-success/5">
-            <CardHeader>
-              <CardTitle className="text-xl flex items-center gap-2">
-                <Calculator size={20} className="text-financial-success" />
-                Economia Tributária Estimada
-              </CardTitle>
-              <CardDescription>
-                Projeção de economia com a implementação do planejamento tributário no período de {tributario.economiaTributaria.periodoEstimado}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Savings Overview */}
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="flex flex-col">
-                  <span className="text-sm text-muted-foreground mb-1">Sem Planejamento</span>
-                  <div className="flex items-center gap-1">
-                    <ArrowUp size={16} className="text-financial-danger" />
-                    <span className="font-medium text-financial-danger">
-                      {formatCurrency(tributario.economiaTributaria.semPlanejamento)}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm text-muted-foreground mb-1">Com Planejamento</span>
-                  <div className="flex items-center gap-1">
-                    <ArrowDown size={16} className="text-financial-success" />
-                    <span className="font-medium text-financial-success">
-                      {formatCurrency(tributario.economiaTributaria.comPlanejamento)}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-sm text-muted-foreground mb-1">Economia Total</span>
-                  <span className="font-medium text-xl text-financial-success">
-                    {formatCurrency(tributario.economiaTributaria.economia)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Savings Progress */}
-              <div>
-                <div className="flex justify-between mb-2">
-                  <span className="text-sm font-medium">Percentual de economia</span>
-                  <span className="text-sm font-medium text-financial-success">
-                    {savingsPercentage}%
-                  </span>
-                </div>
-                <Progress value={savingsPercentage} className="h-2.5 bg-financial-danger/20">
-                  <div 
-                    className={cn(
-                      "h-full w-full flex-1 transition-all rounded-full",
-                      "bg-financial-success"
-                    )}
-                    style={{ transform: `translateX(-${100 - savingsPercentage}%)` }}
-                  />
-                </Progress>
-              </div>
-
-              {/* Items Considered */}
-              <div>
-                <h4 className="font-medium mb-2">Itens Considerados na Análise</h4>
-                <ul className="grid md:grid-cols-2 gap-2">
-                  {tributario.economiaTributaria.itensConsiderados.map((item: string, index: number) => (
-                    <li key={index} className="flex items-center gap-2">
-                      <ChevronRight size={16} className="text-financial-success" />
-                      <span className="text-sm">{item}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
             </CardContent>
           </Card>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Shield, Users, FileText, GanttChart } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
@@ -97,22 +96,24 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
   };
   
   return (
-    <section className="py-10 px-4">
+    <section className="py-16 px-4" id="succession">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div 
           ref={headerRef as React.RefObject<HTMLDivElement>}
-          className="mb-8 animate-on-scroll"
+          className="mb-12 text-center animate-on-scroll"
         >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="bg-accent/10 p-2 rounded-full">
-              <Users size={24} className="text-accent" />
+          <div className="inline-block">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-accent/10 p-3 rounded-full">
+                <Users size={28} className="text-accent" />
+              </div>
             </div>
-            <h2 className="text-3xl font-bold">Planejamento Sucessório</h2>
+            <h2 className="text-4xl font-bold mb-3">Planejamento Sucessório</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Estratégias para garantir a transferência eficiente de patrimônio, preservar a harmonia familiar e minimizar custos tributários no processo sucessório.
+            </p>
           </div>
-          <p className="text-muted-foreground max-w-2xl">
-            Estratégias para garantir a transferência eficiente de patrimônio, preservar a harmonia familiar e minimizar custos tributários no processo sucessório.
-          </p>
         </div>
         
         {/* Objectives and Financial Impact */}

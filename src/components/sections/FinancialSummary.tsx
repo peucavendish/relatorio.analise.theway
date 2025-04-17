@@ -1,11 +1,13 @@
 import React from 'react';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import HideableCard from '@/components/ui/HideableCard';
 import StatusChip from '@/components/ui/StatusChip';
 import DonutChart from '@/components/charts/DonutChart';
 import ProgressBar from '@/components/ui/ProgressBar';
 import { TrendingUp, TrendingDown, DollarSign, ArrowRight } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { formatCurrency } from '@/utils/formatCurrency';
+import useCardVisibility from '@/hooks/useCardVisibility';
 
 interface FinanceSummary {
   patrimonioLiquido: number;
@@ -35,6 +37,8 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
   const incomeExpenseCardRef = useScrollAnimation();
   const assetsCardRef = useScrollAnimation();
   const liabilitiesCardRef = useScrollAnimation();
+  
+  const { isCardVisible, toggleCardVisibility } = useCardVisibility();
   
   // Calculate total assets and liabilities
   const totalAssets = data.ativos.reduce((sum, asset) => sum + asset.valor, 0);
@@ -74,7 +78,11 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
           ref={summaryCardRef as React.RefObject<HTMLDivElement>} 
           className="mb-10 animate-on-scroll"
         >
-          <Card>
+          <HideableCard 
+            id="patrimonio-resumo"
+            isVisible={isCardVisible("patrimonio-resumo")}
+            onToggleVisibility={() => toggleCardVisibility("patrimonio-resumo")}
+          >
             <div className="grid md:grid-cols-3 gap-6 p-8">
               <div className="text-center">
                 <h3 className="text-muted-foreground text-sm mb-1">Patrimônio Líquido</h3>
@@ -119,7 +127,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
                 />
               </div>
             </div>
-          </Card>
+          </HideableCard>
         </div>
         
         {/* Income & Expenses */}
@@ -128,7 +136,11 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
           className="mb-10 animate-on-scroll delay-1"
         >
           <div className="grid md:grid-cols-2 gap-6">
-            <Card>
+            <HideableCard 
+              id="renda-despesas"
+              isVisible={isCardVisible("renda-despesas")}
+              onToggleVisibility={() => toggleCardVisibility("renda-despesas")}
+            >
               <div className="p-8">
                 <h3 className="text-xl font-semibold mb-4">Renda vs. Despesas</h3>
                 <div className="mb-6">
@@ -170,14 +182,18 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
                   />
                 </div>
               </div>
-            </Card>
+            </HideableCard>
             
-            <Card>
+            <HideableCard 
+              id="composicao-patrimonial"
+              isVisible={isCardVisible("composicao-patrimonial")}
+              onToggleVisibility={() => toggleCardVisibility("composicao-patrimonial")}
+            >
               <div className="p-8">
                 <h3 className="text-xl font-semibold mb-4">Composição Patrimonial</h3>
                 <DonutChart data={compositionChartData} />
               </div>
-            </Card>
+            </HideableCard>
           </div>
         </div>
         
@@ -187,7 +203,11 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
             ref={assetsCardRef as React.RefObject<HTMLDivElement>} 
             className="animate-on-scroll delay-2"
           >
-            <Card>
+            <HideableCard 
+              id="ativos"
+              isVisible={isCardVisible("ativos")}
+              onToggleVisibility={() => toggleCardVisibility("ativos")}
+            >
               <div className="p-8">
                 <h3 className="text-xl font-semibold mb-4">Ativos</h3>
                 <div className="space-y-4">
@@ -208,14 +228,18 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
                   </div>
                 </div>
               </div>
-            </Card>
+            </HideableCard>
           </div>
           
           <div 
             ref={liabilitiesCardRef as React.RefObject<HTMLDivElement>} 
             className="animate-on-scroll delay-3"
           >
-            <Card>
+            <HideableCard 
+              id="passivos"
+              isVisible={isCardVisible("passivos")}
+              onToggleVisibility={() => toggleCardVisibility("passivos")}
+            >
               <div className="p-8">
                 <h3 className="text-xl font-semibold mb-4">Passivos</h3>
                 {data.passivos.length > 0 ? (
@@ -242,7 +266,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
                   </div>
                 )}
               </div>
-            </Card>
+            </HideableCard>
           </div>
         </div>
       </div>

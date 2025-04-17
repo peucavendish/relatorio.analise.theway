@@ -1,6 +1,8 @@
 import React from 'react';
 import { Shield, Users, FileText, GanttChart } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import HideableCard from '@/components/ui/HideableCard';
+import useCardVisibility from '@/hooks/useCardVisibility';
 import StatusChip from '@/components/ui/StatusChip';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { formatCurrency } from '@/utils/formatCurrency';
@@ -15,6 +17,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
   const cardRef1 = useScrollAnimation();
   const cardRef2 = useScrollAnimation();
   const cardRef3 = useScrollAnimation();
+  const { isCardVisible, toggleCardVisibility } = useCardVisibility();
   
   // Mock data for demonstration, would be replaced with actual data
   const mockData = {
@@ -123,7 +126,11 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
         >
           <div className="grid md:grid-cols-2 gap-6">
             {/* Objectives */}
-            <Card>
+            <HideableCard
+              id="objetivos-sucessao"
+              isVisible={isCardVisible("objetivos-sucessao")}
+              onToggleVisibility={() => toggleCardVisibility("objetivos-sucessao")}
+            >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <GanttChart size={20} className="text-accent" />
@@ -145,10 +152,14 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                   ))}
                 </ul>
               </CardContent>
-            </Card>
+            </HideableCard>
             
             {/* Financial Impact */}
-            <Card>
+            <HideableCard
+              id="impacto-financeiro-sucessao"
+              isVisible={isCardVisible("impacto-financeiro-sucessao")}
+              onToggleVisibility={() => toggleCardVisibility("impacto-financeiro-sucessao")}
+            >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield size={20} className="text-accent" />
@@ -203,7 +214,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </HideableCard>
           </div>
         </div>
         
@@ -212,7 +223,11 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
           ref={cardRef2 as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-2"
         >
-          <Card>
+          <HideableCard
+            id="instrumentos-sucessorios"
+            isVisible={isCardVisible("instrumentos-sucessorios")}
+            onToggleVisibility={() => toggleCardVisibility("instrumentos-sucessorios")}
+          >
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText size={20} className="text-accent" />
@@ -249,7 +264,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                 ))}
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
         
         {/* Private Pension and Life Project */}
@@ -259,7 +274,11 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
         >
           <div className="grid md:grid-cols-2 gap-6">
             {/* Private Pension */}
-            <Card>
+            <HideableCard
+              id="previdencia-privada-sucessao"
+              isVisible={isCardVisible("previdencia-privada-sucessao")}
+              onToggleVisibility={() => toggleCardVisibility("previdencia-privada-sucessao")}
+            >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Shield size={20} className="text-accent" />
@@ -298,10 +317,14 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </HideableCard>
             
             {/* Life Project */}
-            <Card>
+            <HideableCard
+              id="projeto-vida-legado"
+              isVisible={isCardVisible("projeto-vida-legado")}
+              onToggleVisibility={() => toggleCardVisibility("projeto-vida-legado")}
+            >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Users size={20} className="text-accent" />
@@ -334,7 +357,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                   Ver plano detalhado de legado
                 </Button>
               </CardFooter>
-            </Card>
+            </HideableCard>
           </div>
         </div>
       </div>

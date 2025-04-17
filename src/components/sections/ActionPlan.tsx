@@ -19,6 +19,8 @@ import {
   CardHeader, 
   CardTitle 
 } from '../ui/card';
+import HideableCard from '@/components/ui/HideableCard';
+import useCardVisibility from '@/hooks/useCardVisibility';
 import StatusChip from '@/components/ui/StatusChip';
 import ProgressBar from '@/components/ui/ProgressBar';
 import { cn } from '@/lib/utils';
@@ -50,6 +52,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
   const timelineRef = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
   const priorityRef = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
   const nextStepsRef = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
+  const { isCardVisible, toggleCardVisibility } = useCardVisibility();
   
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -86,7 +89,12 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
       </div>
       
       <div ref={securityIndexRef} className="max-w-5xl mx-auto mb-8 animate-on-scroll">
-        <Card className="border-accent/40">
+        <HideableCard
+          id="indicador-seguranca"
+          isVisible={isCardVisible("indicador-seguranca")}
+          onToggleVisibility={() => toggleCardVisibility("indicador-seguranca")}
+          className="border-accent/40"
+        >
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <ShieldCheck className="text-accent" />
@@ -129,7 +137,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </HideableCard>
       </div>
       
       <div ref={timelineRef} className="max-w-5xl mx-auto mb-8 animate-on-scroll">
@@ -150,7 +158,11 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
                   </CardWithHighlight>
                 </div>
                 <div className="md:w-3/4">
-                  <Card>
+                  <HideableCard 
+                    id={`cronograma-${index}`}
+                    isVisible={isCardVisible(`cronograma-${index}`)}
+                    onToggleVisibility={() => toggleCardVisibility(`cronograma-${index}`)}
+                  >
                     <CardContent className="p-4">
                       <p className="mb-3 font-medium">{fase.descricao}</p>
                       <ul className="space-y-2">
@@ -162,7 +174,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
                         ))}
                       </ul>
                     </CardContent>
-                  </Card>
+                  </HideableCard>
                 </div>
               </div>
               {index < data.planoAcao.cronograma.length - 1 && (
@@ -177,7 +189,13 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         <h3 className="section-subtitle mb-6">Ações Prioritárias</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {data.planoAcao.acoesPrioritarias.map((acao: any, index: number) => (
-            <Card key={index} className={acao.prioridade === 'Alta' ? 'border-financial-danger/50' : ''}>
+            <HideableCard 
+              key={index} 
+              id={`acao-prioritaria-${index}`}
+              isVisible={isCardVisible(`acao-prioritaria-${index}`)}
+              onToggleVisibility={() => toggleCardVisibility(`acao-prioritaria-${index}`)}
+              className={acao.prioridade === 'Alta' ? 'border-financial-danger/50' : ''}
+            >
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                   <CardTitle className="text-xl">{acao.titulo}</CardTitle>
@@ -217,13 +235,18 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
                   label={acao.status} 
                 />
               </CardFooter>
-            </Card>
+            </HideableCard>
           ))}
         </div>
       </div>
       
       <div ref={nextStepsRef} className="max-w-5xl mx-auto mb-6 animate-on-scroll delay-1">
-        <Card className="bg-gradient-to-br from-accent/10 to-background border-accent/30">
+        <HideableCard 
+          id="proximos-passos"
+          isVisible={isCardVisible("proximos-passos")}
+          onToggleVisibility={() => toggleCardVisibility("proximos-passos")}
+          className="bg-gradient-to-br from-accent/10 to-background border-accent/30"
+        >
           <CardHeader className="pb-3">
             <CardTitle>{data.planoAcao.conclusao.titulo}</CardTitle>
           </CardHeader>
@@ -238,14 +261,19 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
               <p>{data.planoAcao.conclusao.recomendacaoFinal}</p>
             </div>
           </CardContent>
-        </Card>
+        </HideableCard>
       </div>
       
       <div className="max-w-5xl mx-auto mb-6 animate-on-scroll delay-2">
         <h3 className="section-subtitle mb-6">Metas de Curto Prazo</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {data.planoAcao.metasCurtoPrazo.map((meta: any, index: number) => (
-            <Card key={index}>
+            <HideableCard 
+              key={index}
+              id={`meta-curto-prazo-${index}`}
+              isVisible={isCardVisible(`meta-curto-prazo-${index}`)}
+              onToggleVisibility={() => toggleCardVisibility(`meta-curto-prazo-${index}`)}
+            >
               <CardContent className="p-4">
                 <div className="flex items-start gap-3 mb-3">
                   <div className="bg-accent/10 text-accent rounded-full p-2 mt-1">
@@ -271,13 +299,17 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
                   <p className="text-sm">{meta.resultadoEsperado}</p>
                 </div>
               </CardContent>
-            </Card>
+            </HideableCard>
           ))}
         </div>
       </div>
       
       <div className="max-w-5xl mx-auto mb-6 animate-on-scroll delay-3">
-        <Card>
+        <HideableCard
+          id="acompanhamento-progresso"
+          isVisible={isCardVisible("acompanhamento-progresso")}
+          onToggleVisibility={() => toggleCardVisibility("acompanhamento-progresso")}
+        >
           <CardHeader>
             <CardTitle>{data.planoAcao.acompanhamentoProgresso.titulo}</CardTitle>
             <CardDescription>
@@ -310,7 +342,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </HideableCard>
       </div>
     </section>
   );

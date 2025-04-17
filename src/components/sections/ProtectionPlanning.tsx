@@ -1,6 +1,8 @@
 import React from 'react';
 import { CircleDollarSign, Shield, Briefcase, Umbrella, Plane, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import HideableCard from '@/components/ui/HideableCard';
+import useCardVisibility from '@/hooks/useCardVisibility';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { Separator } from '@/components/ui/separator';
@@ -11,6 +13,7 @@ interface ProtectionPlanningProps {
 
 const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
   const protectionData = data?.protecao;
+  const { isCardVisible, toggleCardVisibility } = useCardVisibility();
   
   if (!protectionData) {
     return <div>Dados de proteção patrimonial não disponíveis</div>;
@@ -34,7 +37,12 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
         </div>
 
         {/* Insurance Needs Analysis */}
-        <Card className="mb-10">
+        <HideableCard 
+          id="analise-necessidades"
+          isVisible={isCardVisible("analise-necessidades")}
+          onToggleVisibility={() => toggleCardVisibility("analise-necessidades")}
+          className="mb-10"
+        >
           <CardHeader>
             <div className="flex items-center gap-3">
               <Shield className="h-8 w-8 text-accent" />
@@ -82,10 +90,15 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </HideableCard>
 
         {/* Life Insurance */}
-        <Card className="mb-8">
+        <HideableCard 
+          id="seguro-vida"
+          isVisible={isCardVisible("seguro-vida")}
+          onToggleVisibility={() => toggleCardVisibility("seguro-vida")}
+          className="mb-8"
+        >
           <CardHeader>
             <div className="flex items-center gap-3">
               <CircleDollarSign className="h-8 w-8 text-accent" />
@@ -136,10 +149,15 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </HideableCard>
 
         {/* Property Insurance */}
-        <Card className="mb-8">
+        <HideableCard 
+          id="seguro-patrimonial"
+          isVisible={isCardVisible("seguro-patrimonial")}
+          onToggleVisibility={() => toggleCardVisibility("seguro-patrimonial")}
+          className="mb-8"
+        >
           <CardHeader>
             <div className="flex items-center gap-3">
               <Briefcase className="h-8 w-8 text-accent" />
@@ -198,12 +216,17 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </HideableCard>
         
         {/* D&O Insurance and Travel Insurance (Two Column Layout) */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           {/* D&O Insurance */}
-          <Card className="h-full">
+          <HideableCard 
+            id="seguro-do"
+            isVisible={isCardVisible("seguro-do")}
+            onToggleVisibility={() => toggleCardVisibility("seguro-do")}
+            className="h-full"
+          >
             <CardHeader>
               <div className="flex items-center gap-3">
                 <Umbrella className="h-8 w-8 text-accent" />
@@ -247,10 +270,15 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
                 </p>
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
           
           {/* Travel Insurance */}
-          <Card className="h-full">
+          <HideableCard 
+            id="seguro-viagem"
+            isVisible={isCardVisible("seguro-viagem")}
+            onToggleVisibility={() => toggleCardVisibility("seguro-viagem")}
+            className="h-full"
+          >
             <CardHeader>
               <div className="flex items-center gap-3">
                 <Plane className="h-8 w-8 text-accent" />
@@ -295,11 +323,16 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
                 </p>
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
         
         {/* Legal Protection */}
-        <Card className="mb-8">
+        <HideableCard 
+          id="protecao-juridica"
+          isVisible={isCardVisible("protecao-juridica")}
+          onToggleVisibility={() => toggleCardVisibility("protecao-juridica")}
+          className="mb-8"
+        >
           <CardHeader>
             <div className="flex items-center gap-3">
               <FileText className="h-8 w-8 text-accent" />
@@ -368,10 +401,15 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </HideableCard>
         
         {/* Additional Recommendations */}
-        <Card className={cn("bg-accent/5 border-accent/20")}>
+        <HideableCard 
+          id="recomendacoes-adicionais"
+          isVisible={isCardVisible("recomendacoes-adicionais")}
+          onToggleVisibility={() => toggleCardVisibility("recomendacoes-adicionais")}
+          className={cn("bg-accent/5 border-accent/20")}
+        >
           <CardHeader>
             <CardTitle>{protectionData.recomendacoesAdicionais.titulo}</CardTitle>
           </CardHeader>
@@ -387,7 +425,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
               ))}
             </ul>
           </CardContent>
-        </Card>
+        </HideableCard>
       </div>
     </section>
   );

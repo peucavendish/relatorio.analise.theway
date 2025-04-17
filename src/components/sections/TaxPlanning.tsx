@@ -7,6 +7,8 @@ import {
   CardContent, 
   CardFooter 
 } from "@/components/ui/card";
+import HideableCard from '@/components/ui/HideableCard';
+import useCardVisibility from '@/hooks/useCardVisibility';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import StatusChip from '@/components/ui/StatusChip';
@@ -39,6 +41,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
   const investmentsRef = useScrollAnimation();
   const holdingRef = useScrollAnimation();
   const savingsRef = useScrollAnimation();
+  const { isCardVisible, toggleCardVisibility } = useCardVisibility();
 
   // Calculate the savings percentage
   const savingsPercentage = Math.round(
@@ -72,7 +75,11 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
           ref={summaryRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-1"
         >
-          <Card>
+          <HideableCard
+            id="resumo-tributario"
+            isVisible={isCardVisible("resumo-tributario")}
+            onToggleVisibility={() => toggleCardVisibility("resumo-tributario")}
+          >
             <CardHeader>
               <CardTitle className="text-xl">Resumo do Planejamento Tributário</CardTitle>
               <CardDescription>
@@ -98,7 +105,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
             <CardFooter className="flex justify-between text-sm text-muted-foreground border-t pt-4">
               <span>Estratégias personalizadas para seu perfil financeiro</span>
             </CardFooter>
-          </Card>
+          </HideableCard>
         </div>
 
         {/* Tax Strategies */}
@@ -107,7 +114,11 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
           className="mb-8 grid md:grid-cols-2 gap-6 animate-on-scroll delay-2"
         >
           {/* Asset Structuring */}
-          <Card>
+          <HideableCard
+            id="estruturacao-patrimonial"
+            isVisible={isCardVisible("estruturacao-patrimonial")}
+            onToggleVisibility={() => toggleCardVisibility("estruturacao-patrimonial")}
+          >
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Shield size={18} className="text-financial-info" />
@@ -127,10 +138,14 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
                 ))}
               </ul>
             </CardContent>
-          </Card>
+          </HideableCard>
 
           {/* Tax Deductions */}
-          <Card>
+          <HideableCard
+            id="deducoes-fiscais"
+            isVisible={isCardVisible("deducoes-fiscais")}
+            onToggleVisibility={() => toggleCardVisibility("deducoes-fiscais")}
+          >
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Wallet size={18} className="text-financial-success" />
@@ -150,7 +165,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
                 ))}
               </ul>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
 
         {/* Tax-Free Investments */}
@@ -158,7 +173,11 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
           ref={investmentsRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-3"
         >
-          <Card>
+          <HideableCard
+            id="investimentos-vantagens"
+            isVisible={isCardVisible("investimentos-vantagens")}
+            onToggleVisibility={() => toggleCardVisibility("investimentos-vantagens")}
+          >
             <CardHeader>
               <CardTitle className="text-xl flex items-center gap-2">
                 <PiggyBank size={20} className="text-financial-info" />
@@ -193,7 +212,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
                 </TableBody>
               </Table>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
 
         {/* Family Holding */}
@@ -201,7 +220,11 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
           ref={holdingRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-4"
         >
-          <Card>
+          <HideableCard
+            id="holding-familiar"
+            isVisible={isCardVisible("holding-familiar")}
+            onToggleVisibility={() => toggleCardVisibility("holding-familiar")}
+          >
             <CardHeader>
               <CardTitle className="text-xl flex items-center gap-2">
                 <Briefcase size={20} className="text-financial-info" />
@@ -248,7 +271,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
                 </p>
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
 
         {/* Tax Savings - Movido para logo após o Holding Familiar */}
@@ -256,7 +279,12 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
           ref={savingsRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-5"
         >
-          <Card className="border-financial-success/30 bg-financial-success/5">
+          <HideableCard
+            id="economia-tributaria"
+            isVisible={isCardVisible("economia-tributaria")}
+            onToggleVisibility={() => toggleCardVisibility("economia-tributaria")}
+            className="border-financial-success/30 bg-financial-success/5"
+          >
             <CardHeader>
               <CardTitle className="text-xl flex items-center gap-2">
                 <Calculator size={20} className="text-financial-success" />
@@ -327,13 +355,17 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
                 </ul>
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
 
         {/* VGBL Pension and Italian Citizenship */}
         <div className="mb-8 grid md:grid-cols-2 gap-6 animate-on-scroll delay-6">
           {/* VGBL Pension */}
-          <Card>
+          <HideableCard
+            id="previdencia-vgbl"
+            isVisible={isCardVisible("previdencia-vgbl")}
+            onToggleVisibility={() => toggleCardVisibility("previdencia-vgbl")}
+          >
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <PiggyBank size={18} className="text-financial-info" />
@@ -367,10 +399,14 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
                 />
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
 
           {/* Italian Citizenship */}
-          <Card>
+          <HideableCard
+            id="cidadania-italiana"
+            isVisible={isCardVisible("cidadania-italiana")}
+            onToggleVisibility={() => toggleCardVisibility("cidadania-italiana")}
+          >
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
                 <FileText size={18} className="text-financial-info" />
@@ -405,7 +441,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
                 </p>
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
       </div>
     </section>

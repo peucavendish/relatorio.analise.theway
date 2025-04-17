@@ -2,10 +2,12 @@ import React from 'react';
 import { BarChart, Wallet, PiggyBank, LineChart, Calculator, Calendar, ArrowRight } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import HideableCard from '@/components/ui/HideableCard';
 import StatusChip from "@/components/ui/StatusChip";
 import { formatCurrency } from '@/utils/formatCurrency';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import RetirementProjectionChart from '@/components/charts/RetirementProjectionChart';
+import useCardVisibility from '@/hooks/useCardVisibility';
 
 interface RetirementPlanningProps {
   data?: any; // Accept the data prop
@@ -17,6 +19,8 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
   const objetivoRef = useScrollAnimation();
   const projecaoRef = useScrollAnimation();
   const estrategiaRef = useScrollAnimation();
+  
+  const { isCardVisible, toggleCardVisibility } = useCardVisibility();
   
   return (
     <section className="min-h-screen py-16 px-4" id="retirement">
@@ -43,7 +47,11 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
           ref={currentSituationRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-1"
         >
-          <Card>
+          <HideableCard 
+            id="situacao-financeira"
+            isVisible={isCardVisible("situacao-financeira")}
+            onToggleVisibility={() => toggleCardVisibility("situacao-financeira")}
+          >
             <CardHeader>
               <CardTitle className="text-xl">Situação Financeira Atual</CardTitle>
               <CardDescription>
@@ -81,14 +89,18 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
         
         <div 
           ref={objetivoRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-2"
         >
-          <Card>
+          <HideableCard 
+            id="objetivo-aposentadoria"
+            isVisible={isCardVisible("objetivo-aposentadoria")}
+            onToggleVisibility={() => toggleCardVisibility("objetivo-aposentadoria")}
+          >
             <CardHeader>
               <CardTitle className="text-xl">Objetivo de Aposentadoria</CardTitle>
               <CardDescription>
@@ -147,14 +159,18 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
                 </ul>
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
         
         <div 
           ref={projecaoRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-2"
         >
-          <Card>
+          <HideableCard 
+            id="projecao-patrimonial"
+            isVisible={isCardVisible("projecao-patrimonial")}
+            onToggleVisibility={() => toggleCardVisibility("projecao-patrimonial")}
+          >
             <CardHeader>
               <CardTitle className="text-xl">Projeção Patrimonial</CardTitle>
               <CardDescription>
@@ -164,14 +180,18 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
             <CardContent>
               <RetirementProjectionChart />
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
         
         <div 
           ref={estrategiaRef as React.RefObject<HTMLDivElement>}
           className="animate-on-scroll delay-3"
         >
-          <Card>
+          <HideableCard 
+            id="estrategia-recomendada"
+            isVisible={isCardVisible("estrategia-recomendada")}
+            onToggleVisibility={() => toggleCardVisibility("estrategia-recomendada")}
+          >
             <CardHeader>
               <CardTitle className="text-xl">Estratégia Recomendada</CardTitle>
               <CardDescription>
@@ -251,7 +271,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
                 </p>
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
       </div>
     </section>

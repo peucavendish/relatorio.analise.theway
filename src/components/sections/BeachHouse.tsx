@@ -3,6 +3,8 @@ import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { formatCurrency } from '@/utils/formatCurrency';
 import StatusChip from '@/components/ui/StatusChip';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import HideableCard from '@/components/ui/HideableCard';
+import useCardVisibility from '@/hooks/useCardVisibility';
 import { Home, Umbrella, Calculator, Check, X, PiggyBank, ArrowRight, TrendingDown, Calendar } from 'lucide-react';
 
 interface Strategy {
@@ -66,6 +68,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
   const objectiveCardRef = useScrollAnimation();
   const strategiesCardRef = useScrollAnimation();
   const impactCardRef = useScrollAnimation();
+  const { isCardVisible, toggleCardVisibility } = useCardVisibility();
   
   // Find details of recommended strategy
   const recommendedStrategy = casaPraia.comparativoEstrategias.find(
@@ -98,7 +101,11 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
           ref={objectiveCardRef as React.RefObject<HTMLDivElement>} 
           className="mb-10 animate-on-scroll delay-1"
         >
-          <Card>
+          <HideableCard 
+            id="objetivo-casa-praia"
+            isVisible={isCardVisible("objetivo-casa-praia")}
+            onToggleVisibility={() => toggleCardVisibility("objetivo-casa-praia")}
+          >
             <CardHeader>
               <CardTitle className="text-2xl font-semibold flex items-center">
                 <Home size={22} className="mr-2 text-accent" />
@@ -155,7 +162,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
         
         {/* Strategies Comparison */}
@@ -163,7 +170,11 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
           ref={strategiesCardRef as React.RefObject<HTMLDivElement>} 
           className="mb-10 animate-on-scroll delay-2"
         >
-          <Card>
+          <HideableCard 
+            id="estrategias-casa-praia"
+            isVisible={isCardVisible("estrategias-casa-praia")}
+            onToggleVisibility={() => toggleCardVisibility("estrategias-casa-praia")}
+          >
             <CardHeader>
               <CardTitle className="text-2xl font-semibold flex items-center">
                 <Calculator size={22} className="mr-2 text-accent" />
@@ -271,7 +282,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                 </div>
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
         
         {/* Financial Impact */}
@@ -279,7 +290,11 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
           ref={impactCardRef as React.RefObject<HTMLDivElement>} 
           className="animate-on-scroll delay-3"
         >
-          <Card>
+          <HideableCard 
+            id="impacto-casa-praia"
+            isVisible={isCardVisible("impacto-casa-praia")}
+            onToggleVisibility={() => toggleCardVisibility("impacto-casa-praia")}
+          >
             <CardHeader>
               <CardTitle className="text-2xl font-semibold flex items-center">
                 <TrendingDown size={22} className="mr-2 text-accent" />
@@ -332,7 +347,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                 />
               </div>
             </CardContent>
-          </Card>
+          </HideableCard>
         </div>
       </div>
     </section>

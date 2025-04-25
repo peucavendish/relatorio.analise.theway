@@ -89,9 +89,9 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                 <Umbrella size={28} className="text-accent" />
               </div>
             </div>
-            <h2 className="text-4xl font-bold mb-3">Casa de Praia</h2>
+            <h2 className="text-4xl font-bold mb-3">Imóvel</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Estratégias para aquisição da casa de praia desejada, otimizando o investimento e preservando o planejamento financeiro.
+              Estratégias para aquisição de um imóvel desejada, otimizando o investimento e preservando o planejamento financeiro.
             </p>
           </div>
         </div>
@@ -109,7 +109,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
             <CardHeader>
               <CardTitle className="text-2xl font-semibold flex items-center">
                 <Home size={22} className="mr-2 text-accent" />
-                Objetivo: Aquisição de Casa de Praia
+                Objetivo: Aquisição de Imóvel
               </CardTitle>
             </CardHeader>
             <CardContent>

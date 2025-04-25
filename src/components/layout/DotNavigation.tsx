@@ -7,7 +7,7 @@ const sections = [
   { id: 'cover', label: 'Capa' },
   { id: 'summary', label: 'Resumo Financeiro' },
   { id: 'retirement', label: 'Aposentadoria' },
-  { id: 'beach-house', label: 'Casa de Praia' },
+  { id: 'beach-house', label: 'Imóvel' },
   { id: 'tax', label: 'Planejamento Tributário' },
   { id: 'protection', label: 'Proteção Patrimonial' },
   { id: 'succession', label: 'Planejamento Sucessório' },

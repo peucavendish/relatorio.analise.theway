@@ -21,7 +21,6 @@ interface FinanceSummary {
   composicaoPatrimonial: {
     imoveis: number;
     investimentos: number;
-    empresa: number;
   };
   ativos: Array<{ tipo: string; valor: number }>;
   passivos: Array<{ tipo: string; valor: number }>;
@@ -44,11 +43,23 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
   const totalAssets = data.ativos.reduce((sum, asset) => sum + asset.valor, 0);
   const totalLiabilities = data.passivos.reduce((sum, liability) => sum + liability.valor, 0);
   
+  // Calculate total composition for normalization
+  const totalComposition = data.composicaoPatrimonial.imoveis + data.composicaoPatrimonial.investimentos;
+  
   // Prepare data for the composition chart
   const compositionChartData = [
-    { name: 'Imóveis', value: data.composicaoPatrimonial.imoveis, color: '#60A5FA', rawValue: formatCurrency(totalAssets * data.composicaoPatrimonial.imoveis / 100) },
-    { name: 'Investimentos', value: data.composicaoPatrimonial.investimentos, color: '#34D399', rawValue: formatCurrency(totalAssets * data.composicaoPatrimonial.investimentos / 100) },
-    { name: 'Empresa', value: data.composicaoPatrimonial.empresa, color: '#8B5CF6', rawValue: formatCurrency(totalAssets * data.composicaoPatrimonial.empresa / 100) },
+    { 
+      name: 'Imóveis', 
+      value: totalComposition > 0 ? Math.round((data.composicaoPatrimonial.imoveis / totalComposition) * 100) : 0,
+      color: '#60A5FA', 
+      rawValue: formatCurrency(data.composicaoPatrimonial.imoveis) 
+    },
+    { 
+      name: 'Investimentos', 
+      value: totalComposition > 0 ? Math.round((data.composicaoPatrimonial.investimentos / totalComposition) * 100) : 0,
+      color: '#34D399', 
+      rawValue: formatCurrency(data.composicaoPatrimonial.investimentos) 
+    },
   ];
   
   return (

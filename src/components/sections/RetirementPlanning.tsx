@@ -10,7 +10,33 @@ import RetirementProjectionChart from '@/components/charts/RetirementProjectionC
 import useCardVisibility from '@/hooks/useCardVisibility';
 
 interface RetirementPlanningProps {
-  data?: any; // Accept the data prop
+  data?: {
+    patrimonioLiquido: number;
+    excedenteMensal: number;
+    totalInvestido: number;
+    rendaMensalDesejada: number;
+    idadeAtual: number;
+    idadeAposentadoria: number;
+    patrimonioAlvo: number;
+    expectativaVida: number;
+    anosRestantes: number;
+    aporteMensalRecomendado: number;
+    taxaRetiradaSegura: number;
+    taxaInflacao: number;
+    taxaJurosReal: number;
+    perfilInvestidor: string;
+    alocacaoAtivos: Array<{
+      ativo: string;
+      percentual: number;
+    }>;
+    cenarios: Array<{
+      idade: number;
+      aporteMensal: number;
+      capitalNecessario: number;
+    }>;
+    possuiPGBL: boolean;
+    valorPGBL: number;
+  };
 }
 
 const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
@@ -19,13 +45,21 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
   const objetivoRef = useScrollAnimation();
   const projecaoRef = useScrollAnimation();
   const estrategiaRef = useScrollAnimation();
-  
+
   const { isCardVisible, toggleCardVisibility } = useCardVisibility();
-  
+
+  // Calculate percentage of income that should be invested
+  const percentualInvestir = data?.excedenteMensal && data.rendaMensalDesejada
+    ? Math.round((data.aporteMensalRecomendado / data.excedenteMensal) * 100)
+    : 0;
+
+  // Get current scenario based on selected retirement age
+  const cenarioAtual = data?.cenarios?.find(c => c.idade === data.idadeAposentadoria) || data?.cenarios?.[0];
+
   return (
     <section className="min-h-screen py-16 px-4" id="retirement">
       <div className="max-w-4xl mx-auto">
-        <div 
+        <div
           ref={headerRef as React.RefObject<HTMLDivElement>}
           className="mb-12 text-center animate-on-scroll"
         >
@@ -37,17 +71,17 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
             </div>
             <h2 className="text-4xl font-bold mb-3">Planejamento de Aposentadoria</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Estratégias e projeções para garantir sua independência financeira e 
+              Estratégias e projeções para garantir sua independência financeira e
               qualidade de vida na aposentadoria.
             </p>
           </div>
         </div>
 
-        <div 
+        <div
           ref={currentSituationRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-1"
         >
-          <HideableCard 
+          <HideableCard
             id="situacao-financeira"
             isVisible={isCardVisible("situacao-financeira")}
             onToggleVisibility={() => toggleCardVisibility("situacao-financeira")}
@@ -62,41 +96,52 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
               <div className="flex flex-col items-center">
                 <div className="text-sm text-muted-foreground mb-1">Patrimônio Líquido</div>
                 <div className="text-2xl font-semibold">
-                  {formatCurrency(3650000)}
+                  {formatCurrency(data?.patrimonioLiquido || 0)}
                 </div>
                 <div className="mt-1">
-                  <StatusChip status="success" label="Acima da média" />
+                  <StatusChip
+                    status={data?.patrimonioLiquido && data.patrimonioLiquido >= 0 ? "success" : "error"}
+                    label={data?.patrimonioLiquido && data.patrimonioLiquido >= 0 ? "Positivo" : "Negativo"}
+                  />
                 </div>
               </div>
-              
+
               <div className="flex flex-col items-center">
                 <div className="text-sm text-muted-foreground mb-1">Excedente Mensal</div>
                 <div className="text-2xl font-semibold">
-                  {formatCurrency(17000)}
+                  {formatCurrency(data?.excedenteMensal || 0)}
                 </div>
                 <div className="mt-1">
-                  <StatusChip status="info" label="48.5% da renda" />
+                  <StatusChip
+                    status={data?.excedenteMensal && data.excedenteMensal > 20000 ? "success" : "warning"}
+                    label={`${data?.excedenteMensal ? Math.round((data.excedenteMensal / 50000) * 100) : 0}% da renda`}
+                  />
                 </div>
               </div>
-              
+
               <div className="flex flex-col items-center">
                 <div className="text-sm text-muted-foreground mb-1">Total Investido</div>
                 <div className="text-2xl font-semibold">
-                  {formatCurrency(1000000)}
+                  {formatCurrency(data?.totalInvestido || 0)}
                 </div>
                 <div className="mt-1">
-                  <StatusChip status="warning" label="27.4% do patrimônio" />
+                  <StatusChip
+                    status={data?.totalInvestido && data.totalInvestido > 2000000 ? "success" : "warning"}
+                    label={`${data?.totalInvestido && data.patrimonioLiquido 
+                      ? Math.round((data.totalInvestido / Math.abs(data.patrimonioLiquido)) * 100) 
+                      : 0}% do patrimônio`}
+                  />
                 </div>
               </div>
             </CardContent>
           </HideableCard>
         </div>
-        
-        <div 
+
+        <div
           ref={objetivoRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-2"
         >
-          <HideableCard 
+          <HideableCard
             id="objetivo-aposentadoria"
             isVisible={isCardVisible("objetivo-aposentadoria")}
             onToggleVisibility={() => toggleCardVisibility("objetivo-aposentadoria")}
@@ -113,60 +158,60 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
                   <Calculator size={28} className="text-financial-success mb-2" />
                   <div className="text-sm text-muted-foreground">Renda Mensal Desejada</div>
                   <div className="text-xl font-semibold mt-1">
-                    {formatCurrency(25000)}
+                    {formatCurrency(data?.rendaMensalDesejada || 0)}
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col items-center p-4 bg-muted/30 rounded-lg">
                   <Calendar size={28} className="text-financial-info mb-2" />
                   <div className="text-sm text-muted-foreground">Idade Planejada</div>
                   <div className="text-xl font-semibold mt-1">
-                    60 anos
+                    {data?.idadeAposentadoria || 0} anos
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    (17 anos restantes)
+                    ({data?.anosRestantes || 0} anos restantes)
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col items-center p-4 bg-muted/30 rounded-lg">
                   <PiggyBank size={28} className="text-financial-highlight mb-2" />
                   <div className="text-sm text-muted-foreground">Patrimônio Alvo</div>
                   <div className="text-xl font-semibold mt-1">
-                    {formatCurrency(5000000)}
+                    {formatCurrency(data?.patrimonioAlvo || 0)}
                   </div>
                 </div>
               </div>
-              
+
               <div className="bg-muted/10 border border-border/80 rounded-lg p-4">
                 <h4 className="font-medium mb-2">Premissas Utilizadas</h4>
                 <ul className="grid md:grid-cols-2 gap-2">
                   <li className="flex items-start text-sm">
                     <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
-                    <span>Taxa de juros real de 4% a.a.</span>
+                    <span>Taxa de juros real de {(data?.taxaJurosReal || 0) * 100}% a.a.</span>
                   </li>
                   <li className="flex items-start text-sm">
                     <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
-                    <span>Inflação média de 3.5% a.a.</span>
+                    <span>Inflação média de 3,5 % a.a.</span>
                   </li>
                   <li className="flex items-start text-sm">
                     <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
-                    <span>Expectativa de vida até 90 anos</span>
+                    <span>Expectativa de vida até {data?.expectativaVida || 0} anos</span>
                   </li>
                   <li className="flex items-start text-sm">
                     <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
-                    <span>Taxa de retirada segura de 4%</span>
+                    <span>Taxa de retirada segura de {(data?.taxaRetiradaSegura || 0) * 100}%</span>
                   </li>
                 </ul>
               </div>
             </CardContent>
           </HideableCard>
         </div>
-        
-        <div 
+
+        <div
           ref={projecaoRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-2"
         >
-          <HideableCard 
+          <HideableCard
             id="projecao-patrimonial"
             isVisible={isCardVisible("projecao-patrimonial")}
             onToggleVisibility={() => toggleCardVisibility("projecao-patrimonial")}
@@ -178,16 +223,26 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <RetirementProjectionChart />
+              <RetirementProjectionChart
+                currentAge={data?.idadeAtual || 0}
+                retirementAge={data?.idadeAposentadoria || 65}
+                lifeExpectancy={data?.expectativaVida || 100}
+                currentPortfolio={data?.totalInvestido || 0}
+                monthlyContribution={data?.aporteMensalRecomendado || 0}
+                targetAmount={data?.patrimonioAlvo || 0}
+                safeWithdrawalRate={data?.taxaRetiradaSegura || 0.04}
+                inflationRate={data?.taxaInflacao || 0.035}
+                scenarios={data?.cenarios || []}
+              />
             </CardContent>
           </HideableCard>
         </div>
-        
-        <div 
+
+        <div
           ref={estrategiaRef as React.RefObject<HTMLDivElement>}
           className="animate-on-scroll delay-3"
         >
-          <HideableCard 
+          <HideableCard
             id="estrategia-recomendada"
             isVisible={isCardVisible("estrategia-recomendada")}
             onToggleVisibility={() => toggleCardVisibility("estrategia-recomendada")}
@@ -203,25 +258,18 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
                 <div className="space-y-4">
                   <h4 className="font-medium">Alocação de Investimentos</h4>
                   <ul className="space-y-3">
-                    <li className="flex justify-between text-sm p-2 bg-muted/30 rounded">
-                      <span>Renda Fixa</span>
-                      <span className="font-medium">40%</span>
-                    </li>
-                    <li className="flex justify-between text-sm p-2 bg-muted/30 rounded">
-                      <span>Renda Variável</span>
-                      <span className="font-medium">30%</span>
-                    </li>
-                    <li className="flex justify-between text-sm p-2 bg-muted/30 rounded">
-                      <span>Previdência Privada</span>
-                      <span className="font-medium">20%</span>
-                    </li>
-                    <li className="flex justify-between text-sm p-2 bg-muted/30 rounded">
-                      <span>Investimentos Alternativos</span>
-                      <span className="font-medium">10%</span>
-                    </li>
+                    {data?.alocacaoAtivos?.map((ativo, index) => (
+                      <li key={index} className="flex justify-between text-sm p-2 bg-muted/30 rounded">
+                        <span>{ativo.ativo}</span>
+                        <span className="font-medium">{ativo.percentual}%</span>
+                      </li>
+                    ))}
                   </ul>
+                  <div className="text-sm text-muted-foreground">
+                    Perfil do investidor: <span className="font-medium">{data?.perfilInvestidor || "Moderado"}</span>
+                  </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <h4 className="font-medium">Ações Recomendadas</h4>
                   <ul className="space-y-3">
@@ -232,42 +280,46 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
                       <div className="text-sm">
                         <span className="font-medium block">Aumentar aportes mensais</span>
                         <span className="text-muted-foreground">
-                          De R$ 5.000 para R$ 10.000 mensais
+                          Investir {percentualInvestir}% do excedente (R$ {formatCurrency(data?.aporteMensalRecomendado || 0)}/mês)
                         </span>
                       </div>
                     </li>
+                    {data?.possuiPGBL && (
+                      <li className="flex items-start gap-2 p-2 bg-muted/30 rounded">
+                        <div className="bg-financial-success/20 text-financial-success p-1 rounded mt-0.5">
+                          <ArrowRight size={14} />
+                        </div>
+                        <div className="text-sm">
+                          <span className="font-medium block">Otimizar PGBL</span>
+                          <span className="text-muted-foreground">
+                            Aplicar R$ {formatCurrency(data.valorPGBL)} para redução fiscal
+                          </span>
+                        </div>
+                      </li>
+                    )}
                     <li className="flex items-start gap-2 p-2 bg-muted/30 rounded">
                       <div className="bg-financial-success/20 text-financial-success p-1 rounded mt-0.5">
                         <ArrowRight size={14} />
                       </div>
                       <div className="text-sm">
-                        <span className="font-medium block">Maximizar PGBL</span>
+                        <span className="font-medium block">Diversificar carteira</span>
                         <span className="text-muted-foreground">
-                          Aplicar 12% da renda tributável
-                        </span>
-                      </div>
-                    </li>
-                    <li className="flex items-start gap-2 p-2 bg-muted/30 rounded">
-                      <div className="bg-financial-success/20 text-financial-success p-1 rounded mt-0.5">
-                        <ArrowRight size={14} />
-                      </div>
-                      <div className="text-sm">
-                        <span className="font-medium block">Diversificar carteira de ações</span>
-                        <span className="text-muted-foreground">
-                          Incluir ETFs e fundos internacionais
+                          Alinhar com perfil {data?.perfilInvestidor?.toLowerCase() || "moderado"}
                         </span>
                       </div>
                     </li>
                   </ul>
                 </div>
               </div>
-              
+
               <div className="p-4 border border-financial-success/30 bg-financial-success/5 rounded-lg">
                 <h4 className="font-medium text-financial-success mb-2">Projeção da Estratégia</h4>
                 <p className="text-sm">
-                  Seguindo o plano recomendado, você tem <span className="font-medium">91% de probabilidade</span> de 
-                  atingir seu objetivo de aposentadoria até os 60 anos com a renda mensal desejada de 
-                  {formatCurrency(25000)}. Revisões anuais são recomendadas para ajustes conforme necessário.
+                  Seguindo o plano recomendado, você tem <span className="font-medium">alta probabilidade</span> de
+                  atingir seu objetivo de aposentadoria até os {data?.idadeAposentadoria || 0} anos com a renda mensal desejada de
+                  {formatCurrency(data?.rendaMensalDesejada || 0)} por {data?.expectativaVida && data.idadeAposentadoria
+                    ? data.expectativaVida - data.idadeAposentadoria
+                    : 35} anos. Revisões anuais são recomendadas para ajustes conforme necessário.
                 </p>
               </div>
             </CardContent>

@@ -35,54 +35,46 @@ interface RetirementProjectionChartProps {
   }>;
 }
 
+// Interface para os resultados de duração do capital
+interface DuracaoCapital {
+  idadeFinal: number;
+  duracaoAnos: number;
+}
+
 // Função para calcular o fluxo de capital baseado no script fornecido
 const calculateRetirementProjection = (
   idade_atual: number,
   idade_para_aposentar: number,
-  expectativa_de_vida: number,
+  expectativa_de_vida: number,  // Recebe como parâmetro
   capitalDisponivelHoje: number,
   capital_disponivel_mensal: number,
   saque_mensal_desejado: number,
-  rentabilidade_real_liquida_acumulacao: number = 0.03,
-  rentabilidade_real_liquida_consumo: number = 0.02
+  rentabilidade_real_liquida_acumulacao: number = 0.04,
+  rentabilidade_real_liquida_consumo: number = 0.032
 ) => {
   // Taxa mensal equivalente
   const taxa_mensal_real = Math.pow(1 + rentabilidade_real_liquida_acumulacao, 1/12) - 1;
   
-  // Cálculos básicos
-  const numero_meses_consumo_aposentadoria = (expectativa_de_vida - idade_para_aposentar) * 12;
-  
-  // Capital Necessário usando a fórmula do script
-  const capitalNecessario = (saque_mensal_desejado * (1 - Math.pow(1 + taxa_mensal_real, -numero_meses_consumo_aposentadoria)) / taxa_mensal_real);
-  
-  // Cálculo para o cenário com aposentadoria 5 anos antes
+  // Cenários de aposentadoria
   const idadeAposentadoria1 = idade_para_aposentar - 5;
-  const meses_consumo_1 = (expectativa_de_vida - idadeAposentadoria1) * 12;
-  const capitalNecessario1 = (saque_mensal_desejado * (1 - Math.pow(1 + taxa_mensal_real, -meses_consumo_1)) / taxa_mensal_real);
-  
-  // Cálculo para o cenário com aposentadoria no prazo desejado
   const idadeAposentadoria2 = idade_para_aposentar;
-  const capitalNecessario2 = capitalNecessario;
-  
-  // Cálculo para o cenário com aposentadoria 5 anos depois
   const idadeAposentadoria3 = idade_para_aposentar + 5;
-  const meses_consumo_3 = (expectativa_de_vida - idadeAposentadoria3) * 12;
-  const capitalNecessario3 = (saque_mensal_desejado * (1 - Math.pow(1 + taxa_mensal_real, -meses_consumo_3)) / taxa_mensal_real);
   
-  // Função para calcular a duração do capital
-  const calcularDuracaoCapital = (idade_aposentadoria: number, capital: number, renda_mensal: number) => {
-    // Calcula quantos anos o capital dura baseado no valor do capital e no valor anual de retirada
-    const retirada_anual = renda_mensal * 12;
-    const duracao_anos = Math.round(capital / retirada_anual);
-    return idade_aposentadoria + duracao_anos;
-  }
-  
-  // Calcular duração para cada cenário
-  const duracaoCapital1 = calcularDuracaoCapital(idadeAposentadoria1, capitalNecessario1, saque_mensal_desejado);
-  const duracaoCapital2 = calcularDuracaoCapital(idadeAposentadoria2, capitalNecessario2, saque_mensal_desejado);
-  const duracaoCapital3 = calcularDuracaoCapital(idadeAposentadoria3, capitalNecessario3, saque_mensal_desejado);
+  // Função para calcular o capital necessário
+  const calculaCapitalNecessario = (idadeAposentadoria: number) => {
+    // Número de meses na fase de consumo
+    const meses_consumo = (expectativa_de_vida - idadeAposentadoria) * 12;
     
-  // Função PMT (equivalente ao PGTO do Excel)
+    // Capital necessário (VP de uma série de pagamentos) - Fator de VP de uma série * PMT
+    return (saque_mensal_desejado * (1 - Math.pow(1 + taxa_mensal_real, -meses_consumo)) / taxa_mensal_real);
+  };
+  
+  // Cálculo do capital necessário para cada cenário
+  const capitalNecessario1 = calculaCapitalNecessario(idadeAposentadoria1);
+  const capitalNecessario2 = calculaCapitalNecessario(idadeAposentadoria2);
+  const capitalNecessario3 = calculaCapitalNecessario(idadeAposentadoria3);
+  
+  // Função PMT para calcular o aporte mensal/anual necessário
   function PMT(taxa: number, periodos: number, vp: number, vf: number = 0, tipo: number = 0) {
     if (taxa === 0) return -(vp + vf) / periodos;
     const x = Math.pow(1 + taxa, periodos);
@@ -90,80 +82,165 @@ const calculateRetirementProjection = (
   }
   
   // Cálculo dos aportes mensais necessários para cada cenário
-  // Cenário 1 (5 anos antes)
-  const meses_acumulacao_1 = (idadeAposentadoria1 - idade_atual) * 12;
-  const aporteMensal1 = meses_acumulacao_1 > 0 ? 
-    Math.abs(PMT(taxa_mensal_real, meses_acumulacao_1, -capitalDisponivelHoje, capitalNecessario1)) : 0;
-  
-  // Cenário 2 (no prazo desejado)
-  const meses_acumulacao_2 = (idadeAposentadoria2 - idade_atual) * 12;
-  const aporteMensal2 = meses_acumulacao_2 > 0 ? 
-    Math.abs(PMT(taxa_mensal_real, meses_acumulacao_2, -capitalDisponivelHoje, capitalNecessario2)) : 0;
-  
-  // Cenário 3 (5 anos depois)
-  const meses_acumulacao_3 = (idadeAposentadoria3 - idade_atual) * 12;
-  const aporteMensal3 = meses_acumulacao_3 > 0 ? 
-    Math.abs(PMT(taxa_mensal_real, meses_acumulacao_3, -capitalDisponivelHoje, capitalNecessario3)) : 0;
-
-  // Cálculo do fluxo de capital 
-  const fluxoCapital = [];
-  const ano_final = expectativa_de_vida;
-  
-  // Gerar dados de projeção para todos os anos
-  for (let ano = 0, idade = idade_atual; idade <= ano_final; ano++, idade++) {
-    // Calcular valor para cada cenário
-    let capital1, capital2, capital3;
+  const calculaAporteMensal = (idadeAposentadoria: number, capitalNecessario: number) => {
+    // Quantidade de aportes
+    const meses_acumulacao = (idadeAposentadoria - idade_atual) * 12;
     
-    // Iniciar com o valor atual
-    if (ano === 0) {
-      capital1 = capital2 = capital3 = capitalDisponivelHoje;
-    } else {
-      // Obter valores do ano anterior
-      const prevYear = fluxoCapital[ano - 1];
-      capital1 = prevYear.capital1;
-      capital2 = prevYear.capital2;
-      capital3 = prevYear.capital3;
-      
-      // Fase de acumulação: incremento com aportes e rendimentos
-      if (idade < idadeAposentadoria1) {
-        // Todos os cenários estão em fase de acumulação
-        capital1 = capital1 * (1 + rentabilidade_real_liquida_acumulacao) + (capital_disponivel_mensal * 12);
-        capital2 = capital2 * (1 + rentabilidade_real_liquida_acumulacao) + (capital_disponivel_mensal * 12);
-        capital3 = capital3 * (1 + rentabilidade_real_liquida_acumulacao) + (capital_disponivel_mensal * 12);
-      } else if (idade < idadeAposentadoria2) {
-        // Cenário 1 está em consumo, 2 e 3 em acumulação
-        capital1 = capital1 * (1 + rentabilidade_real_liquida_consumo) - (saque_mensal_desejado * 12);
-        capital2 = capital2 * (1 + rentabilidade_real_liquida_acumulacao) + (capital_disponivel_mensal * 12);
-        capital3 = capital3 * (1 + rentabilidade_real_liquida_acumulacao) + (capital_disponivel_mensal * 12);
-      } else if (idade < idadeAposentadoria3) {
-        // Cenários 1 e 2 estão em consumo, 3 em acumulação
-        capital1 = capital1 * (1 + rentabilidade_real_liquida_consumo) - (saque_mensal_desejado * 12);
-        capital2 = capital2 * (1 + rentabilidade_real_liquida_consumo) - (saque_mensal_desejado * 12);
-        capital3 = capital3 * (1 + rentabilidade_real_liquida_acumulacao) + (capital_disponivel_mensal * 12);
-      } else {
-        // Todos os cenários estão em consumo
-        capital1 = capital1 * (1 + rentabilidade_real_liquida_consumo) - (saque_mensal_desejado * 12);
-        capital2 = capital2 * (1 + rentabilidade_real_liquida_consumo) - (saque_mensal_desejado * 12);
-        capital3 = capital3 * (1 + rentabilidade_real_liquida_consumo) - (saque_mensal_desejado * 12);
-      }
-      
-      // Garantir que capital não fique negativo
-      capital1 = Math.max(0, capital1);
-      capital2 = Math.max(0, capital2);
-      capital3 = Math.max(0, capital3);
+    if (meses_acumulacao <= 0) return 0;
+    
+    // Calcula o aporte mensal usando a função PMT
+    return Math.abs(PMT(
+      taxa_mensal_real,
+      meses_acumulacao,
+      -capitalDisponivelHoje,
+      capitalNecessario
+    ));
+  };
+  
+  // Cálculo dos aportes mensais para cada cenário
+  const aporteMensal1 = calculaAporteMensal(idadeAposentadoria1, capitalNecessario1);
+  const aporteMensal2 = calculaAporteMensal(idadeAposentadoria2, capitalNecessario2);
+  const aporteMensal3 = calculaAporteMensal(idadeAposentadoria3, capitalNecessario3);
+  
+  // Função para calcular a duração do capital
+  const calcularDuracaoCapital = (idadeAposentadoria: number, capitalInicial: number): DuracaoCapital => {
+    // Saque anual
+    const saqueAnual = saque_mensal_desejado * 12;
+    
+    // Se não houver saque, o capital dura para sempre
+    if (saqueAnual <= 0) {
+      return {
+        idadeFinal: expectativa_de_vida,
+        duracaoAnos: expectativa_de_vida - idadeAposentadoria
+      };
     }
     
-    // Adicionar ao fluxo de capital
-    fluxoCapital.push({
+    // Simulação ano a ano para determinar quando o capital acaba
+    let capital = capitalInicial;
+    let idadeAtual = idadeAposentadoria;
+    
+    while (capital > 0 && idadeAtual < expectativa_de_vida) {
+      // Rendimento anual
+      const rendimento = capital * rentabilidade_real_liquida_consumo;
+      
+      // Atualiza o capital
+      capital = capital + rendimento - saqueAnual;
+      
+      // Avança para o próximo ano
+      idadeAtual++;
+      
+      // Se o capital ficar negativo, considera esgotado no ano anterior
+      if (capital <= 0) {
+        return {
+          idadeFinal: idadeAtual - 1,
+          duracaoAnos: (idadeAtual - 1) - idadeAposentadoria
+        };
+      }
+    }
+    
+    // Se chegou até aqui, o capital durou até a expectativa de vida
+    return {
+      idadeFinal: expectativa_de_vida,
+      duracaoAnos: expectativa_de_vida - idadeAposentadoria
+    };
+  };
+  
+  // Simular o fluxo de capital de cada cenário
+  const simularFluxoCapital = (idadeAposentadoria: number, aporteMensal: number) => {
+    const fluxo = [];
+    let capital = capitalDisponivelHoje;
+    let idade = idade_atual;
+    
+    // Fase de acumulação
+    while (idade < idadeAposentadoria) {
+      // Registra o capital no início do ano (antes de rendimentos e aportes)
+      fluxo.push({
+        idade,
+        capital
+      });
+      
+      // Rendimento do ano
+      const rendimento = capital * rentabilidade_real_liquida_acumulacao;
+      
+      // Aporte anual
+      const aporteAnual = aporteMensal * 12;
+      
+      // Capital no final do ano
+      capital = capital + rendimento + aporteAnual;
+      idade++;
+    }
+    
+    // Fase de consumo
+    const saqueAnual = saque_mensal_desejado * 12;
+    let idadeEsgotamento = null;
+    
+    while (idade <= expectativa_de_vida) {
+      // Registra o capital atual
+      fluxo.push({
+        idade,
+        capital: capital > 0 ? capital : 0
+      });
+      
+      // Se o capital já acabou, apenas continua com zero
+      if (capital <= 0) {
+        if (idadeEsgotamento === null) {
+          idadeEsgotamento = idade;
+        }
+        idade++;
+        continue;
+      }
+      
+      // Rendimento do ano
+      const rendimento = capital * rentabilidade_real_liquida_consumo;
+      
+      // Atualiza o capital
+      capital = capital + rendimento - saqueAnual;
+      idade++;
+    }
+    
+    return {
+      fluxo,
+      idadeEsgotamento
+    };
+  };
+  
+  // Gera o fluxo de capital para cada cenário
+  const resultado1 = simularFluxoCapital(idadeAposentadoria1, aporteMensal1);
+  const resultado2 = simularFluxoCapital(idadeAposentadoria2, aporteMensal2);
+  const resultado3 = simularFluxoCapital(idadeAposentadoria3, aporteMensal3);
+  
+  const fluxoCapital1 = resultado1.fluxo;
+  const fluxoCapital2 = resultado2.fluxo;
+  const fluxoCapital3 = resultado3.fluxo;
+  
+  // Calcula a duração do capital em cada cenário
+  // Garantindo que durante a aposentadoria, o capital seja utilizado
+  const capitalInicioAposentadoria1 = fluxoCapital1.find(item => item.idade === idadeAposentadoria1)?.capital || 0;
+  const capitalInicioAposentadoria2 = fluxoCapital2.find(item => item.idade === idadeAposentadoria2)?.capital || 0;
+  const capitalInicioAposentadoria3 = fluxoCapital3.find(item => item.idade === idadeAposentadoria3)?.capital || 0;
+  
+  const duracaoCapital1 = calcularDuracaoCapital(idadeAposentadoria1, capitalInicioAposentadoria1);
+  const duracaoCapital2 = calcularDuracaoCapital(idadeAposentadoria2, capitalInicioAposentadoria2);
+  const duracaoCapital3 = calcularDuracaoCapital(idadeAposentadoria3, capitalInicioAposentadoria3);
+  
+  // Combina os fluxos de capital para o gráfico
+  const fluxoCapitalCombinado = [];
+  for (let idade = idade_atual; idade <= expectativa_de_vida; idade++) {
+    // Encontra os dados correspondentes em cada fluxo
+    const item1 = fluxoCapital1.find(item => item.idade === idade);
+    const item2 = fluxoCapital2.find(item => item.idade === idade);
+    const item3 = fluxoCapital3.find(item => item.idade === idade);
+    
+    fluxoCapitalCombinado.push({
       age: idade,
-      capital1: Math.round(capital1),
-      capital2: Math.round(capital2),
-      capital3: Math.round(capital3)
+      capital1: Math.round(item1?.capital || 0),
+      capital2: Math.round(item2?.capital || 0),
+      capital3: Math.round(item3?.capital || 0)
     });
   }
   
   return {
-    fluxoCapital,
+    fluxoCapital: fluxoCapitalCombinado,
     idadeAposentadoria1,
     idadeAposentadoria2,
     idadeAposentadoria3,
@@ -175,7 +252,10 @@ const calculateRetirementProjection = (
     aporteMensal3,
     duracaoCapital1,
     duracaoCapital2,
-    duracaoCapital3
+    duracaoCapital3,
+    idadeEsgotamento1: resultado1.idadeEsgotamento,
+    idadeEsgotamento2: resultado2.idadeEsgotamento,
+    idadeEsgotamento3: resultado3.idadeEsgotamento
   };
 };
 
@@ -214,24 +294,56 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
   inflationRate
 }) => {
   const [selectedView, setSelectedView] = useState<'completo' | '10anos' | '20anos' | '30anos'>('completo');
-  const [taxaRetorno, setTaxaRetorno] = useState<number>(0.03); // 3% real ao ano por default
+  const [taxaRetorno, setTaxaRetorno] = useState<number>(0.03); // 3% real ao ano como valor inicial
   const [rendaMensal, setRendaMensal] = useState<number>(targetAmount / 12);
+  const [idadeEstimada, setIdadeEstimada] = useState<number>(100); // Idade fixa em 100 anos
+  
+  // Função para validar a idade estimada
+  const handleIdadeEstimadaChange = (valor: string) => {
+    const idadeDigitada = parseInt(valor) || 100;
+    // Se o usuario estiver editando o campo, permitir a edição
+    // Apenas ao terminar a edição (perder o foco do campo) validamos o valor mínimo
+    setIdadeEstimada(idadeDigitada);
+  };
+  
+  // Função para validar a idade mínima ao perder o foco
+  const handleIdadeEstimadaBlur = () => {
+    const idadeMinima = retirementAge + 10; // Idade de aposentadoria + 5 anos do cenário mais tardio
+    if (idadeEstimada < idadeMinima) {
+      setIdadeEstimada(idadeMinima);
+    }
+  };
+  
+  // Verificar se é necessário atualizar a idadeEstimada quando o retirementAge mudar
+  useEffect(() => {
+    const idadeMinima = retirementAge + 10; // Idade mínima baseada na maior idade de aposentadoria + 5 anos
+    if (idadeEstimada < idadeMinima) {
+      setIdadeEstimada(idadeMinima);
+    }
+  }, [retirementAge]); // Remover idadeEstimada da dependência para evitar loops
+  
+  // Certifique-se de que o domínio do eixo X inclua todas as idades até 100
+  const xDomain = React.useMemo(() => {
+    return [currentAge, 100]; // Fixado em 100 anos
+  }, [currentAge]);
   
   // Calcular projeção baseada nas propriedades e nos estados
   const projection = React.useMemo(() => {
     return calculateRetirementProjection(
       currentAge,
       retirementAge,
-      lifeExpectancy,
+      100, // Fixado em 100 anos para garantir consistência
       currentPortfolio,
       monthlyContribution,
       rendaMensal,
       taxaRetorno,
-      taxaRetorno * 0.7 // Taxa reduzida para fase de consumo
+      taxaRetorno * 0.8 // Taxa reduzida para fase de consumo (80% da acumulação)
     );
-  }, [currentAge, retirementAge, lifeExpectancy, currentPortfolio, monthlyContribution, rendaMensal, taxaRetorno]);
+  }, [currentAge, retirementAge, currentPortfolio, monthlyContribution, rendaMensal, taxaRetorno]);
   
   const filteredData = React.useMemo(() => {
+    // Certifique-se de que todos os pontos até a expectativa de vida são exibidos
+    // mesmo que o capital tenha se esgotado antes
     if (selectedView === '10anos') {
       return projection.fluxoCapital.filter(item => item.age <= currentAge + 10);
     } else if (selectedView === '20anos') {
@@ -296,7 +408,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
             </ToggleGroup>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="taxaRetorno">Taxa de Retorno Real (% a.a.)</Label>
               <div className="flex items-center gap-2">
@@ -304,7 +416,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                   id="taxaRetorno"
                   value={[taxaRetorno * 100]}
                   min={1}
-                  max={7}
+                  max={5}
                   step={0.1}
                   onValueChange={(value) => setTaxaRetorno(value[0] / 100)}
                   className="flex-1"
@@ -321,6 +433,19 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                 value={rendaMensal}
                 onChange={(e) => setRendaMensal(parseFloat(e.target.value) || 0)}
                 className="h-9"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="idadeEstimada">Idade Estimada</Label>
+              <Input
+                id="idadeEstimada"
+                type="number"
+                value={idadeEstimada}
+                onChange={(e) => handleIdadeEstimadaChange(e.target.value)}
+                onBlur={handleIdadeEstimadaBlur}
+                className="h-9"
+                disabled
               />
             </div>
           </div>
@@ -343,6 +468,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                 tickLine={{ stroke: '#9CA3AF' }}
                 axisLine={{ stroke: '#d1d5db' }}
                 padding={{ left: 10, right: 10 }}
+                domain={xDomain}
               />
               <YAxis 
                 tickFormatter={formatYAxis} 
@@ -462,7 +588,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                 <th className="py-2 px-3 text-right font-medium">Aporte Mensal</th>
                 <th className="py-2 px-3 text-right font-medium">Capital Necessário</th>
                 <th className="py-2 px-3 text-right font-medium">Retirada Mensal</th>
-                <th className="py-2 px-3 text-right font-medium">Duração Estimada</th>
+                <th className="py-2 px-3 text-right font-medium">Duração do Patrimônio</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -471,30 +597,42 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                   <div className="w-3 h-3 rounded-full bg-[#0EA5E9] mr-2"></div>
                   <span>5 anos antes ({projection.idadeAposentadoria1} anos)</span>
                 </td>
-                <td className="py-2 px-3 text-right">{projection.aporteMensal1 <= 0 ? 'R$ 0' : formatCurrency(projection.aporteMensal1)}</td>
-                <td className="py-2 px-3 text-right">{formatCurrency(projection.capitalNecessario1)}</td>
+                <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.aporteMensal1))}</td>
+                <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.capitalNecessario1))}</td>
                 <td className="py-2 px-3 text-right">{formatCurrency(rendaMensal)}</td>
-                <td className="py-2 px-3 text-right">Até {projection.duracaoCapital1} anos de idade</td>
+                <td className="py-2 px-3 text-right">
+                  {projection.idadeEsgotamento1 
+                    ? `Dura até os ${projection.idadeEsgotamento1} anos de idade` 
+                    : `Dura até os ${100} anos de idade`}
+                </td>
               </tr>
               <tr>
                 <td className="py-2 px-3 flex items-center">
                   <div className="w-3 h-3 rounded-full bg-[#7EC866] mr-2"></div>
                   <span>No prazo desejado ({projection.idadeAposentadoria2} anos)</span>
                 </td>
-                <td className="py-2 px-3 text-right">{projection.aporteMensal2 <= 0 ? 'R$ 0' : formatCurrency(projection.aporteMensal2)}</td>
-                <td className="py-2 px-3 text-right">{formatCurrency(projection.capitalNecessario2)}</td>
+                <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.aporteMensal2))}</td>
+                <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.capitalNecessario2))}</td>
                 <td className="py-2 px-3 text-right">{formatCurrency(rendaMensal)}</td>
-                <td className="py-2 px-3 text-right">Até {projection.duracaoCapital2} anos de idade</td>
+                <td className="py-2 px-3 text-right">
+                  {projection.idadeEsgotamento2 
+                    ? `Dura até os ${projection.idadeEsgotamento2} anos de idade` 
+                    : `Dura até os ${100} anos de idade`}
+                </td>
               </tr>
               <tr className="bg-muted/10">
                 <td className="py-2 px-3 flex items-center">
                   <div className="w-3 h-3 rounded-full bg-black mr-2"></div>
                   <span>5 anos depois ({projection.idadeAposentadoria3} anos)</span>
                 </td>
-                <td className="py-2 px-3 text-right">{projection.aporteMensal3 <= 0 ? 'R$ 0' : formatCurrency(projection.aporteMensal3)}</td>
-                <td className="py-2 px-3 text-right">{formatCurrency(projection.capitalNecessario3)}</td>
+                <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.aporteMensal3))}</td>
+                <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.capitalNecessario3))}</td>
                 <td className="py-2 px-3 text-right">{formatCurrency(rendaMensal)}</td>
-                <td className="py-2 px-3 text-right">Até {projection.duracaoCapital3} anos de idade</td>
+                <td className="py-2 px-3 text-right">
+                  {projection.idadeEsgotamento3
+                    ? `Dura até os ${projection.idadeEsgotamento3} anos de idade` 
+                    : `Dura até os ${100} anos de idade`}
+                </td>
               </tr>
             </tbody>
           </table>

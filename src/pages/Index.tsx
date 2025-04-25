@@ -24,33 +24,36 @@ const IndexPage = () => {
 
   const getClientData = () => ({
     cliente: {
-      nome: user?.nome || "Nome não disponível",
-      idade: user?.idade || 0,
-      estadoCivil: user?.estado_civil || "Não informado",
-      regimeCasamento: user?.regime_casamento || "Não informado",
-      residencia: user?.uf || "Não informado"
+      nome: userReports?.cliente?.nome || "Nome não disponível",
+      idade: userReports?.cliente?.idade || 0,
+      estadoCivil: userReports?.cliente?.estadoCivil || "Não informado",
+      regimeCasamento: userReports?.cliente?.regimeCasamento || "Não informado",
+      residencia: userReports?.cliente?.residencia || "Não informado"
     },
     financas: {
       patrimonioLiquido: userReports?.financas?.resumo?.patrimonio_liquido || 0,
       excedenteMensal: userReports?.financas?.resumo?.excedente_mensal || 0,
-      rendaMensal: {
-        clt: userReports?.financas?.rendas?.find(r => r.fonte === "Salário")?.valor || 0,
-        dividendos: 0, // Not specified in userReports
-        total: userReports?.financas?.rendas?.reduce((sum, renda) => sum + renda.valor, 0) || 0
-      },
+      rendas: userReports?.financas?.rendas,
       despesasMensais: userReports?.financas?.resumo?.despesas_mensais || 0,
       composicaoPatrimonial: {
         imoveis: userReports?.financas?.composicao_patrimonial?.Imóveis || 0,
         investimentos: userReports?.financas?.composicao_patrimonial?.Investimentos || 0,
       },
       ativos: [
-        ...(userReports?.financas?.ativos?.filter(a => a.tipo === "Imóvel")?.map(a => ({
+        ...(userReports?.financas?.ativos?.filter(a => a.tipo === "Imóveis")?.map(a => ({
           tipo: a.tipo,
-          valor: a.valor
+          valor: a.valor,
+          classe: a.classe
         })) || []),
         ...(userReports?.financas?.ativos?.filter(a => a.tipo === "Investimentos")?.map(a => ({
-          tipo: `${a.tipo} (${a.classe})`,
-          valor: a.valor
+          tipo: a.tipo,
+          valor: a.valor,
+          classe: a.classe
+        })) || []),
+        ...(userReports?.financas?.ativos?.filter(a => a.tipo === "Participação em empresa")?.map(a => ({
+          tipo: a.tipo,
+          valor: a.valor,
+          classe: a.classe
         })) || [])
       ],
       passivos: [
@@ -61,55 +64,55 @@ const IndexPage = () => {
       ]
     },
     aposentadoria: {
-      // Basic financial info
       patrimonioLiquido: userReports?.financas?.resumo?.patrimonio_liquido || 0,
       excedenteMensal: userReports?.financas?.resumo?.excedente_mensal || 0,
       totalInvestido: userReports?.financas?.composicao_patrimonial?.Investimentos || 0,
 
-      // Retirement goals
       rendaMensalDesejada: userReports?.planoAposentadoria?.renda_desejada || 0,
       idadeAposentadoria: userReports?.planoAposentadoria?.idade_aposentadoria || 0,
       patrimonioAlvo: userReports?.planoAposentadoria?.capital_necessario || 0,
 
-      // Additional useful fields from planoAposentadoria
       idadeAtual: userReports?.planoAposentadoria?.idade_atual || 0,
       expectativaVida: userReports?.planoAposentadoria?.expectativa_vida || 0,
 
-      // Retirement scenarios
       cenarios: userReports?.planoAposentadoria?.cenarios?.map(c => ({
         idade: c.idade_aposentadoria,
         aporteMensal: c.aporte_mensal,
         capitalNecessario: c.capital_necessario
       })) || [],
 
-      // Investment allocation info
-      perfilInvestidor: userReports?.perfil_investidor || "Moderado",
+      perfilInvestidor: userReports?.perfil_investidor || "Agressivo",
       alocacaoAtivos: userReports?.alocacao_ativos?.composicao?.map(a => ({
         ativo: a.ativo,
         percentual: a.percentual
       })) || [],
 
-      // Projection calculations
       anosRestantes: (userReports?.planoAposentadoria?.idade_aposentadoria || 0) -
         (userReports?.planoAposentadoria?.idade_atual || 0),
       aporteMensalRecomendado: userReports?.planoAposentadoria?.cenarios?.[0]?.aporte_mensal || 0,
 
-      // Social security considerations
-      temPrevidenciaSocial: false, // Could be added to userReports if available
-      valorPrevidenciaSocial: 0,   // Could be added to userReports if available
+      temPrevidenciaSocial: false,
+      valorPrevidenciaSocial: 0,
 
-      // Tax optimization
       possuiPGBL: userReports?.tributario?.deducoes?.some(d => d.tipo === "PGBL") || false,
       valorPGBL: userReports?.tributario?.deducoes?.find(d => d.tipo === "PGBL")?.valor || 0,
 
-      // Additional metrics
-      taxaRetiradaSegura: 0.04, // 4% safe withdrawal rate
-      taxaInflacao: 0.035,      // 3.5% inflation assumption
-      taxaJurosReal: 0.04       // 4% real return assumption
+      taxaRetiradaSegura: 0.04,
+      taxaInflacao: 0.035,
+      taxaJurosReal: 0.04
     },
     objetivos: [
-      { tipo: "Aposentadoria", valor: `R$ ${userReports?.planoAposentadoria?.renda_desejada || 0} mensais`, prazo: `aos ${userReports?.planoAposentadoria?.idade_aposentadoria || 0} anos` },
-      { tipo: "Casa de praia", valor: 0, prazo: "5 anos" },
+      {
+        tipo: "Compra de imóvel",
+        valor: `R$ ${userReports?.objetivos?.[0]?.valor || 0}`,
+        prazo: userReports?.objetivos?.[0]?.prazo || "Não informado",
+        prioridade: userReports?.objetivos?.[0]?.prioridade || "Não informada"
+      },
+      {
+        tipo: "Aposentadoria",
+        valor: `R$ ${userReports?.planoAposentadoria?.renda_desejada || 0} mensais`,
+        prazo: `aos ${userReports?.planoAposentadoria?.idade_aposentadoria || 0} anos`
+      },
       { tipo: "Proteção patrimonial e sucessória", prazo: "imediato" },
       { tipo: "Otimização fiscal", prazo: "imediato" }
     ],
@@ -143,42 +146,30 @@ const IndexPage = () => {
     tributario: {
       resumo: {
         objetivo: userReports?.tributario?.resumo?.objetivo || "",
-        potencialEconomia: "Até 50% de redução em impostos",
-        prazoImplementacao: "90 dias"
+        potencialEconomia: userReports?.tributario?.economiaTributaria?.economia || null,
+        prazoImplementacao: userReports?.tributario?.resumo?.prazoImplementacao || null
       },
-      estruturacaoPatrimonial: [
-        "Holding Familiar",
-        "Previdência VGBL",
-        "Doações com usufruto"
-      ],
-      investimentosIsentos: [
-        { "tipo": "LCI/LCA", "limite": "Até R$250 mil por CPF", "tributacao": "Isento de IR" },
-        { "tipo": "Dividendos de ações", "limite": "Sem limite", "tributacao": "Isento de IR" },
-        { "tipo": "FIIs", "limite": "Sem limite para pessoa física", "tributacao": "Isento de IR para dividendos" }
-      ],
-      deducoes: [
-        { "tipo": "PGBL", "percentual": "12% da renda tributável", "valor": "R$ 36.000/ano", "beneficio": "Dedução na base de cálculo do IR" },
-        { "tipo": "Dependentes", "quantidade": "2 filhos", "valor": "R$ 4.550/ano", "beneficio": "Dedução na base de cálculo do IR" },
-        { "tipo": "Despesas médicas", "limite": "Sem limite", "beneficio": "Dedução integral na base de cálculo do IR" }
-      ],
+      estruturacaoPatrimonial: userReports?.tributario?.estruturacaoPatrimonial || [],
+      investimentosIsentos: userReports?.tributario?.investimentosIsentos || [],
+      deducoes: userReports?.tributario?.deducoes?.map(d => ({
+        tipo: d.tipo,
+        percentual: d.percentual,
+        valor: d.valor,
+        beneficio: d.beneficio
+      })) || [],
       holdingFamiliar: {
-        "descricao": "Estrutura societária para centralização de bens e investimentos da família",
-        "custoConstrucao": 30000,
-        "tempoImplementacao": "60-90 dias",
-        "beneficios": [
-          "Redução de ITCMD (imposto sobre herança)",
-          "Simplificação do processo de inventário",
-          "Proteção patrimonial contra credores",
-          "Gestão centralizada dos ativos familiares"
-        ],
-        "recomendacao": "Recomendado para os imóveis e participação empresarial, representando 75% do patrimônio total"
+        descricao: userReports?.tributario?.holdingFamiliar?.descricao || "",
+        custoConstrucao: userReports?.tributario?.holdingFamiliar?.custoConstrucao || null,
+        tempoImplementacao: userReports?.tributario?.holdingFamiliar?.tempoImplementacao || null,
+        beneficios: userReports?.tributario?.holdingFamiliar?.beneficios || [],
+        recomendacao: userReports?.tributario?.holdingFamiliar?.recomendacao || ""
       },
       previdenciaVGBL: {
         "descricao": "Produto financeiro com vantagens tributárias e sucessórias",
-        "valorAtual": 300000,
+        "valorAtual": 3000001,
         "recomendacaoAdicional": "Aumento de aportes para otimização fiscal",
         "vantagensSucessorias": [
-          "Não entra em inventário (pagamento via beneficiários indicados)",
+          "Não entra em inventáriddddo (pagamento via beneficiários indicados)",
           "Tributa apenas o rendimento (não o capital principal)",
           "Tabela regressiva de IR (mínimo 10% após 10 anos)"
         ]
@@ -192,15 +183,11 @@ const IndexPage = () => {
         }
       },
       economiaTributaria: {
-        "semPlanejamento": 320000,
-        "comPlanejamento": 160000,
-        "economia": 160000,
-        "periodoEstimado": "10 anos",
-        "itensConsiderados": [
-          "ITCMD em sucessão",
-          "IR sobre ganho de capital",
-          "Otimização de deduções fiscais"
-        ]
+        semPlanejamento: userReports?.tributario?.economiaTributaria?.semPlanejamento?.totalImpostos || null,
+        comPlanejamento: userReports?.tributario?.economiaTributaria?.comPlanejamento?.totalImpostos || null,
+        economia: userReports?.tributario?.economiaTributaria?.economia || null,
+        periodoEstimado: userReports?.tributario?.economiaTributaria?.periodoEstimado || null,
+        itensConsiderados: userReports?.tributario?.economiaTributaria?.itensConsiderados || []
       }
     },
     protecao: {

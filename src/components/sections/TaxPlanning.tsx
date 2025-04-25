@@ -158,7 +158,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
                   <li key={index} className="border-b border-border/50 last:border-0 py-2">
                     <div className="flex justify-between mb-1">
                       <span className="font-medium">{deducao.tipo}</span>
-                      <span className="text-financial-success">{deducao.valor}</span>
+                      <span className="text-financial-success">{ formatCurrency(deducao.valor)} </span>
                     </div>
                     <p className="text-sm text-muted-foreground">{deducao.beneficio}</p>
                   </li>
@@ -358,91 +358,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
           </HideableCard>
         </div>
 
-        {/* VGBL Pension and Italian Citizenship */}
-        <div className="mb-8 grid md:grid-cols-2 gap-6 animate-on-scroll delay-6">
-          {/* VGBL Pension */}
-          <HideableCard
-            id="previdencia-vgbl"
-            isVisible={isCardVisible("previdencia-vgbl")}
-            onToggleVisibility={() => toggleCardVisibility("previdencia-vgbl")}
-          >
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <PiggyBank size={18} className="text-financial-info" />
-                Previdência VGBL
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">{tributario.previdenciaVGBL.descricao}</p>
-              
-              <div className="flex justify-between items-center py-2">
-                <span className="text-sm">Valor Atual</span>
-                <span className="font-medium">{formatCurrency(tributario.previdenciaVGBL.valorAtual)}</span>
-              </div>
-              
-              <div className="bg-financial-info/10 rounded-md p-3">
-                <h4 className="font-medium text-financial-info mb-2">Vantagens Sucessórias</h4>
-                <ul className="space-y-1">
-                  {tributario.previdenciaVGBL.vantagensSucessorias.map((vantagem: string, index: number) => (
-                    <li key={index} className="text-sm flex items-start gap-2">
-                      <ChevronRight size={16} className="mt-0.5 flex-shrink-0 text-financial-info" />
-                      <span>{vantagem}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div className="pt-2">
-                <StatusChip 
-                  status="info" 
-                  label={tributario.previdenciaVGBL.recomendacaoAdicional} 
-                />
-              </div>
-            </CardContent>
-          </HideableCard>
-
-          {/* Italian Citizenship */}
-          <HideableCard
-            id="cidadania-italiana"
-            isVisible={isCardVisible("cidadania-italiana")}
-            onToggleVisibility={() => toggleCardVisibility("cidadania-italiana")}
-          >
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg flex items-center gap-2">
-                <FileText size={18} className="text-financial-info" />
-                Cidadania Italiana
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex justify-between items-center mb-4">
-                <span className="text-sm">Status</span>
-                <StatusChip 
-                  status="warning" 
-                  label={tributario.cidadaniaItaliana.status} 
-                />
-              </div>
-              
-              <h4 className="font-medium mb-2">Implicações Fiscais</h4>
-              <div className="space-y-2">
-                <div className="bg-muted/50 p-2.5 rounded-md flex justify-between">
-                  <span className="text-sm">Imposto Brasil (SP)</span>
-                  <span className="font-medium">{tributario.cidadaniaItaliana.implicacoesFiscais.impostoBrasilSP}</span>
-                </div>
-                <div className="bg-muted/50 p-2.5 rounded-md flex justify-between">
-                  <span className="text-sm">Imposto Itália</span>
-                  <span className="font-medium">{tributario.cidadaniaItaliana.implicacoesFiscais.impostoItalia}</span>
-                </div>
-              </div>
-              
-              <div className="mt-4 p-3 border border-border/50 rounded-md bg-muted/10">
-                <p className="text-sm">
-                  <span className="font-medium">Oportunidade: </span>
-                  {tributario.cidadaniaItaliana.implicacoesFiscais.oportunidades}
-                </p>
-              </div>
-            </CardContent>
-          </HideableCard>
-        </div>
+      
       </div>
     </section>
   );

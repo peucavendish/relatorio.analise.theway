@@ -224,12 +224,12 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
             </CardHeader>
             <CardContent>
               <RetirementProjectionChart
-                currentAge={data?.idadeAtual || 0}
+                currentAge={data?.idadeAtual || 30}
                 retirementAge={data?.idadeAposentadoria || 65}
                 lifeExpectancy={data?.expectativaVida || 100}
-                currentPortfolio={data?.totalInvestido || 0}
-                monthlyContribution={data?.aporteMensalRecomendado || 0}
-                targetAmount={data?.patrimonioAlvo || 0}
+                currentPortfolio={data?.totalInvestido || 1000000}
+                monthlyContribution={data?.excedenteMensal || 10000}
+                targetAmount={data?.patrimonioAlvo || 5000000}
                 safeWithdrawalRate={data?.taxaRetiradaSegura || 0.04}
                 inflationRate={data?.taxaInflacao || 0.035}
                 scenarios={data?.cenarios || []}

@@ -86,10 +86,10 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
           <div className="inline-block">
             <div className="flex items-center justify-center mb-4">
               <div className="bg-accent/10 p-3 rounded-full">
-                <Umbrella size={28} className="text-accent" />
+                <Home size={28} className="text-accent" />
               </div>
             </div>
-            <h2 className="text-4xl font-bold mb-3">Imóvel</h2>
+            <h2 className="text-4xl font-bold mb-3">Oportunidades em imóveis</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Estratégias para aquisição de um imóvel desejada, otimizando o investimento e preservando o planejamento financeiro.
             </p>

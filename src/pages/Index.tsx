@@ -485,7 +485,7 @@ const IndexPage = () => {
         const sessionId = urlParams.get('sessionId');
 
         if (sessionId) {
-          const apiUrl = 'http://localhost/api/data-extract/';
+          const apiUrl = 'https://homolog.theway.altavistainvest.com.br/api/data-extract/';
           const response = await axios.get(`${apiUrl}${sessionId}`);
           setUser(response.data[0]);
         }
@@ -509,7 +509,7 @@ const IndexPage = () => {
         const sessionId = urlParams.get('sessionId');
 
         if (sessionId) {
-          const apiUrl = 'http://localhost/api/client-reports/';
+          const apiUrl = 'https://homolog.theway.altavistainvest.com.br/api/data-extract/';
           const response = await axios.get(`${apiUrl}${sessionId}`);
 
           const reportData = JSON.parse(response.data[0].report_data);

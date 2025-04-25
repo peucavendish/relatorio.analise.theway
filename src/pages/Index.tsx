@@ -485,11 +485,10 @@ const IndexPage = () => {
         const sessionId = urlParams.get('sessionId');
 
         if (sessionId) {
-          const apiUrl = 'http://localhost/api/data-extract/';
-          const response = await axios.get(`${apiUrl}${sessionId}`);
+          const apiUrl = import.meta.env.VITE_API_THE_WAY;
+          const response = await axios.get(`${apiUrl}/data-extract/${sessionId}`);
           setUser(response.data[0]);
         }
-
       } catch (error) {
         console.error('Error fetching user data:', error);
         if (error.response) {
@@ -509,19 +508,14 @@ const IndexPage = () => {
         const sessionId = urlParams.get('sessionId');
 
         if (sessionId) {
-          const apiUrl = 'http://localhost/api/client-reports/';
-          const response = await axios.get(`${apiUrl}${sessionId}`);
+          const apiUrl = import.meta.env.VITE_API_THE_WAY;
+          const response = await axios.get(`${apiUrl}/client-reports/${sessionId}`);
 
           const reportData = JSON.parse(response.data[0].report_data);
           setUserReports(reportData);
         }
-
       } catch (error) {
         console.error('Error fetching user data:', error);
-        if (error.response) {
-          console.error('Error response:', error.response.data);
-          console.error('Error status:', error.response.status);
-        }
       }
     };
     fetchUserReportsData();

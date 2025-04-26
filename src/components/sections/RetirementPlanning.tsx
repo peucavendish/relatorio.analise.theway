@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart, Wallet, PiggyBank, LineChart, Calculator, Calendar, ArrowRight } from 'lucide-react';
+import { BarChart, Wallet, PiggyBank, LineChart, Calculator, Calendar, ArrowRight, AlertCircle } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import HideableCard from '@/components/ui/HideableCard';
@@ -55,6 +55,41 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
 
   // Get current scenario based on selected retirement age
   const cenarioAtual = data?.cenarios?.find(c => c.idade === data.idadeAposentadoria) || data?.cenarios?.[0];
+
+  // Verifica se o cliente se adequa a algum dos cenários
+  const adequaAosCenarios = () => {
+    if (!data?.cenarios || !data.excedenteMensal) return false;
+    
+    // Verifica se o aporte mensal recomendado é maior que o excedente mensal
+    const cenarioMaisViavel = data.cenarios.reduce((prev, current) => 
+      prev.aporteMensal < current.aporteMensal ? prev : current
+    );
+    
+    return cenarioMaisViavel.aporteMensal <= data.excedenteMensal;
+  };
+
+  // Calcula a porcentagem adicional necessária para atingir o cenário mais viável
+  const calcularPorcentagemFaltante = () => {
+    if (!data?.cenarios || !data.excedenteMensal) return 0;
+    
+    const cenarioMaisViavel = data.cenarios.reduce((prev, current) => 
+      prev.aporteMensal < current.aporteMensal ? prev : current
+    );
+    
+    if (cenarioMaisViavel.aporteMensal <= data.excedenteMensal) return 0;
+    
+    const faltante = cenarioMaisViavel.aporteMensal - data.excedenteMensal;
+    return Math.round((faltante / data.excedenteMensal) * 100);
+  };
+
+  // Calcular redução necessária na renda mensal desejada
+  const calcularReducaoRendaNecessaria = () => {
+    if (!data?.rendaMensalDesejada || !data.excedenteMensal) return 0;
+    
+    // Estimativa básica: quanto precisaria reduzir a renda desejada para que o aporte fosse viável
+    const porcentagemReducao = Math.round((1 - (data.excedenteMensal / (data.aporteMensalRecomendado || 1))) * 100);
+    return porcentagemReducao > 0 ? porcentagemReducao : 0;
+  };
 
   return (
     <section className="min-h-screen py-16 px-4" id="retirement">
@@ -312,16 +347,56 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
                 </div>
               </div>
 
-              <div className="p-4 border border-financial-success/30 bg-financial-success/5 rounded-lg">
-                <h4 className="font-medium text-financial-success mb-2">Projeção da Estratégia</h4>
-                <p className="text-sm">
-                  Seguindo o plano recomendado, você tem <span className="font-medium">alta probabilidade</span> de
-                  atingir seu objetivo de aposentadoria até os {data?.idadeAposentadoria || 0} anos com a renda mensal desejada de
-                  {formatCurrency(data?.rendaMensalDesejada || 0)} por {data?.expectativaVida && data.idadeAposentadoria
-                    ? data.expectativaVida - data.idadeAposentadoria
-                    : 35} anos. Revisões anuais são recomendadas para ajustes conforme necessário.
-                </p>
-              </div>
+              {adequaAosCenarios() ? (
+                // Caso o cliente se adeque aos cenários
+                <div className="p-4 border border-financial-success/30 bg-financial-success/5 rounded-lg">
+                  <h4 className="font-medium text-financial-success mb-2">Projeção da Estratégia</h4>
+                  <p className="text-sm">
+                    Seguindo o plano recomendado, você tem <span className="font-medium">alta probabilidade</span> de
+                    atingir seu objetivo de aposentadoria até os {data?.idadeAposentadoria || 0} anos com a renda mensal desejada de{' '}
+                    {formatCurrency(data?.rendaMensalDesejada || 0)} por {data?.expectativaVida && data.idadeAposentadoria
+                      ? data.expectativaVida - data.idadeAposentadoria
+                      : 35} anos. Revisões anuais são recomendadas para ajustes conforme necessário.
+                  </p>
+                </div>
+              ) : (
+                // Caso o cliente NÃO se adeque aos cenários
+                <div className="space-y-4">
+                  <div className="p-4 border border-financial-warning/30 bg-financial-warning/5 rounded-lg">
+                    <div className="flex items-start gap-3 mb-2">
+                      <AlertCircle className="text-financial-warning h-5 w-5 mt-0.5 flex-shrink-0" />
+                      <h4 className="font-medium text-financial-warning">Ajustes Necessários para Viabilização</h4>
+                    </div>
+                    <p className="text-sm mb-3">
+                      Com base nas projeções, percebemos que será necessário realizar ajustes para 
+                      viabilizar seu plano de aposentadoria. O cenário atual exigiria um aporte mensal {calcularPorcentagemFaltante()}% 
+                      maior do que seu excedente atual permite.
+                    </p>
+                    <div className="space-y-2">
+                      <h5 className="text-sm font-medium">Alternativas a considerar:</h5>
+                      <div className="bg-white/40 p-3 rounded">
+                        <p className="text-sm font-medium">1. Aumentar o tempo para aposentadoria</p>
+                        <p className="text-xs text-muted-foreground">
+                          Postergar a aposentadoria em 5 anos pode reduzir significativamente o aporte mensal necessário.
+                        </p>
+                      </div>
+                      <div className="bg-white/40 p-3 rounded">
+                        <p className="text-sm font-medium">2. Consumo de patrimônio</p>
+                        <p className="text-xs text-muted-foreground">
+                          Considerar a venda de ativos não essenciais para complementar a renda na aposentadoria.
+                        </p>
+                      </div>
+                      <div className="bg-white/40 p-3 rounded">
+                        <p className="text-sm font-medium">3. Redução da renda desejada</p>
+                        <p className="text-xs text-muted-foreground">
+                          Reduzir a renda mensal desejada em aproximadamente {calcularReducaoRendaNecessaria()}% tornaria 
+                          o plano mais viável com seus recursos atuais.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </HideableCard>
         </div>

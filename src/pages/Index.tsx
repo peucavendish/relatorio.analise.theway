@@ -37,23 +37,12 @@ const IndexPage = () => {
       despesasMensais: userReports?.financas?.resumo?.despesas_mensais || 0,
       // Utilizar diretamente a composição patrimonial do JSON, sem transformação
       composicaoPatrimonial: userReports?.financas?.composicao_patrimonial || {},
-      ativos: [
-        ...(userReports?.financas?.ativos?.filter(a => a.tipo === "Imóveis")?.map(a => ({
-          tipo: a.tipo,
-          valor: a.valor,
-          classe: a.classe
-        })) || []),
-        ...(userReports?.financas?.ativos?.filter(a => a.tipo === "Investimentos")?.map(a => ({
-          tipo: a.tipo,
-          valor: a.valor,
-          classe: a.classe
-        })) || []),
-        ...(userReports?.financas?.ativos?.filter(a => a.tipo === "Participação em empresa")?.map(a => ({
-          tipo: a.tipo,
-          valor: a.valor,
-          classe: a.classe
-        })) || [])
-      ],
+      // Processar os ativos de forma dinâmica, independente do tipo
+      ativos: userReports?.financas?.ativos?.map(a => ({
+        tipo: a.tipo,
+        valor: a.valor,
+        classe: a.classe
+      })) || [],
       passivos: userReports?.financas?.passivos || []
     },
     aposentadoria: {
@@ -114,7 +103,7 @@ const IndexPage = () => {
     },
     sucessao: userReports?.sucessao || {},
     planoAcao: {
-      titulo: userReports?.planoAcao?.titulo || "Plano de Ação",
+      titulo: userReports?.planoAcao?.titulo || "Plano de Ação Financeira",
       resumo: userReports?.planoAcao?.resumo || "Plano de ação financeira",
       indicadorSegurancaFinanceira: userReports?.planoAcao?.indicadorSegurancaFinanceira || {},
       cronograma: userReports?.planoAcao?.cronograma || [],

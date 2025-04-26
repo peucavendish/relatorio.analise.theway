@@ -445,7 +445,6 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                 onChange={(e) => handleIdadeEstimadaChange(e.target.value)}
                 onBlur={handleIdadeEstimadaBlur}
                 className="h-9"
-                disabled
               />
             </div>
           </div>

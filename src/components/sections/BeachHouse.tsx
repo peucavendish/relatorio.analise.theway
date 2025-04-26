@@ -11,69 +11,77 @@ interface Strategy {
   estrategia: string;
   parcelaMensal: number;
   totalPago: number;
+  tempoContemplacao?: string;
 }
 
 interface BeachHouseProps {
-  casaPraia?: {
-    objetivo: {
-      valorImovel: number;
-      prazoDesejado: number;
-    };
-    comparativoEstrategias: Strategy[];
-    estrategiaRecomendada: string;
-    vantagens: string[];
-    desvantagens: string[];
-    impactoFinanceiro: {
-      excedenteMensalAtual: number;
-      parcelaConsorcio: number;
-      excedenteMensalApos: number;
-      observacao: string;
+  data?: {
+    imovelDesejado?: {
+      objetivo?: {
+        tipo?: string;
+        localizacao?: string | null;
+        valorImovel?: number;
+        prazoDesejado?: string;
+      };
+      vantagens?: string[];
+      desvantagens?: string[];
+      impactoFinanceiro?: {
+        parcela?: number;
+        observacao?: string;
+        excedenteMensalApos?: number;
+        excedenteMensalAtual?: number;
+      };
+      estrategiaRecomendada?: string;
+      comparativoEstrategias?: Array<{
+        totalPago?: number;
+        estrategia?: string;
+        parcelaMensal?: number;
+        tempoContemplacao?: string;
+      }>;
     };
   };
 }
 
-// Mock data if none provided
-const defaultData = {
-  casaPraia: {
-    objetivo: {
-      valorImovel: 800000,
-      prazoDesejado: 5
-    },
-    comparativoEstrategias: [
-      {estrategia: "Consórcio", parcelaMensal: 5000, totalPago: 960000},
-      {estrategia: "Financiamento", parcelaMensal: 6500, totalPago: 1290000},
-      {estrategia: "Reserva Livre", parcelaMensal: 11000, totalPago: 800000}
-    ],
-    estrategiaRecomendada: "Consórcio",
-    vantagens: [
-      "Sem juros",
-      "Menor custo total",
-      "Flexibilidade para lance"
-    ],
-    desvantagens: [
-      "Tempo de contemplação incerto",
-      "Taxa administrativa"
-    ],
-    impactoFinanceiro: {
-      excedenteMensalAtual: 17000,
-      parcelaConsorcio: 5000,
-      excedenteMensalApos: 12000,
-      observacao: "O consórcio permite manter um excedente mensal significativo para outros objetivos financeiros, principalmente a aposentadoria."
-    }
-  }
-};
-
-const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPraia }) => {
+const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
   const headerRef = useScrollAnimation();
   const objectiveCardRef = useScrollAnimation();
   const strategiesCardRef = useScrollAnimation();
   const impactCardRef = useScrollAnimation();
   const { isCardVisible, toggleCardVisibility } = useCardVisibility();
   
+  // Early return if no data provided
+  if (!data?.imovelDesejado) {
+    return null;
+  }
+
+  const imovelDesejado = data.imovelDesejado;
+  
   // Find details of recommended strategy
-  const recommendedStrategy = casaPraia.comparativoEstrategias.find(
-    s => s.estrategia === casaPraia.estrategiaRecomendada
+  const recommendedStrategy = imovelDesejado.comparativoEstrategias?.find(
+    s => s.estrategia === imovelDesejado.estrategiaRecomendada
   );
+  
+  // Format value based on size
+  const formatImovelValue = (value: number) => {
+    if (value >= 1000000) {
+      // For values 1M and above, use a more compact format
+      return formatCurrency(value).replace(/\s+/g, ' ');
+    }
+    return formatCurrency(value);
+  };
+  
+  // Calculate appropriate text size class based on value length
+  const getValueTextClass = (value: number) => {
+    const valueStr = formatImovelValue(value);
+    
+    if (valueStr.length > 16) {
+      return "text-xl"; // Smallest text for very large values
+    } else if (valueStr.length > 12) {
+      return "text-2xl"; // Medium text for large values
+    }
+    
+    return "text-3xl"; // Default size for regular values
+  };
   
   return (
     <section className="py-16 px-4" id="beach-house">
@@ -91,7 +99,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
             </div>
             <h2 className="text-4xl font-bold mb-3">Oportunidades em imóveis</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Estratégias para aquisição de um imóvel desejada, otimizando o investimento e preservando o planejamento financeiro.
+              Estratégias para aquisição de um imóvel desejado, otimizando o investimento e preservando o planejamento financeiro.
             </p>
           </div>
         </div>
@@ -109,19 +117,19 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
             <CardHeader>
               <CardTitle className="text-2xl font-semibold flex items-center">
                 <Home size={22} className="mr-2 text-accent" />
-                Objetivo: Aquisição de Imóvel
+                Objetivo: Aquisição de {imovelDesejado.objetivo?.tipo || "Imóvel"}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="flex items-center justify-center">
-                  <div className="relative w-48 h-48 bg-accent/5 rounded-full flex items-center justify-center">
+                  <div className="relative w-64 h-64 bg-accent/5 rounded-full flex items-center justify-center">
                     <div className="absolute inset-0 rounded-full border-4 border-dashed border-accent/20 animate-spin-slow"></div>
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-accent">
-                        {formatCurrency(casaPraia.objetivo.valorImovel)}
+                    <div className="text-center px-4">
+                      <div className={`${getValueTextClass(imovelDesejado.objetivo?.valorImovel || 0)} font-bold text-accent break-words`}>
+                        {formatImovelValue(imovelDesejado.objetivo?.valorImovel || 0)}
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
+                      <div className="text-sm text-muted-foreground mt-2">
                         Valor do imóvel
                       </div>
                     </div>
@@ -136,7 +144,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                       <div>
                         <div className="font-medium">Prazo Desejado</div>
                         <div className="text-muted-foreground">
-                          {casaPraia.objetivo.prazoDesejado} anos
+                          {imovelDesejado.objetivo?.prazoDesejado}
                         </div>
                       </div>
                     </li>
@@ -145,7 +153,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                       <div>
                         <div className="font-medium">Estratégia Recomendada</div>
                         <div className="text-muted-foreground">
-                          {casaPraia.estrategiaRecomendada}
+                          {imovelDesejado.estrategiaRecomendada}
                         </div>
                       </div>
                     </li>
@@ -154,7 +162,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                       <div>
                         <div className="font-medium">Valor Mensal</div>
                         <div className="text-muted-foreground">
-                          {recommendedStrategy ? formatCurrency(recommendedStrategy.parcelaMensal) : '-'} / mês
+                          {recommendedStrategy ? formatCurrency(recommendedStrategy.parcelaMensal || 0) : '-'} / mês
                         </div>
                       </div>
                     </li>
@@ -189,14 +197,15 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                       <th className="text-left py-3 px-4">Estratégia</th>
                       <th className="text-right py-3 px-4">Parcela Mensal</th>
                       <th className="text-right py-3 px-4">Total Pago</th>
+                      <th className="text-right py-3 px-4">Tempo Contemplação</th>
                       <th className="text-right py-3 px-4">Diferença</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {casaPraia.comparativoEstrategias.map((strategy, index) => {
-                      const isRecommended = strategy.estrategia === casaPraia.estrategiaRecomendada;
-                      const difference = strategy.totalPago - casaPraia.objetivo.valorImovel;
-                      const percentDifference = ((difference / casaPraia.objetivo.valorImovel) * 100).toFixed(1);
+                    {imovelDesejado.comparativoEstrategias?.map((strategy, index) => {
+                      const isRecommended = strategy.estrategia === imovelDesejado.estrategiaRecomendada;
+                      const difference = (strategy.totalPago || 0) - (imovelDesejado.objetivo?.valorImovel || 0);
+                      const percentDifference = ((difference / (imovelDesejado.objetivo?.valorImovel || 1)) * 100).toFixed(1);
                       
                       return (
                         <tr 
@@ -224,10 +233,13 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                             </div>
                           </td>
                           <td className="py-4 px-4 text-right">
-                            {formatCurrency(strategy.parcelaMensal)}
+                            {formatCurrency(strategy.parcelaMensal || 0)}
                           </td>
                           <td className="py-4 px-4 text-right">
-                            {formatCurrency(strategy.totalPago)}
+                            {formatCurrency(strategy.totalPago || 0)}
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            {strategy.tempoContemplacao}
                           </td>
                           <td className="py-4 px-4 text-right">
                             <div className="flex items-center justify-end">
@@ -254,10 +266,10 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                 <div className="border border-border rounded-lg p-5">
                   <h3 className="font-medium text-lg mb-4 flex items-center">
                     <Check size={18} className="text-financial-success mr-2" />
-                    Vantagens do {casaPraia.estrategiaRecomendada}
+                    Vantagens do {imovelDesejado.estrategiaRecomendada}
                   </h3>
                   <ul className="space-y-2">
-                    {casaPraia.vantagens.map((vantagem, i) => (
+                    {imovelDesejado.vantagens?.map((vantagem, i) => (
                       <li key={i} className="flex items-center">
                         <Check size={16} className="text-financial-success mr-2 shrink-0" />
                         <span>{vantagem}</span>
@@ -269,10 +281,10 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                 <div className="border border-border rounded-lg p-5">
                   <h3 className="font-medium text-lg mb-4 flex items-center">
                     <X size={18} className="text-financial-danger mr-2" />
-                    Desvantagens do {casaPraia.estrategiaRecomendada}
+                    Desvantagens do {imovelDesejado.estrategiaRecomendada}
                   </h3>
                   <ul className="space-y-2">
-                    {casaPraia.desvantagens.map((desvantagem, i) => (
+                    {imovelDesejado.desvantagens?.map((desvantagem, i) => (
                       <li key={i} className="flex items-center">
                         <X size={16} className="text-financial-danger mr-2 shrink-0" />
                         <span>{desvantagem}</span>
@@ -305,7 +317,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
               <div className="flex flex-col md:flex-row items-center justify-center gap-8 mb-6">
                 <div className="text-center">
                   <div className="text-muted-foreground mb-1">Excedente Mensal Atual</div>
-                  <div className="text-2xl font-bold">{formatCurrency(casaPraia.impactoFinanceiro.excedenteMensalAtual)}</div>
+                  <div className="text-2xl font-bold">{formatCurrency(imovelDesejado.impactoFinanceiro?.excedenteMensalAtual || 0)}</div>
                 </div>
                 
                 <div className="flex items-center text-muted-foreground">
@@ -313,9 +325,9 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                 </div>
                 
                 <div className="text-center">
-                  <div className="text-muted-foreground mb-1">Parcela {casaPraia.estrategiaRecomendada}</div>
+                  <div className="text-muted-foreground mb-1">Parcela {imovelDesejado.estrategiaRecomendada}</div>
                   <div className="text-2xl font-bold text-financial-danger">
-                    - {formatCurrency(casaPraia.impactoFinanceiro.parcelaConsorcio)}
+                    - {formatCurrency(imovelDesejado.impactoFinanceiro?.parcela || 0)}
                   </div>
                 </div>
                 
@@ -326,7 +338,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                 <div className="text-center">
                   <div className="text-muted-foreground mb-1">Excedente Mensal Após</div>
                   <div className="text-2xl font-bold text-financial-success">
-                    {formatCurrency(casaPraia.impactoFinanceiro.excedenteMensalApos)}
+                    {formatCurrency(imovelDesejado.impactoFinanceiro?.excedenteMensalApos || 0)}
                   </div>
                 </div>
               </div>
@@ -336,7 +348,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ casaPraia = defaultData.casaPra
                   <Check size={18} className="text-accent mr-2" />
                   Observação
                 </h3>
-                <p>{casaPraia.impactoFinanceiro.observacao}</p>
+                <p>{imovelDesejado.impactoFinanceiro?.observacao}</p>
               </div>
               
               <div className="mt-6">

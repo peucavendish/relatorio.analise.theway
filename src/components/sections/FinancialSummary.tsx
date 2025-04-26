@@ -14,17 +14,38 @@ interface FinanceSummary {
   excedenteMensal: number;
   rendas: Array<{ fonte: string; valor: number; tributacao: string }>;
   despesasMensais: number;
-  composicaoPatrimonial: {
-    imoveis: number;
-    investimentos: number;
-  };
-  ativos: Array<{ tipo: string; valor: number }>;
+  composicaoPatrimonial: Record<string, number>;
+  ativos: Array<{ tipo: string; valor: number; classe?: string }>;
   passivos: Array<{ tipo: string; valor: number }>;
 }
 
 interface FinancialSummaryProps {
   data: FinanceSummary;
 }
+
+// Cores para diferentes tipos de ativos
+const assetColors: Record<string, string> = {
+  'Imóveis': '#60A5FA',         // Azul
+  'Investimentos': '#34D399',   // Verde
+  'Participação em empresa': '#A78BFA', // Roxo
+  'Outros': '#F59E0B',          // Amarelo
+  'Veículos': '#EF4444',        // Vermelho
+  'Obras de arte': '#EC4899',   // Rosa
+  'Joias': '#8B5CF6',           // Índigo
+  'Colecionáveis': '#F97316',   // Laranja
+};
+
+// Função para obter uma cor baseada no tipo de ativo ou gerar uma se não existir
+const getColorForAssetType = (assetType: string): string => {
+  if (assetType in assetColors) {
+    return assetColors[assetType];
+  }
+  
+  // Gera uma cor para tipos não mapeados
+  const hash = assetType.split('').reduce((acc, char) => char.charCodeAt(0) + acc, 0);
+  const hue = hash % 360;
+  return `hsl(${hue}, 70%, 60%)`;
+};
 
 const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
   const headerRef = useScrollAnimation();
@@ -43,23 +64,17 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
   const totalLiabilities = data.passivos.reduce((sum, liability) => sum + liability.valor, 0);
 
   // Calculate total composition for normalization
-  const totalComposition = data.composicaoPatrimonial.imoveis + data.composicaoPatrimonial.investimentos;
+  // Soma todos os valores da composição patrimonial
+  const totalComposition = Object.values(data.composicaoPatrimonial).reduce((sum, value) => sum + value, 0);
 
   // Prepare data for the composition chart
-  const compositionChartData = [
-    {
-      name: 'Imóveis',
-      value: totalComposition > 0 ? Math.round((data.composicaoPatrimonial.imoveis / totalComposition) * 100) : 0,
-      color: '#60A5FA',
-      rawValue: formatCurrency(data.composicaoPatrimonial.imoveis)
-    },
-    {
-      name: 'Investimentos',
-      value: totalComposition > 0 ? Math.round((data.composicaoPatrimonial.investimentos / totalComposition) * 100) : 0,
-      color: '#34D399',
-      rawValue: formatCurrency(data.composicaoPatrimonial.investimentos)
-    },
-  ];
+  // Cria um array com todas as categorias presentes na composição patrimonial
+  const compositionChartData = Object.entries(data.composicaoPatrimonial).map(([key, value]) => ({
+    name: key,
+    value: totalComposition > 0 ? Math.round((value / totalComposition) * 100) : 0,
+    color: getColorForAssetType(key),
+    rawValue: formatCurrency(value)
+  }));
 
   // Get income by source for display
   const getIncomeBySource = (source: string) => {
@@ -192,7 +207,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
                   </div>
                   <StatusChip
                     status={data.excedenteMensal > 0 ? "success" : "danger"}
-                    label={`${Math.round((data.excedenteMensal / totalIncome) * 100)}% da renda`}
+                    label={`${totalIncome > 0 ? Math.round((data.excedenteMensal / totalIncome) * 100) : 0}% da renda`}
                   />
                 </div>
               </div>
@@ -203,9 +218,14 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
               isVisible={isCardVisible("composicao-patrimonial")}
               onToggleVisibility={() => toggleCardVisibility("composicao-patrimonial")}
             >
-              <div className="p-8">
-                <h3 className="text-xl font-semibold mb-4">Composição Patrimonial</h3>
-                <DonutChart data={compositionChartData} />
+              <div className="p-6">
+                <h3 className="text-xl font-semibold mb-3">Composição Patrimonial</h3>
+                <DonutChart 
+                  data={compositionChartData} 
+                  height={160} 
+                  innerRadius={45} 
+                  outerRadius={65}
+                />
               </div>
             </HideableCard>
           </div>
@@ -227,11 +247,11 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
                 <div className="space-y-4">
                   {data.ativos.map((asset, index) => (
                     <div key={index} className="flex justify-between items-center">
-                      <span>{asset.tipo}</span>
+                      <span>{asset.tipo}{asset.classe ? ` - ${asset.classe}` : ''}</span>
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{formatCurrency(asset.valor)}</span>
                         <span className="text-xs text-muted-foreground">
-                          ({Math.round((asset.valor / totalAssets) * 100)}%)
+                          ({totalAssets > 0 ? Math.round((asset.valor / totalAssets) * 100) : 0}%)
                         </span>
                       </div>
                     </div>
@@ -256,7 +276,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
             >
               <div className="p-8">
                 <h3 className="text-xl font-semibold mb-4">Passivos</h3>
-                {data.passivos.length > 0 ? (
+                {data.passivos && data.passivos.length > 0 ? (
                   <div className="space-y-4">
                     {data.passivos.map((liability, index) => (
                       <div key={index} className="flex justify-between items-center">
@@ -264,7 +284,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{formatCurrency(liability.valor)}</span>
                           <span className="text-xs text-muted-foreground">
-                            ({Math.round((liability.valor / totalLiabilities) * 100)}%)
+                            ({totalLiabilities > 0 ? Math.round((liability.valor / totalLiabilities) * 100) : 0}%)
                           </span>
                         </div>
                       </div>

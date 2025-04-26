@@ -6,7 +6,10 @@ import {
   Clock, 
   ListChecks, 
   ShieldCheck, 
-  User 
+  User,
+  Timer,
+  FileText,
+  PlayCircle
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -29,6 +32,19 @@ interface ActionPlanProps {
   data: any;
 }
 
+interface CronogramaItem {
+  acao: string;
+  etapa: string;
+  prazo: string;
+}
+
+interface CronogramaAntigoItem {
+  periodo: string;
+  objetivoPrincipal: string;
+  descricao: string;
+  acoes: string[];
+}
+
 // Componente customizado que estende o Card básico
 const CardWithHighlight = React.forwardRef<
   HTMLDivElement,
@@ -45,6 +61,23 @@ const CardWithHighlight = React.forwardRef<
   />
 ));
 CardWithHighlight.displayName = "CardWithHighlight";
+
+const getEtapaIcon = (etapa: string) => {
+  switch (etapa.toLowerCase()) {
+    case 'validação com o cliente':
+      return <FileText className="h-5 w-5 text-accent" />;
+    case 'execução de ações prioritárias':
+      return <PlayCircle className="h-5 w-5 text-financial-success" />;
+    case 'formalização jurídica':
+      return <CheckCircle className="h-5 w-5 text-financial-info" />;
+    case 'implementação completa':
+      return <CheckCircle className="h-5 w-5 text-financial-warning" />;
+    case 'acompanhamento periódico':
+      return <Timer className="h-5 w-5 text-financial-info" />;
+    default:
+      return <Calendar className="h-5 w-5 text-accent" />;
+  }
+};
 
 const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
   const titleRef = useScrollAnimation<HTMLDivElement>();
@@ -71,6 +104,11 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
     console.error('Dados do plano de ação não disponíveis:', data);
     return <div className="py-12 px-4 text-center">Dados do plano de ação não disponíveis</div>;
   }
+
+  // Identificar qual tipo de cronograma estamos usando (novo ou antigo)
+  const isNewCronograma = data.planoAcao.cronograma && 
+                         data.planoAcao.cronograma.length > 0 && 
+                         'acao' in data.planoAcao.cronograma[0];
   
   return (
     <section className="py-16 px-4 md:px-8" id="action-plan">
@@ -143,45 +181,85 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
       <div ref={timelineRef} className="max-w-5xl mx-auto mb-8 animate-on-scroll">
         <h3 className="section-subtitle mb-6">Cronograma de Implementação</h3>
         <div className="relative">
-          {data.planoAcao.cronograma.map((fase: any, index: number) => (
-            <div key={index} className="mb-8 md:mb-10">
-              <div className="flex flex-col md:flex-row gap-4 md:gap-8">
-                <div className="md:w-1/4">
-                  <CardWithHighlight highlight={index === 0} className={index === 0 ? 'border-accent' : ''}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Calendar className="h-5 w-5 text-accent" />
-                        <h4 className="font-semibold">{fase.periodo}</h4>
+          {isNewCronograma ? (
+            // Novo formato de cronograma
+            <div className="grid grid-cols-1 gap-6">
+              {(data.planoAcao.cronograma as CronogramaItem[]).map((item, index) => (
+                <HideableCard 
+                  key={index}
+                  id={`cronograma-novo-${index}`}
+                  isVisible={isCardVisible(`cronograma-novo-${index}`)}
+                  onToggleVisibility={() => toggleCardVisibility(`cronograma-novo-${index}`)}
+                  className={index === 0 ? 'border-accent/40 bg-accent/5' : ''}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex flex-col md:flex-row gap-4">
+                      <div className="md:w-1/4 flex items-center">
+                        <div className="bg-accent/10 p-2 rounded-full mr-3">
+                          {getEtapaIcon(item.etapa)}
+                        </div>
+                        <div>
+                          <div className="font-medium text-lg">{item.etapa}</div>
+                          <div className="text-sm text-muted-foreground">
+                            <Clock className="inline-flex mr-1 h-3 w-3" />
+                            {item.prazo}
+                          </div>
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground">{fase.objetivoPrincipal}</p>
-                    </CardContent>
-                  </CardWithHighlight>
-                </div>
-                <div className="md:w-3/4">
-                  <HideableCard 
-                    id={`cronograma-${index}`}
-                    isVisible={isCardVisible(`cronograma-${index}`)}
-                    onToggleVisibility={() => toggleCardVisibility(`cronograma-${index}`)}
-                  >
-                    <CardContent className="p-4">
-                      <p className="mb-3 font-medium">{fase.descricao}</p>
-                      <ul className="space-y-2">
-                        {fase.acoes.map((acao: string, i: number) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <ArrowRight className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
-                            <span>{acao}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </HideableCard>
-                </div>
-              </div>
-              {index < data.planoAcao.cronograma.length - 1 && (
-                <div className="hidden md:block h-8 w-0.5 bg-border mx-auto my-0"></div>
-              )}
+                      <div className="md:w-3/4 flex items-center">
+                        <div className="pl-4 border-l border-border">
+                          <div className="text-lg">{item.acao}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </HideableCard>
+              ))}
             </div>
-          ))}
+          ) : (
+            // Formato antigo de cronograma
+            <>
+              {(data.planoAcao.cronograma as CronogramaAntigoItem[]).map((fase: any, index: number) => (
+                <div key={index} className="mb-8 md:mb-10">
+                  <div className="flex flex-col md:flex-row gap-4 md:gap-8">
+                    <div className="md:w-1/4">
+                      <CardWithHighlight highlight={index === 0} className={index === 0 ? 'border-accent' : ''}>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <Calendar className="h-5 w-5 text-accent" />
+                            <h4 className="font-semibold">{fase.periodo}</h4>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{fase.objetivoPrincipal}</p>
+                        </CardContent>
+                      </CardWithHighlight>
+                    </div>
+                    <div className="md:w-3/4">
+                      <HideableCard 
+                        id={`cronograma-${index}`}
+                        isVisible={isCardVisible(`cronograma-${index}`)}
+                        onToggleVisibility={() => toggleCardVisibility(`cronograma-${index}`)}
+                      >
+                        <CardContent className="p-4">
+                          <p className="mb-3 font-medium">{fase.descricao}</p>
+                          <ul className="space-y-2">
+                            {fase.acoes.map((acao: string, i: number) => (
+                              <li key={i} className="flex items-start gap-2">
+                                <ArrowRight className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                                <span>{acao}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </CardContent>
+                      </HideableCard>
+                    </div>
+                  </div>
+                  {index < data.planoAcao.cronograma.length - 1 && (
+                    <div className="hidden md:block h-8 w-0.5 bg-border mx-auto my-0"></div>
+                  )}
+                </div>
+              ))}
+            </>
+          )}
         </div>
       </div>
       

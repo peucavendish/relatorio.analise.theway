@@ -1,12 +1,11 @@
 import React from 'react';
 import { Shield, Users, FileText, GanttChart } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import HideableCard from '@/components/ui/HideableCard';
 import useCardVisibility from '@/hooks/useCardVisibility';
 import StatusChip from '@/components/ui/StatusChip';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { formatCurrency } from '@/utils/formatCurrency';
-import { Button } from '@/components/ui/button';
 
 interface SuccessionPlanningProps {
   data?: any;
@@ -19,84 +18,44 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
   const cardRef3 = useScrollAnimation();
   const { isCardVisible, toggleCardVisibility } = useCardVisibility();
   
-  // Mock data for demonstration, would be replaced with actual data
-  const mockData = {
-    objetivos: [
-      "Garantir a transmissão eficiente de patrimônio para herdeiros",
-      "Minimizar custos e impostos na sucessão",
-      "Preservar a harmonia familiar durante o processo sucessório",
-      "Assegurar a continuidade dos negócios familiares"
-    ],
-    patrimonioTotal: 3650000,
-    patrimonioTransmissivel: 3200000,
-    impostoEstimado: {
-      semPlanejamento: 256000, // 8% do patrimônio transmissível
-      comPlanejamento: 98000    // Valor reduzido com planejamento
-    },
-    instrumentos: [
-      {
-        tipo: "Testamento",
-        implementado: true,
-        descricao: "Documento que expressa a vontade quanto à destinação dos bens",
-        vantagens: [
-          "Possibilidade de definir a divisão da parte disponível (50%) do patrimônio",
-          "Estabelecimento de cláusulas de proteção (inalienabilidade, impenhorabilidade)",
-          "Nomeação de tutores para filhos menores"
-        ]
-      },
-      {
-        tipo: "Holding Familiar",
-        implementado: false,
-        descricao: "Estrutura societária para centralização e proteção de bens",
-        vantagens: [
-          "Redução de até 80% nos custos com ITCMD",
-          "Evita processo de inventário para os bens da holding",
-          "Proteção patrimonial contra credores",
-          "Gestão centralizada dos ativos familiares"
-        ]
-      },
-      {
-        tipo: "Doação em vida com usufruto",
-        implementado: false,
-        descricao: "Transferência de bens em vida mantendo o direito de uso",
-        vantagens: [
-          "Antecipação da sucessão de forma planejada",
-          "Manutenção do controle sobre os bens durante a vida",
-          "Possibilidade de incluir cláusulas de proteção",
-          "Menor custo tributário quando feito gradualmente"
-        ]
-      }
-    ],
-    previdenciaPrivada: {
-      valor: 300000,
-      beneficiarios: "Cônjuge (50%) e filhos (25% cada)",
-      vantagens: [
-        "Não entra em inventário",
-        "Pagamento imediato aos beneficiários",
-        "Não incide ITCMD"
-      ]
-    },
-    projetoDeVida: [
-      {
-        fase: "Legado Financeiro",
-        status: "Em andamento",
-        descricao: "Estruturação do patrimônio para garantir segurança financeira da família",
-        prazo: "Contínuo"
-      },
-      {
-        fase: "Legado de Conhecimento",
-        status: "Não iniciado",
-        descricao: "Preparação dos herdeiros para gestão patrimonial e empresarial",
-        prazo: "Iniciar em 6 meses"
-      },
-      {
-        fase: "Legado de Valores",
-        status: "Em andamento",
-        descricao: "Transmissão de princípios e valores familiares",
-        prazo: "Contínuo"
-      }
-    ]
+  // Dados de previdência privada
+  const previdenciaPrivada = {
+    valor: data?.previdencia_privada?.saldo_atual || 0,
+    tipo: data?.previdencia_privada?.tipo || "PGBL",
+    contribuicaoMensal: data?.previdencia_privada?.contribuicao_mensal || 0,
+    beneficiarios: data?.sucessao?.herdeiros?.map(h => `${h.tipo} (${h.percentual})`).join(", ") || "Não especificado",
   };
+  
+  // Projeto de vida e legado baseado em dados reais
+  const projetoDeVida = [
+    {
+      fase: "Legado Financeiro",
+      descricao: "Estruturação do patrimônio para garantir segurança financeira",
+      prazo: "Contínuo"
+    },
+    {
+      fase: "Legado de Conhecimento",
+      descricao: data?.sucessao?.herdeiros?.some(h => h.tipo === "Filha") ? 
+        `Preparação da filha (${data?.sucessao?.herdeiros?.find(h => h.tipo === "Filha")?.idade} anos) para gestão patrimonial` : 
+        "Preparação dos herdeiros para gestão patrimonial",
+      prazo: "A definir"
+    },
+    {
+      fase: "Legado de Valores",
+      descricao: "Transmissão de princípios e valores familiares",
+      prazo: "Contínuo"
+    }
+  ];
+  
+  // Valores para o impacto financeiro diretamente do JSON
+  const patrimonioTotal = data?.sucessao?.situacaoAtual?.patrimonioTotal || 0;
+  const patrimonioTransmissivel = patrimonioTotal * 0.9; // Assumindo que 90% do patrimônio é transmissível
+  
+  // Valores de ITCMD diretamente do JSON
+  const impostoSemPlanejamento = data?.sucessao?.economiaITCMD?.semPlanejamento?.totalImpostos || 0;
+  const impostoComPlanejamento = data?.sucessao?.economiaITCMD?.comPlanejamento?.totalImpostos || 0;
+  const economiaEstimada = data?.sucessao?.economiaITCMD?.economia || (impostoSemPlanejamento - impostoComPlanejamento);
+  const percentualEconomia = data?.sucessao?.economiaITCMD?.percentualEconomia || 0;
   
   return (
     <section className="py-16 px-4" id="succession">
@@ -142,7 +101,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3">
-                  {mockData.objetivos.map((objetivo, index) => (
+                  {data?.sucessao?.situacaoAtual?.objetivosSucessorios?.map((objetivo, index) => (
                     <li key={index} className="flex items-start gap-2">
                       <div className="h-6 w-6 rounded-full bg-accent/15 flex items-center justify-center text-accent shrink-0 mt-0.5">
                         {index + 1}
@@ -174,12 +133,12 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <p className="text-sm text-muted-foreground">Patrimônio Transmissível</p>
-                      <p className="text-2xl font-medium">{formatCurrency(mockData.patrimonioTransmissivel)}</p>
+                      <p className="text-2xl font-medium">{formatCurrency(patrimonioTransmissivel)}</p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-sm text-muted-foreground">Economia Estimada</p>
                       <p className="text-2xl font-medium text-financial-success">
-                        {formatCurrency(mockData.impostoEstimado.semPlanejamento - mockData.impostoEstimado.comPlanejamento)}
+                        {formatCurrency(economiaEstimada)}
                       </p>
                     </div>
                   </div>
@@ -188,7 +147,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span>Custo sem planejamento</span>
-                        <span className="font-medium">{formatCurrency(mockData.impostoEstimado.semPlanejamento)}</span>
+                        <span className="font-medium">{formatCurrency(impostoSemPlanejamento)}</span>
                       </div>
                       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
                         <div className="bg-financial-danger h-full" style={{ width: '100%' }}></div>
@@ -198,16 +157,16 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span>Custo com planejamento</span>
-                        <span className="font-medium">{formatCurrency(mockData.impostoEstimado.comPlanejamento)}</span>
+                        <span className="font-medium">{formatCurrency(impostoComPlanejamento)}</span>
                       </div>
                       <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="bg-financial-success h-full" style={{ width: `${(mockData.impostoEstimado.comPlanejamento / mockData.impostoEstimado.semPlanejamento) * 100}%` }}></div>
+                        <div className="bg-financial-success h-full" style={{ width: `${100 - percentualEconomia}%` }}></div>
                       </div>
                     </div>
                     
                     <div className="bg-accent/10 p-3 rounded-lg">
                       <p className="text-sm">
-                        <span className="font-medium">Redução de {Math.round((1 - mockData.impostoEstimado.comPlanejamento / mockData.impostoEstimado.semPlanejamento) * 100)}%</span> nos 
+                        <span className="font-medium">Redução de {percentualEconomia}%</span> nos 
                         custos sucessórios com implementação do planejamento recomendado.
                       </p>
                     </div>
@@ -239,25 +198,46 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {mockData.instrumentos.map((instrumento, index) => (
+                {data?.sucessao?.instrumentos?.map((instrumento, index) => (
                   <div key={index} className="border-b last:border-0 pb-5 last:pb-0">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-lg font-medium">{instrumento.tipo}</h3>
                       <StatusChip 
-                        status={instrumento.implementado ? 'success' : 'warning'} 
-                        label={instrumento.implementado ? 'Implementado' : 'Pendente'} 
+                        status="warning"
+                        label="Pendente"
                       />
                     </div>
                     <p className="text-muted-foreground mb-3">{instrumento.descricao}</p>
                     <div>
                       <h4 className="text-sm font-medium mb-2">Vantagens:</h4>
                       <ul className="grid md:grid-cols-2 gap-2">
-                        {instrumento.vantagens.map((vantagem, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm">
+                        {instrumento.tipo === "Holding Familiar" && data?.tributario?.holdingFamiliar?.beneficios ? (
+                          data.tributario.holdingFamiliar.beneficios.map((beneficio, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm">
+                              <div className="text-accent mt-1">•</div>
+                              <span>{beneficio}</span>
+                            </li>
+                          ))
+                        ) : instrumento.tipo === "Previdência VGBL" && data?.tributario?.previdenciaVGBL?.vantagensSucessorias ? (
+                          data.tributario.previdenciaVGBL.vantagensSucessorias.map((vantagem, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm">
+                              <div className="text-accent mt-1">•</div>
+                              <span>{vantagem}</span>
+                            </li>
+                          ))
+                        ) : instrumento.tipo === "Mandato Duradouro" && data?.protecao?.protecaoJuridica?.mandatoDuradouro?.beneficios ? (
+                          data.protecao.protecaoJuridica.mandatoDuradouro.beneficios.map((beneficio, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm">
+                              <div className="text-accent mt-1">•</div>
+                              <span>{beneficio}</span>
+                            </li>
+                          ))
+                        ) : (
+                          <li className="flex items-start gap-2 text-sm">
                             <div className="text-accent mt-1">•</div>
-                            <span>{vantagem}</span>
+                            <span>{instrumento.descricao}</span>
                           </li>
-                        ))}
+                        )}
                       </ul>
                     </div>
                   </div>
@@ -291,28 +271,32 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <div className="text-sm text-muted-foreground">Valor atual</div>
-                    <div className="text-2xl font-medium">{formatCurrency(mockData.previdenciaPrivada.valor)}</div>
+                    <div className="text-sm text-muted-foreground">Tipo de previdência</div>
+                    <div className="text-2xl font-medium">{previdenciaPrivada.tipo}</div>
                   </div>
                   
                   <div>
-                    <div className="text-sm text-muted-foreground mb-1">Beneficiários designados</div>
+                    <div className="text-sm text-muted-foreground mb-1">Beneficiários</div>
                     <div className="bg-secondary/50 p-3 rounded-lg">
-                      {mockData.previdenciaPrivada.beneficiarios}
+                      {previdenciaPrivada.beneficiarios}
                     </div>
                   </div>
                   
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Vantagens sucessórias</div>
                     <ul className="space-y-2">
-                      {mockData.previdenciaPrivada.vantagens.map((vantagem, index) => (
-                        <li key={index} className="flex items-start gap-2 text-sm">
-                          <div className="h-5 w-5 rounded-full bg-accent/15 flex items-center justify-center text-accent shrink-0">
-                            ✓
-                          </div>
-                          <span>{vantagem}</span>
-                        </li>
-                      ))}
+                      {data?.tributario?.previdenciaVGBL?.vantagensSucessorias ? (
+                        data.tributario.previdenciaVGBL.vantagensSucessorias.map((vantagem, index) => (
+                          <li key={index} className="flex items-start gap-2 text-sm">
+                            <div className="h-5 w-5 rounded-full bg-accent/15 flex items-center justify-center text-accent shrink-0">
+                              ✓
+                            </div>
+                            <span>{vantagem}</span>
+                          </li>
+                        ))
+                      ) : (
+                        []
+                      )}
                     </ul>
                   </div>
                 </div>
@@ -336,15 +320,10 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {mockData.projetoDeVida.map((fase, index) => (
-                    <div key={index} className="border-l-4 pl-4" style={{ borderColor: fase.status === 'Em andamento' ? '#8B5CF6' : '#FBBF24' }}>
+                  {projetoDeVida.map((fase, index) => (
+                    <div key={index} className="border-l-4 pl-4" style={{ borderColor: index === 1 ? '#FBBF24' : '#8B5CF6' }}>
                       <div className="flex justify-between">
                         <h3 className="font-medium">{fase.fase}</h3>
-                        <StatusChip 
-                          status={fase.status === 'Em andamento' ? 'info' : 'warning'} 
-                          label={fase.status} 
-                          className="text-xs"
-                        />
                       </div>
                       <p className="text-sm text-muted-foreground">{fase.descricao}</p>
                       <p className="text-xs mt-1">Prazo: {fase.prazo}</p>
@@ -352,11 +331,6 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                   ))}
                 </div>
               </CardContent>
-              <CardFooter className="pt-2">
-                <Button variant="outline" size="sm" className="w-full">
-                  Ver plano detalhado de legado
-                </Button>
-              </CardFooter>
             </HideableCard>
           </div>
         </div>

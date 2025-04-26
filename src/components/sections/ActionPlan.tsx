@@ -116,24 +116,37 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
     };
   });
 
-  // Ações prioritárias definidas - normalmente viriam do JSON, mas como não está presente, vamos criar conforme imagens
-  const acoesPrioritarias = [
-    {
-      titulo: "Holding Familiar",
-      descricao: "Constituição de holding patrimonial para proteção de bens e otimização fiscal",
-      prioridade: "Alta",
-      prazo: data.planoAcao.cronograma[2]?.prazo || "90 dias",
-      responsavel: "Advogado societário",
-      passos: [
-        "Análise da estrutura patrimonial atual",
-        "Definição do tipo societário",
-        "Elaboração de contrato/estatuto social",
-        "Integralização dos bens imóveis"
-      ],
-      impacto: "Redução de até 50% em impostos sucessórios",
-      status: "Não iniciado"
-    },
-    {
+  // Verifica se o cliente precisa de uma holding familiar
+  const precisaHolding = () => {
+    // Verifica se a estruturação patrimonial inclui "Holding Familiar"
+    return data.tributario?.estruturacaoPatrimonial?.includes("Holding Familiar") || false;
+  };
+
+  // Ações prioritárias dinâmicas
+  const getAcoesPrioritarias = () => {
+    const acoes = [];
+    
+    // Adiciona a ação de Holding Familiar apenas se necessário
+    if (precisaHolding()) {
+      acoes.push({
+        titulo: "Holding Familiar",
+        descricao: "Constituição de holding patrimonial para proteção de bens e otimização fiscal",
+        prioridade: "Alta",
+        prazo: data.planoAcao.cronograma[2]?.prazo || "90 dias",
+        responsavel: "Advogado societário",
+        passos: [
+          "Análise da estrutura patrimonial atual",
+          "Definição do tipo societário",
+          "Elaboração de contrato/estatuto social",
+          "Integralização dos bens imóveis"
+        ],
+        impacto: "Redução de até 50% em impostos sucessórios",
+        status: "Não iniciado"
+      });
+    }
+    
+    // Adiciona as outras ações prioritárias
+    acoes.push({
       titulo: "Planejamento Sucessório",
       descricao: "Estruturação de instrumentos jurídicos para proteção sucessória",
       prioridade: "Alta",
@@ -147,16 +160,17 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
       ],
       impacto: "Segurança jurídica e financeira para a família",
       status: "Não iniciado"
-    },
-    {
-      titulo: "Consórcio Casa de Praia",
+    });
+    
+    acoes.push({
+      titulo: "Consórcio do Imóvel Desejado",
       descricao: data.imovelDesejado?.estrategiaRecomendada === "Consórcio" ? 
         `Contratação de consórcio para aquisição da casa de praia no valor de ${data.imovelDesejado?.objetivo?.valorImovel ? 
         'R$ ' + data.imovelDesejado.objetivo.valorImovel.toLocaleString('pt-BR') : 'R$ 1.000.000'}` : 
         "Contratação de consórcio para aquisição da casa de praia",
       prioridade: "Média",
       prazo: data.planoAcao.cronograma[3]?.prazo || "30 dias",
-      responsavel: "Consultor financeiro",
+      responsavel: "Assessor de Investimentos",
       passos: [
         "Pesquisa das melhores administradoras",
         "Análise das condições contratuais",
@@ -165,13 +179,14 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
       ],
       impacto: `Aquisição do imóvel em até ${data.imovelDesejado?.objetivo?.prazoDesejado || "5 anos"}`,
       status: "Em progresso"
-    },
-    {
+    });
+    
+    acoes.push({
       titulo: "Diversificação de Investimentos",
       descricao: "Reestruturação da carteira para maior diversificação e proteção",
       prioridade: "Média",
       prazo: data.planoAcao.cronograma[1]?.prazo || "60 dias",
-      responsavel: "Consultor de investimentos",
+      responsavel: "Assessor de Investimentos",
       passos: [
         "Análise da carteira atual",
         "Definição de nova alocação estratégica",
@@ -180,15 +195,22 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
       ],
       impacto: "Redução de volatilidade e potencial aumento de retorno",
       status: "Não iniciado"
-    }
-  ];
+    });
+    
+    return acoes;
+  };
+
+  // Obter as ações prioritárias dinâmicas
+  const acoesPrioritarias = getAcoesPrioritarias();
 
   // Dados para a conclusão
   const conclusao = {
     titulo: "Próximos Passos e Conclusão",
     mensagemPrincipal: "Este plano de ação representa um roteiro personalizado para maximizar sua segurança financeira e alcançar seus objetivos patrimoniais.",
     compromissoAssessoria: "Nossa equipe estará disponível para acompanhar cada etapa deste processo, oferecendo suporte contínuo e ajustes conforme necessário.",
-    recomendacaoFinal: "Recomendamos iniciar imediatamente pelas ações de alta prioridade, especialmente a constituição da holding familiar e a implementação das estratégias de proteção patrimonial."
+    recomendacaoFinal: precisaHolding() 
+      ? "Recomendamos iniciar imediatamente pelas ações de alta prioridade, especialmente a constituição da holding familiar e a implementação das estratégias de proteção patrimonial."
+      : "Recomendamos iniciar imediatamente pelas ações de alta prioridade, focando na implementação das estratégias de proteção patrimonial e planejamento sucessório."
   };
 
   return (

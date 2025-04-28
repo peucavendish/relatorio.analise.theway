@@ -50,9 +50,9 @@ const IndexPage = () => {
       excedenteMensal: userReports?.financas?.resumo?.excedente_mensal || 0,
       totalInvestido: userReports?.financas?.composicao_patrimonial?.Investimentos || 0,
 
-      rendaMensalDesejada: userReports?.planoAposentadoria?.renda_desejada || 0,
+      rendaMensalDesejada: userReports?.planoAposentadoria?.renda_desejada || 50000,
       idadeAposentadoria: userReports?.planoAposentadoria?.idade_aposentadoria || 0,
-      patrimonioAlvo: userReports?.planoAposentadoria?.capital_necessario || 0,
+      patrimonioAlvo: userReports?.planoAposentadoria?.capital_necessario || 13068655.02,
 
       idadeAtual: userReports?.planoAposentadoria?.idade_atual || 0,
       expectativaVida: userReports?.planoAposentadoria?.expectativa_vida || 0,

@@ -48,46 +48,63 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
 
   const { isCardVisible, toggleCardVisibility } = useCardVisibility();
 
-  // Calculate percentage of income that should be invested
-  const percentualInvestir = data?.excedenteMensal && data.rendaMensalDesejada
-    ? Math.round((data.aporteMensalRecomendado / data.excedenteMensal) * 100)
-    : 0;
+  // Calculate percentage of income that should be invested correctly
+  const percentualInvestir = () => {
+    if (!data?.excedenteMensal || !data?.cenarios || data.cenarios.length < 2) return 0;
+    
+    const aporteCenarioSecundario = data.cenarios[1]?.aporteMensal || 0;
+    return Math.round((aporteCenarioSecundario / data.excedenteMensal) * 100);
+  };
 
-  // Get current scenario based on selected retirement age
-  const cenarioAtual = data?.cenarios?.find(c => c.idade === data.idadeAposentadoria) || data?.cenarios?.[0];
+  // Determine which aporte to use based on conditions
+  const getAporteRecomendado = () => {
+    if (!data?.cenarios || !data.excedenteMensal) {
+      return data?.aporteMensalRecomendado || 0;
+    }
+    // Get value from the second scenario (if exists)
+    const aporteCenarioSecundario = data.cenarios[1]?.aporteMensal || 0;
+    
+    // If it's greater than the excedente, use excedente
+    if (aporteCenarioSecundario > data.excedenteMensal) {
+      return data.excedenteMensal;
+    }
+    
+    // Otherwise use the value from cenarios[1]
+    return aporteCenarioSecundario;
+  };
 
   // Verifica se o cliente se adequa a algum dos cenários
   const adequaAosCenarios = () => {
-    if (!data?.cenarios || !data.excedenteMensal) return false;
+    if (!data?.cenarios || !data.excedenteMensal || data.cenarios.length < 2) return false;
     
-    // Verifica se o aporte mensal recomendado é maior que o excedente mensal
-    const cenarioMaisViavel = data.cenarios.reduce((prev, current) => 
-      prev.aporteMensal < current.aporteMensal ? prev : current
-    );
-    
-    return cenarioMaisViavel.aporteMensal <= data.excedenteMensal;
+    // Verifica se o aporte do segundo cenário é viável com o excedente mensal
+    const aporteCenarioSecundario = data.cenarios[1]?.aporteMensal || 0;
+    return aporteCenarioSecundario <= data.excedenteMensal;
   };
 
   // Calcula a porcentagem adicional necessária para atingir o cenário mais viável
   const calcularPorcentagemFaltante = () => {
-    if (!data?.cenarios || !data.excedenteMensal) return 0;
+    if (!data?.cenarios || !data.excedenteMensal || data.cenarios.length < 2) return 0;
     
-    const cenarioMaisViavel = data.cenarios.reduce((prev, current) => 
-      prev.aporteMensal < current.aporteMensal ? prev : current
-    );
+    const aporteCenarioSecundario = data.cenarios[1]?.aporteMensal || 0;
     
-    if (cenarioMaisViavel.aporteMensal <= data.excedenteMensal) return 0;
+    if (aporteCenarioSecundario <= data.excedenteMensal) return 0;
     
-    const faltante = cenarioMaisViavel.aporteMensal - data.excedenteMensal;
+    const faltante = aporteCenarioSecundario - data.excedenteMensal;
     return Math.round((faltante / data.excedenteMensal) * 100);
   };
 
   // Calcular redução necessária na renda mensal desejada
   const calcularReducaoRendaNecessaria = () => {
-    if (!data?.rendaMensalDesejada || !data.excedenteMensal) return 0;
+    if (!data?.rendaMensalDesejada || !data.excedenteMensal || !data?.cenarios || data.cenarios.length < 2) return 0;
+    
+    const aporteCenarioSecundario = data.cenarios[1]?.aporteMensal || 0;
+    
+    // Se o aporte for viável, não é necessária redução
+    if (aporteCenarioSecundario <= data.excedenteMensal) return 0;
     
     // Estimativa básica: quanto precisaria reduzir a renda desejada para que o aporte fosse viável
-    const porcentagemReducao = Math.round((1 - (data.excedenteMensal / (data.aporteMensalRecomendado || 1))) * 100);
+    const porcentagemReducao = Math.round((1 - (data.excedenteMensal / aporteCenarioSecundario)) * 100);
     return porcentagemReducao > 0 ? porcentagemReducao : 0;
   };
 
@@ -193,7 +210,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
                   <Calculator size={28} className="text-financial-success mb-2" />
                   <div className="text-sm text-muted-foreground">Renda Mensal Desejada</div>
                   <div className="text-xl font-semibold mt-1">
-                    {formatCurrency(data?.rendaMensalDesejada || 0)}
+                    {formatCurrency(data?.rendaMensalDesejada || 50000)}
                   </div>
                 </div>
 
@@ -212,7 +229,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
                   <PiggyBank size={28} className="text-financial-highlight mb-2" />
                   <div className="text-sm text-muted-foreground">Patrimônio Alvo</div>
                   <div className="text-xl font-semibold mt-1">
-                    {formatCurrency(data?.patrimonioAlvo || 0)}
+                    {formatCurrency(data?.patrimonioAlvo || 13068655.02)}
                   </div>
                 </div>
               </div>
@@ -315,7 +332,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
                       <div className="text-sm">
                         <span className="font-medium block">Aumentar aportes mensais</span>
                         <span className="text-muted-foreground">
-                          Investir {percentualInvestir}% do excedente (R$ {formatCurrency(data?.aporteMensalRecomendado || 0)}/mês)
+                          Investir {percentualInvestir()}% do excedente ({formatCurrency(getAporteRecomendado())}/mês)
                         </span>
                       </div>
                     </li>
@@ -327,7 +344,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data }) => {
                         <div className="text-sm">
                           <span className="font-medium block">Otimizar PGBL</span>
                           <span className="text-muted-foreground">
-                            Aplicar R$ {formatCurrency(data.valorPGBL)} para redução fiscal
+                            Aplicar {formatCurrency(data?.valorPGBL || 0)} para redução fiscal
                           </span>
                         </div>
                       </li>

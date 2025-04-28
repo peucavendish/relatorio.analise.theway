@@ -18,6 +18,59 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 
+// Custom currency input component
+const CurrencyInput: React.FC<{
+  value: number;
+  onChange: (value: number) => void;
+  className?: string;
+  id?: string;
+}> = ({ value, onChange, className, id }) => {
+  // Format the value to display with currency
+  const [displayValue, setDisplayValue] = useState<string>(() => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(value);
+  });
+
+  // Handle input changes and format the value
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Get the raw input value
+    const inputVal = e.target.value;
+    
+    // Remove non-numeric characters except for comma and period
+    const numericValue = inputVal.replace(/[^0-9,.]/g, '');
+    
+    // Update the display value with R$ prefix
+    setDisplayValue(`R$ ${numericValue}`);
+    
+    // Convert to a number for the actual value (replace comma with period for parseFloat)
+    const parsedValue = parseFloat(numericValue.replace(/\./g, '').replace(',', '.')) || 0;
+    onChange(parsedValue);
+  };
+
+  // Update display value when the actual value changes externally
+  useEffect(() => {
+    setDisplayValue(new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(value));
+  }, [value]);
+
+  return (
+    <Input
+      id={id}
+      value={displayValue}
+      onChange={handleInputChange}
+      className={className}
+    />
+  );
+};
+
 // Interface para as propriedades do componente
 interface RetirementProjectionChartProps {
   currentAge: number;
@@ -427,11 +480,10 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
             
             <div className="space-y-2">
               <Label htmlFor="rendaMensal">Renda Mensal Desejada</Label>
-              <Input
+              <CurrencyInput
                 id="rendaMensal"
-                type="number"
                 value={rendaMensal}
-                onChange={(e) => setRendaMensal(parseFloat(e.target.value) || 0)}
+                onChange={(value) => setRendaMensal(value)}
                 className="h-9"
               />
             </div>

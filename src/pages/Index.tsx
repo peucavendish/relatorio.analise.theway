@@ -172,7 +172,7 @@ const IndexPage = () => {
 
   if (isLoading) {
     return (
-      <div className="h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-accent" />
       </div>
     );
@@ -180,31 +180,31 @@ const IndexPage = () => {
 
   return (
     <ThemeProvider>
-      <div className="h-screen overflow-hidden">
+      <div className="relative h-screen overflow-hidden">
         <Header />
         <main className="h-[calc(100vh-64px)] overflow-y-auto">
-          <div className="h-screen">
+          <div className="min-h-screen">
             <CoverPage clientData={getClientData().cliente} />
           </div>
-          <div className="h-screen">
+          <div className="min-h-screen">
             <FinancialSummary data={getClientData().financas} />
           </div>
-          <div className="h-screen">
+          <div className="min-h-screen">
             <RetirementPlanning data={getClientData().aposentadoria} />
           </div>
-          <div className="h-screen">
+          <div className="min-h-screen">
             <BeachHouse data={userReports} />
           </div>
-          <div className="h-screen">
+          <div className="min-h-screen">
             <TaxPlanning data={getClientData()} />
           </div>
-          <div className="h-screen">
+          <div className="min-h-screen">
             <ProtectionPlanning data={getClientData()} />
           </div>
-          <div className="h-screen">
+          <div className="min-h-screen">
             <SuccessionPlanning data={getClientData()} />
           </div>
-          <div className="h-screen">
+          <div className="min-h-screen">
             <ActionPlan data={getClientData()} />
           </div>
         </main>

@@ -38,6 +38,11 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ className, userReport
   const urlParams = new URLSearchParams(window.location.search);
   const sessionId = urlParams.get('sessionId');
 
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+  };
+
   const handleGenerateReport = async () => {
     try {
       setIsGenerating(true);
@@ -114,7 +119,7 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ className, userReport
               </div>
               <Button
                 onClick={handleGenerateReport}
-                disabled={!email || isGenerating}
+                disabled={!isValidEmail(email) || isGenerating}
                 className="w-full"
               >
                 {isGenerating ? 'Gerando...' : 'Gerar Relatório'}

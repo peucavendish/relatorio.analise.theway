@@ -210,7 +210,7 @@ const IndexPage = () => {
         </main>
         <DotNavigation />
         <MobileDotNavigation />
-        <FloatingActions />
+        <FloatingActions userReports={userReports} />
       </div>
     </ThemeProvider>
   );

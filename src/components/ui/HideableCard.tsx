@@ -1,12 +1,14 @@
 import React from 'react';
 import { Eye, EyeOff } from 'lucide-react';
-import { Card, CardProps } from './card';
+import { Card } from './card';
 import { cn } from '@/lib/utils';
 
-interface HideableCardProps extends CardProps {
+interface HideableCardProps {
   id: string;
   isVisible: boolean;
   onToggleVisibility: () => void;
+  children: React.ReactNode;
+  className?: string;
 }
 
 const HideableCard: React.FC<HideableCardProps> = ({
@@ -15,10 +17,9 @@ const HideableCard: React.FC<HideableCardProps> = ({
   onToggleVisibility,
   children,
   className,
-  ...props
 }) => {
   return (
-    <Card id={id} className={cn('relative', className)} {...props}>
+    <Card id={id} className={cn('relative', className)}>
       <button
         type="button"
         onClick={onToggleVisibility}
@@ -32,16 +33,8 @@ const HideableCard: React.FC<HideableCardProps> = ({
           <EyeOff size={16} className="text-muted-foreground" />
         )}
       </button>
-      
-      {isVisible ? (
-        children
-      ) : (
-        <div className="p-6 flex items-center justify-center min-h-[150px]">
-          <p className="text-muted-foreground text-sm">
-            Informações ocultas
-          </p>
-        </div>
-      )}
+
+      {children}
     </Card>
   );
 };

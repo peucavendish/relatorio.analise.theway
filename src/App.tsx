@@ -17,9 +17,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/relatorio" element={<Index />} />
+          <Route path="/" element={<Index />} />
           <Route path="/relatorio-cliente" element={<ProtectedRoute><Index /></ProtectedRoute>} />
-          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -15,5 +15,5 @@ export default function ProtectedRoute({ children }: { children: JSX.Element }) 
     return <div>Carregando...</div>;
   }
 
-  return isAuthenticated ? children : <Navigate to="/" replace />;
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
 }

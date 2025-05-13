@@ -6,6 +6,7 @@ import { Navigate } from "react-router-dom";
 type User = {
   name: string;
   email: string;
+  session_id: string;
 };
 
 type AuthContextType = {
@@ -37,6 +38,7 @@ export const AuthProvider = ({ children }: { children: JSX.Element }) => {
       localStorage.setItem("user", JSON.stringify(response.user));
       localStorage.setItem("token", response.access_token);
       api.defaults.headers["Authorization"] = `Bearer ${response.access_token}`;
+      window.location.href = `/relatorio-cliente/?sessionId=${response.user.session_id}`;
     }
   };
 

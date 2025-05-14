@@ -50,7 +50,7 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ className, userReport
       const response = await axios.post(`${apiUrl}/gerar-relatorio-cliente`, {
         name: userReports?.cliente?.nome,
         email: email,
-        session: sessionId
+        session_id: sessionId
       });
 
       if (response.status === 200) {

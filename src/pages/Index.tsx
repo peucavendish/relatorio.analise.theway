@@ -16,7 +16,12 @@ import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import axios from 'axios';
 
-const IndexPage = () => {
+interface IndexPageProps {
+  accessor?: boolean;
+  clientPropect?: boolean;
+}
+
+const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
   const { activeSection, navigateToSection } = useSectionObserver();
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
@@ -158,12 +163,6 @@ const IndexPage = () => {
   }, []);
 
   useEffect(() => {
-    if (userReports) {
-      console.log(userReports);
-    }
-  }, [userReports]);
-
-  useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -187,25 +186,25 @@ const IndexPage = () => {
             <CoverPage clientData={getClientData().cliente} />
           </div>
           <div className="min-h-screen">
-            <FinancialSummary data={getClientData().financas} />
+            <FinancialSummary data={getClientData().financas} hideControls={clientPropect} />
           </div>
           <div className="min-h-screen">
-            <RetirementPlanning data={getClientData().aposentadoria} />
+            <RetirementPlanning data={getClientData().aposentadoria} hideControls={clientPropect} />
           </div>
           <div className="min-h-screen">
-            <BeachHouse data={userReports} />
+            <BeachHouse data={userReports} hideControls={clientPropect} />
           </div>
           <div className="min-h-screen">
-            <TaxPlanning data={getClientData()} />
+            <TaxPlanning data={getClientData()} hideControls={clientPropect} />
           </div>
           <div className="min-h-screen">
-            <ProtectionPlanning data={getClientData()} />
+            <ProtectionPlanning data={getClientData()} hideControls={clientPropect} />
           </div>
           <div className="min-h-screen">
-            <SuccessionPlanning data={getClientData()} />
+            <SuccessionPlanning data={getClientData()} hideControls={clientPropect} />
           </div>
           <div className="min-h-screen">
-            <ActionPlan data={getClientData()} />
+            <ActionPlan data={getClientData()} hideControls={clientPropect} />
           </div>
         </main>
         <DotNavigation />

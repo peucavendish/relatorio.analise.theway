@@ -2,19 +2,20 @@ import React from 'react';
 import { CircleDollarSign, Shield, Briefcase, Umbrella, Plane, FileText } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import HideableCard from '@/components/ui/HideableCard';
-import useCardVisibility from '@/hooks/useCardVisibility';
+import { useCardVisibility } from '@/context/CardVisibilityContext';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { Separator } from '@/components/ui/separator';
 
 interface ProtectionPlanningProps {
   data: any;
+  hideControls?: boolean;
 }
 
-const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
+const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideControls }) => {
   const protectionData = data?.protecao;
   const { isCardVisible, toggleCardVisibility } = useCardVisibility();
-  
+
   if (!protectionData) {
     return <div>Dados de proteção patrimonial não disponíveis</div>;
   }
@@ -37,10 +38,11 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
         </div>
 
         {/* Insurance Needs Analysis */}
-        <HideableCard 
+        <HideableCard
           id="analise-necessidades"
           isVisible={isCardVisible("analise-necessidades")}
           onToggleVisibility={() => toggleCardVisibility("analise-necessidades")}
+          hideControls={hideControls}
           className="mb-10"
         >
           <CardHeader>
@@ -93,7 +95,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
         </HideableCard>
 
         {/* Life Insurance */}
-        <HideableCard 
+        <HideableCard
           id="seguro-vida"
           isVisible={isCardVisible("seguro-vida")}
           onToggleVisibility={() => toggleCardVisibility("seguro-vida")}
@@ -120,14 +122,14 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
                     {protectionData.seguroVida.metodologiaCalculo}
                   </p>
                 </div>
-                
+
                 <div className="mb-4">
                   <h4 className="text-md font-medium mb-2">Custo Estimado</h4>
                   <p className="text-sm text-muted-foreground">
                     {protectionData.seguroVida.custoEstimadoAnual}
                   </p>
                 </div>
-                
+
                 <div className="bg-accent/10 p-3 rounded-md">
                   <h4 className="text-sm font-medium mb-1">Prioridade</h4>
                   <p className="text-accent font-medium">
@@ -135,7 +137,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
                   </p>
                 </div>
               </div>
-              
+
               <div>
                 <h4 className="text-md font-medium mb-3">Coberturas</h4>
                 <ul className="space-y-2">
@@ -152,7 +154,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
         </HideableCard>
 
         {/* Property Insurance */}
-        <HideableCard 
+        <HideableCard
           id="seguro-patrimonial"
           isVisible={isCardVisible("seguro-patrimonial")}
           onToggleVisibility={() => toggleCardVisibility("seguro-patrimonial")}
@@ -186,14 +188,14 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
                       <span className="text-xl font-bold text-accent">{formatCurrency(protectionData.seguroPatrimonial.coberturaRecomendada)}</span>
                     </div>
                   </div>
-                  
+
                   <div className="mb-4">
                     <h4 className="text-md font-medium mb-2">Custo Estimado</h4>
                     <p className="text-sm text-muted-foreground">
                       {protectionData.seguroPatrimonial.custoEstimadoAnual}
                     </p>
                   </div>
-                  
+
                   <div className="bg-accent/10 p-3 rounded-md">
                     <h4 className="text-sm font-medium mb-1">Prioridade</h4>
                     <p className="text-accent font-medium">
@@ -202,7 +204,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
                   </div>
                 </div>
               </div>
-              
+
               <div>
                 <h4 className="text-md font-medium mb-3">Riscos Protegidos</h4>
                 <ul className="space-y-2">
@@ -217,11 +219,11 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
             </div>
           </CardContent>
         </HideableCard>
-        
+
         {/* D&O Insurance and Travel Insurance (Two Column Layout) */}
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           {/* D&O Insurance */}
-          <HideableCard 
+          <HideableCard
             id="seguro-do"
             isVisible={isCardVisible("seguro-do")}
             onToggleVisibility={() => toggleCardVisibility("seguro-do")}
@@ -246,7 +248,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
                   {protectionData.seguroDO.justificativa}
                 </p>
               </div>
-              
+
               <div className="mb-4">
                 <h4 className="text-md font-medium mb-2">Riscos Cobertos</h4>
                 <ul className="space-y-2">
@@ -258,7 +260,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
                   ))}
                 </ul>
               </div>
-              
+
               <div className="mt-4">
                 <p className="text-sm text-muted-foreground mb-2">
                   <span className="font-medium">Custo estimado: </span>
@@ -271,9 +273,9 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
               </div>
             </CardContent>
           </HideableCard>
-          
+
           {/* Travel Insurance */}
-          <HideableCard 
+          <HideableCard
             id="seguro-viagem"
             isVisible={isCardVisible("seguro-viagem")}
             onToggleVisibility={() => toggleCardVisibility("seguro-viagem")}
@@ -299,7 +301,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
                   <span className="font-medium">{protectionData.seguroInternacional.coberturaPatrimonial}</span>
                 </div>
               </div>
-              
+
               <div className="mb-4">
                 <h4 className="text-md font-medium mb-2">Riscos Cobertos</h4>
                 <ul className="space-y-2">
@@ -311,7 +313,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
                   ))}
                 </ul>
               </div>
-              
+
               <div className="mt-4">
                 <p className="text-sm text-muted-foreground mb-2">
                   <span className="font-medium">Custo estimado: </span>
@@ -325,9 +327,9 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
             </CardContent>
           </HideableCard>
         </div>
-        
+
         {/* Legal Protection */}
-        <HideableCard 
+        <HideableCard
           id="protecao-juridica"
           isVisible={isCardVisible("protecao-juridica")}
           onToggleVisibility={() => toggleCardVisibility("protecao-juridica")}
@@ -350,17 +352,17 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
                 <p className="text-sm text-muted-foreground mb-3">
                   {protectionData.protecaoJuridica.holdingPatrimonial.finalidade}
                 </p>
-                
+
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-muted-foreground">Custo Estimado</span>
                   <span className="font-medium">{formatCurrency(protectionData.protecaoJuridica.holdingPatrimonial.custoEstimado)}</span>
                 </div>
-                
+
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-muted-foreground">Tempo de Implementação</span>
                   <span className="font-medium">{protectionData.protecaoJuridica.holdingPatrimonial.tempoImplementacao}</span>
                 </div>
-                
+
                 <h5 className="text-sm font-medium mb-2">Vantagens Adicionais</h5>
                 <ul className="space-y-1">
                   {protectionData.protecaoJuridica.holdingPatrimonial.vantagensAdicionais.map((vantagem: string, index: number) => (
@@ -371,24 +373,24 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
                   ))}
                 </ul>
               </div>
-              
+
               {/* Mandato Duradouro */}
               <div className="border rounded-lg p-4">
                 <h4 className="text-lg font-medium mb-2">{protectionData.protecaoJuridica.mandatoDuradouro.titulo}</h4>
                 <p className="text-sm text-muted-foreground mb-3">
                   {protectionData.protecaoJuridica.mandatoDuradouro.descricao}
                 </p>
-                
+
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-muted-foreground">Custo Estimado</span>
                   <span className="font-medium">{formatCurrency(protectionData.protecaoJuridica.mandatoDuradouro.custoEstimado)}</span>
                 </div>
-                
+
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-muted-foreground">Prioridade</span>
                   <span className="font-medium">{protectionData.protecaoJuridica.mandatoDuradouro.prioridadeImplementacao}</span>
                 </div>
-                
+
                 <h5 className="text-sm font-medium mb-2">Benefícios</h5>
                 <ul className="space-y-1">
                   {protectionData.protecaoJuridica.mandatoDuradouro.beneficios.map((beneficio: string, index: number) => (
@@ -402,9 +404,9 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data }) => {
             </div>
           </CardContent>
         </HideableCard>
-        
+
         {/* Additional Recommendations */}
-        <HideableCard 
+        <HideableCard
           id="recomendacoes-adicionais"
           isVisible={isCardVisible("recomendacoes-adicionais")}
           onToggleVisibility={() => toggleCardVisibility("recomendacoes-adicionais")}

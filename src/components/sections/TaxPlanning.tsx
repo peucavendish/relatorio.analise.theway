@@ -1,23 +1,23 @@
 import React from 'react';
-import { 
-  Card, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
-  CardContent, 
-  CardFooter 
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter
 } from "@/components/ui/card";
 import HideableCard from '@/components/ui/HideableCard';
-import useCardVisibility from '@/hooks/useCardVisibility';
+import { useCardVisibility } from '@/context/CardVisibilityContext';
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import StatusChip from '@/components/ui/StatusChip';
-import { 
-  Calculator, 
-  FileText, 
-  Shield, 
-  PiggyBank, 
-  Wallet, 
+import {
+  Calculator,
+  FileText,
+  Shield,
+  PiggyBank,
+  Wallet,
   ChevronRight,
   ArrowDown,
   ArrowUp,
@@ -30,9 +30,10 @@ import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 interface TaxPlanningProps {
   data: any;
+  hideControls?: boolean;
 }
 
-const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
+const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
   // Get access to the tax planning data
   const { tributario } = data;
   const headerRef = useScrollAnimation();
@@ -52,7 +53,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
     <section className="min-h-screen py-16 px-4" id="tax">
       <div className="max-w-4xl mx-auto">
         {/* Section Header */}
-        <div 
+        <div
           ref={headerRef as React.RefObject<HTMLDivElement>}
           className="mb-12 text-center animate-on-scroll"
         >
@@ -64,14 +65,14 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
             </div>
             <h2 className="text-4xl font-bold mb-3">Planejamento Tributário</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              Estratégias para otimização fiscal e redução da carga tributária através de estruturação 
+              Estratégias para otimização fiscal e redução da carga tributária através de estruturação
               patrimonial e organização financeira.
             </p>
           </div>
         </div>
 
         {/* Summary Card */}
-        <div 
+        <div
           ref={summaryRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-1"
         >
@@ -109,7 +110,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
         </div>
 
         {/* Tax Strategies */}
-        <div 
+        <div
           ref={strategiesRef as React.RefObject<HTMLDivElement>}
           className="mb-8 grid md:grid-cols-2 gap-6 animate-on-scroll delay-2"
         >
@@ -118,6 +119,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
             id="estruturacao-patrimonial"
             isVisible={isCardVisible("estruturacao-patrimonial")}
             onToggleVisibility={() => toggleCardVisibility("estruturacao-patrimonial")}
+            hideControls={hideControls}
           >
             <CardHeader className="pb-3">
               <CardTitle className="text-lg flex items-center gap-2">
@@ -128,8 +130,8 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
             <CardContent>
               <ul className="space-y-2">
                 {tributario.estruturacaoPatrimonial.map((estrategia: string, index: number) => (
-                  <li 
-                    key={index} 
+                  <li
+                    key={index}
                     className="flex items-center gap-2 py-2 px-3 bg-muted/50 rounded-md"
                   >
                     <div className="h-1.5 w-1.5 rounded-full bg-financial-info"></div>
@@ -158,7 +160,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
                   <li key={index} className="border-b border-border/50 last:border-0 py-2">
                     <div className="flex justify-between mb-1">
                       <span className="font-medium">{deducao.tipo}</span>
-                      <span className="text-financial-success">{ formatCurrency(deducao.valor)} </span>
+                      <span className="text-financial-success">{formatCurrency(deducao.valor)} </span>
                     </div>
                     <p className="text-sm text-muted-foreground">{deducao.beneficio}</p>
                   </li>
@@ -169,7 +171,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
         </div>
 
         {/* Tax-Free Investments */}
-        <div 
+        <div
           ref={investmentsRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-3"
         >
@@ -202,9 +204,9 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
                       <TableCell className="font-medium">{investimento.tipo}</TableCell>
                       <TableCell>{investimento.limite}</TableCell>
                       <TableCell>
-                        <StatusChip 
-                          status="success" 
-                          label={investimento.tributacao} 
+                        <StatusChip
+                          status="success"
+                          label={investimento.tributacao}
                         />
                       </TableCell>
                     </TableRow>
@@ -216,7 +218,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
         </div>
 
         {/* Family Holding */}
-        <div 
+        <div
           ref={holdingRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-4"
         >
@@ -275,7 +277,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
         </div>
 
         {/* Tax Savings - Movido para logo após o Holding Familiar */}
-        <div 
+        <div
           ref={savingsRef as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-5"
         >
@@ -332,7 +334,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
                   </span>
                 </div>
                 <Progress value={savingsPercentage} className="h-2.5 bg-financial-danger/20">
-                  <div 
+                  <div
                     className={cn(
                       "h-full w-full flex-1 transition-all rounded-full",
                       "bg-financial-success"
@@ -358,7 +360,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data }) => {
           </HideableCard>
         </div>
 
-      
+
       </div>
     </section>
   );

@@ -4,7 +4,7 @@ import { formatCurrency } from '@/utils/formatCurrency';
 import StatusChip from '@/components/ui/StatusChip';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import HideableCard from '@/components/ui/HideableCard';
-import useCardVisibility from '@/hooks/useCardVisibility';
+import { useCardVisibility } from '@/context/CardVisibilityContext';
 import { Home, Umbrella, Calculator, Check, X, PiggyBank, ArrowRight, TrendingDown, Calendar } from 'lucide-react';
 
 interface Strategy {
@@ -40,27 +40,28 @@ interface BeachHouseProps {
       }>;
     };
   };
+  hideControls?: boolean;
 }
 
-const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
+const BeachHouse: React.FC<BeachHouseProps> = ({ data, hideControls }) => {
   const headerRef = useScrollAnimation();
   const objectiveCardRef = useScrollAnimation();
   const strategiesCardRef = useScrollAnimation();
   const impactCardRef = useScrollAnimation();
   const { isCardVisible, toggleCardVisibility } = useCardVisibility();
-  
+
   // Early return if no data provided
   if (!data?.imovelDesejado) {
     return null;
   }
 
   const imovelDesejado = data.imovelDesejado;
-  
+
   // Find details of recommended strategy
   const recommendedStrategy = imovelDesejado.comparativoEstrategias?.find(
     s => s.estrategia === imovelDesejado.estrategiaRecomendada
   );
-  
+
   // Format value based on size
   const formatImovelValue = (value: number) => {
     if (value >= 1000000) {
@@ -69,26 +70,26 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
     }
     return formatCurrency(value);
   };
-  
+
   // Calculate appropriate text size class based on value length
   const getValueTextClass = (value: number) => {
     const valueStr = formatImovelValue(value);
-    
+
     if (valueStr.length > 16) {
       return "text-xl"; // Smallest text for very large values
     } else if (valueStr.length > 12) {
       return "text-2xl"; // Medium text for large values
     }
-    
+
     return "text-3xl"; // Default size for regular values
   };
-  
+
   return (
     <section className="py-16 px-4" id="beach-house">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div 
-          ref={headerRef as React.RefObject<HTMLDivElement>} 
+        <div
+          ref={headerRef as React.RefObject<HTMLDivElement>}
           className="mb-12 text-center animate-on-scroll"
         >
           <div className="inline-block">
@@ -103,13 +104,13 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
             </p>
           </div>
         </div>
-        
+
         {/* Objective Card */}
-        <div 
-          ref={objectiveCardRef as React.RefObject<HTMLDivElement>} 
+        <div
+          ref={objectiveCardRef as React.RefObject<HTMLDivElement>}
           className="mb-10 animate-on-scroll delay-1"
         >
-          <HideableCard 
+          <HideableCard
             id="objetivo-casa-praia"
             isVisible={isCardVisible("objetivo-casa-praia")}
             onToggleVisibility={() => toggleCardVisibility("objetivo-casa-praia")}
@@ -135,7 +136,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col justify-center">
                   <h3 className="text-xl font-medium mb-4">Detalhes do Objetivo</h3>
                   <ul className="space-y-4">
@@ -172,16 +173,17 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
             </CardContent>
           </HideableCard>
         </div>
-        
+
         {/* Strategies Comparison */}
-        <div 
-          ref={strategiesCardRef as React.RefObject<HTMLDivElement>} 
+        <div
+          ref={strategiesCardRef as React.RefObject<HTMLDivElement>}
           className="mb-10 animate-on-scroll delay-2"
         >
-          <HideableCard 
+          <HideableCard
             id="estrategias-casa-praia"
             isVisible={isCardVisible("estrategias-casa-praia")}
             onToggleVisibility={() => toggleCardVisibility("estrategias-casa-praia")}
+            hideControls={hideControls}
           >
             <CardHeader>
               <CardTitle className="text-2xl font-semibold flex items-center">
@@ -206,10 +208,10 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
                       const isRecommended = strategy.estrategia === imovelDesejado.estrategiaRecomendada;
                       const difference = (strategy.totalPago || 0) - (imovelDesejado.objetivo?.valorImovel || 0);
                       const percentDifference = ((difference / (imovelDesejado.objetivo?.valorImovel || 1)) * 100).toFixed(1);
-                      
+
                       return (
-                        <tr 
-                          key={index} 
+                        <tr
+                          key={index}
                           className={`
                             border-b border-border last:border-0 
                             ${isRecommended ? 'bg-accent/5' : ''}
@@ -260,7 +262,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
                   </tbody>
                 </table>
               </div>
-              
+
               {/* Pros and Cons */}
               <div className="grid md:grid-cols-2 gap-6 mt-8">
                 <div className="border border-border rounded-lg p-5">
@@ -277,7 +279,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
                     ))}
                   </ul>
                 </div>
-                
+
                 <div className="border border-border rounded-lg p-5">
                   <h3 className="font-medium text-lg mb-4 flex items-center">
                     <X size={18} className="text-financial-danger mr-2" />
@@ -296,13 +298,13 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
             </CardContent>
           </HideableCard>
         </div>
-        
+
         {/* Financial Impact */}
-        <div 
-          ref={impactCardRef as React.RefObject<HTMLDivElement>} 
+        <div
+          ref={impactCardRef as React.RefObject<HTMLDivElement>}
           className="animate-on-scroll delay-3"
         >
-          <HideableCard 
+          <HideableCard
             id="impacto-casa-praia"
             isVisible={isCardVisible("impacto-casa-praia")}
             onToggleVisibility={() => toggleCardVisibility("impacto-casa-praia")}
@@ -319,22 +321,22 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
                   <div className="text-muted-foreground mb-1">Excedente Mensal Atual</div>
                   <div className="text-2xl font-bold">{formatCurrency(imovelDesejado.impactoFinanceiro?.excedenteMensalAtual || 0)}</div>
                 </div>
-                
+
                 <div className="flex items-center text-muted-foreground">
                   <ArrowRight size={24} />
                 </div>
-                
+
                 <div className="text-center">
                   <div className="text-muted-foreground mb-1">Parcela {imovelDesejado.estrategiaRecomendada}</div>
                   <div className="text-2xl font-bold text-financial-danger">
                     - {formatCurrency(imovelDesejado.impactoFinanceiro?.parcela || 0)}
                   </div>
                 </div>
-                
+
                 <div className="flex items-center text-muted-foreground">
                   <ArrowRight size={24} />
                 </div>
-                
+
                 <div className="text-center">
                   <div className="text-muted-foreground mb-1">Excedente Mensal Após</div>
                   <div className="text-2xl font-bold text-financial-success">
@@ -342,7 +344,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="bg-accent/5 p-4 rounded-lg border border-accent/10">
                 <h3 className="font-medium mb-2 flex items-center">
                   <Check size={18} className="text-accent mr-2" />
@@ -350,9 +352,9 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data }) => {
                 </h3>
                 <p>{imovelDesejado.impactoFinanceiro?.observacao}</p>
               </div>
-              
+
               <div className="mt-6">
-                <StatusChip 
+                <StatusChip
                   status="success"
                   label="Objetivo viável dentro do planejamento financeiro"
                   className="mx-auto"

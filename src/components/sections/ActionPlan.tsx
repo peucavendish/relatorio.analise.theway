@@ -1,32 +1,33 @@
 import React from 'react';
-import { 
-  ArrowRight, 
-  Calendar, 
-  CheckCircle, 
-  Clock, 
-  ListChecks, 
-  ShieldCheck, 
-  User 
+import {
+  ArrowRight,
+  Calendar,
+  CheckCircle,
+  Clock,
+  ListChecks,
+  ShieldCheck,
+  User
 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
 } from '../ui/card';
 import HideableCard from '@/components/ui/HideableCard';
-import useCardVisibility from '@/hooks/useCardVisibility';
+import { useCardVisibility } from '@/context/CardVisibilityContext';
 import StatusChip from '@/components/ui/StatusChip';
 import ProgressBar from '@/components/ui/ProgressBar';
 import { cn } from '@/lib/utils';
 
 interface ActionPlanProps {
   data: any;
+  hideControls?: boolean;
 }
 
 // Componente customizado que estende o Card básico
@@ -46,15 +47,15 @@ const CardWithHighlight = React.forwardRef<
 ));
 CardWithHighlight.displayName = "CardWithHighlight";
 
-const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
+const ActionPlan: React.FC<ActionPlanProps> = ({ data, hideControls }) => {
   const titleRef = useScrollAnimation<HTMLDivElement>();
   const securityIndexRef = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
   const timelineRef = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
   const priorityRef = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
   const nextStepsRef = useScrollAnimation<HTMLDivElement>({ threshold: 0.2 });
-  
+
   const { isCardVisible, toggleCardVisibility } = useCardVisibility();
-  
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'Alta':
@@ -67,7 +68,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         return 'bg-financial-info/20 text-financial-info';
     }
   };
-  
+
   if (!data || !data.planoAcao) {
     console.error('Dados do plano de ação não disponíveis:', data);
     return <div className="py-12 px-4 text-center">Dados do plano de ação não disponíveis</div>;
@@ -106,7 +107,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
   const cronograma = data.planoAcao.cronograma.map((item: any, index: number) => {
     // Usando os períodos predefinidos, mas limitando ao tamanho do array
     const periodoIndex = index < periodos.length ? index : periodos.length - 1;
-    
+
     return {
       periodo: periodos[periodoIndex].periodo,
       objetivoPrincipal: periodos[periodoIndex].objetivoPrincipal,
@@ -125,7 +126,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
   // Ações prioritárias dinâmicas
   const getAcoesPrioritarias = () => {
     const acoes = [];
-    
+
     // Adiciona a ação de Holding Familiar apenas se necessário
     if (precisaHolding()) {
       acoes.push({
@@ -144,7 +145,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
         status: "Não iniciado"
       });
     }
-    
+
     // Adiciona as outras ações prioritárias
     acoes.push({
       titulo: "Planejamento Sucessório",
@@ -161,12 +162,12 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
       impacto: "Segurança jurídica e financeira para a família",
       status: "Não iniciado"
     });
-    
+
     acoes.push({
       titulo: "Consórcio do Imóvel Desejado",
-      descricao: data.imovelDesejado?.estrategiaRecomendada === "Consórcio" ? 
-        `Contratação de consórcio para aquisição da casa de praia no valor de ${data.imovelDesejado?.objetivo?.valorImovel ? 
-        'R$ ' + data.imovelDesejado.objetivo.valorImovel.toLocaleString('pt-BR') : 'R$ 1.000.000'}` : 
+      descricao: data.imovelDesejado?.estrategiaRecomendada === "Consórcio" ?
+        `Contratação de consórcio para aquisição da casa de praia no valor de ${data.imovelDesejado?.objetivo?.valorImovel ?
+          'R$ ' + data.imovelDesejado.objetivo.valorImovel.toLocaleString('pt-BR') : 'R$ 1.000.000'}` :
         "Contratação de consórcio para aquisição da casa de praia",
       prioridade: "Média",
       prazo: data.planoAcao.cronograma[3]?.prazo || "30 dias",
@@ -180,7 +181,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
       impacto: `Aquisição do imóvel em até ${data.imovelDesejado?.objetivo?.prazoDesejado || "5 anos"}`,
       status: "Em progresso"
     });
-    
+
     acoes.push({
       titulo: "Diversificação de Investimentos",
       descricao: "Reestruturação da carteira para maior diversificação e proteção",
@@ -196,7 +197,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
       impacto: "Redução de volatilidade e potencial aumento de retorno",
       status: "Não iniciado"
     });
-    
+
     return acoes;
   };
 
@@ -208,7 +209,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
     titulo: "Próximos Passos e Conclusão",
     mensagemPrincipal: "Este plano de ação representa um roteiro personalizado para maximizar sua segurança financeira e alcançar seus objetivos patrimoniais.",
     compromissoAssessoria: "Nossa equipe estará disponível para acompanhar cada etapa deste processo, oferecendo suporte contínuo e ajustes conforme necessário.",
-    recomendacaoFinal: precisaHolding() 
+    recomendacaoFinal: precisaHolding()
       ? "Recomendamos iniciar imediatamente pelas ações de alta prioridade, especialmente a constituição da holding familiar e a implementação das estratégias de proteção patrimonial."
       : "Recomendamos iniciar imediatamente pelas ações de alta prioridade, focando na implementação das estratégias de proteção patrimonial e planejamento sucessório."
   };
@@ -232,57 +233,64 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
             </p>
           </div>
         </div>
-        
+
         <div
           ref={securityIndexRef}
           className="max-w-5xl mx-auto mb-8 animate-on-scroll"
         >
-          <Card className="border border-muted-foreground/20">
-            <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <ShieldCheck className="text-accent h-5 w-5" />
-                {data.planoAcao.indicadorSegurancaFinanceira.titulo}
-              </CardTitle>
-              <CardDescription>
-                {data.planoAcao.indicadorSegurancaFinanceira.descricao}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-col md:flex-row items-center gap-6 mb-4">
-                <div className="relative w-40 h-40 flex items-center justify-center rounded-full border-8 border-accent/20">
-                  <div className="absolute inset-0 rounded-full border-8 border-accent" 
-                       style={{ 
-                         clipPath: `inset(0 ${100 - mockIndicadorSeguranca.valor}% 0 0)` 
-                       }}
-                  />
-                  <div className="text-center">
-                    <div className="text-4xl font-bold">{mockIndicadorSeguranca.valor}</div>
-                    <div className="text-sm text-muted-foreground">/ 100</div>
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between mb-2">
-                    <span className="font-medium">Nível atual:</span>
-                    <StatusChip 
-                      status={mockIndicadorSeguranca.valor >= 70 ? 'success' : mockIndicadorSeguranca.valor >= 50 ? 'info' : 'warning'} 
-                      label={mockIndicadorSeguranca.nivel} 
+          <HideableCard
+            id="indicador-seguranca"
+            isVisible={isCardVisible("indicador-seguranca")}
+            onToggleVisibility={() => toggleCardVisibility("indicador-seguranca")}
+            hideControls={hideControls}
+          >
+            <Card className="border border-muted-foreground/20">
+              <CardHeader className="pb-2">
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <ShieldCheck className="text-accent h-5 w-5" />
+                  {data.planoAcao.indicadorSegurancaFinanceira.titulo}
+                </CardTitle>
+                <CardDescription>
+                  {data.planoAcao.indicadorSegurancaFinanceira.descricao}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-col md:flex-row items-center gap-6 mb-4">
+                  <div className="relative w-40 h-40 flex items-center justify-center rounded-full border-8 border-accent/20">
+                    <div className="absolute inset-0 rounded-full border-8 border-accent"
+                      style={{
+                        clipPath: `inset(0 ${100 - mockIndicadorSeguranca.valor}% 0 0)`
+                      }}
                     />
+                    <div className="text-center">
+                      <div className="text-4xl font-bold">{mockIndicadorSeguranca.valor}</div>
+                      <div className="text-sm text-muted-foreground">/ 100</div>
+                    </div>
                   </div>
-                  <h4 className="text-lg font-medium mb-3">Elementos avaliados:</h4>
-                  <ul className="space-y-2">
-                    {mockIndicadorSeguranca.elementosAvaliados.map((elemento, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <CheckCircle className="text-accent h-5 w-5 mt-0.5 flex-shrink-0" />
-                        <span>{elemento}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="flex-1">
+                    <div className="flex justify-between mb-2">
+                      <span className="font-medium">Nível atual:</span>
+                      <StatusChip
+                        status={mockIndicadorSeguranca.valor >= 70 ? 'success' : mockIndicadorSeguranca.valor >= 50 ? 'info' : 'warning'}
+                        label={mockIndicadorSeguranca.nivel}
+                      />
+                    </div>
+                    <h4 className="text-lg font-medium mb-3">Elementos avaliados:</h4>
+                    <ul className="space-y-2">
+                      {mockIndicadorSeguranca.elementosAvaliados.map((elemento, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <CheckCircle className="text-accent h-5 w-5 mt-0.5 flex-shrink-0" />
+                          <span>{elemento}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </HideableCard>
         </div>
-        
+
         <div
           ref={timelineRef}
           className="max-w-5xl mx-auto mb-8 animate-on-scroll"
@@ -326,7 +334,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
             ))}
           </div>
         </div>
-        
+
         <div
           ref={priorityRef}
           className="max-w-5xl mx-auto mb-6 animate-on-scroll"
@@ -360,7 +368,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
                     <ol className="text-sm space-y-1">
                       {acao.passos.map((passo, i) => (
                         <li key={i} className="flex items-center gap-2">
-                          <span className="text-xs inline-flex items-center justify-center size-5 rounded-full bg-accent/10 text-accent font-medium">{i+1}</span>
+                          <span className="text-xs inline-flex items-center justify-center size-5 rounded-full bg-accent/10 text-accent font-medium">{i + 1}</span>
                           {passo}
                         </li>
                       ))}
@@ -369,16 +377,16 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data }) => {
                 </CardContent>
                 <CardFooter className="flex justify-between border-t pt-4">
                   <span className="text-sm text-muted-foreground">Impacto: {acao.impacto}</span>
-                  <StatusChip 
-                    status={acao.status === 'Concluído' ? 'success' : acao.status === 'Em progresso' ? 'info' : 'warning'} 
-                    label={acao.status} 
+                  <StatusChip
+                    status={acao.status === 'Concluído' ? 'success' : acao.status === 'Em progresso' ? 'info' : 'warning'}
+                    label={acao.status}
                   />
                 </CardFooter>
               </Card>
             ))}
           </div>
         </div>
-        
+
         <div ref={nextStepsRef} className="max-w-5xl mx-auto mb-6 animate-on-scroll delay-1">
           <Card className="bg-gradient-to-br from-accent/10 to-background border-accent/30">
             <CardHeader className="pb-3">

@@ -46,7 +46,7 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ className, userReport
   const handleGenerateReport = async () => {
     try {
       setIsGenerating(true);
-      const apiUrl = 'http://localhost/api';
+      const apiUrl = import.meta.env.VITE_API_THE_WAY;
       const response = await axios.post(`${apiUrl}/gerar-relatorio-cliente`, {
         name: userReports?.cliente?.nome,
         email: email,

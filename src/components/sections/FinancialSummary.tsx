@@ -7,7 +7,7 @@ import ProgressBar from '@/components/ui/ProgressBar';
 import { TrendingUp, TrendingDown, DollarSign, ArrowRight } from 'lucide-react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { formatCurrency } from '@/utils/formatCurrency';
-import useCardVisibility from '@/hooks/useCardVisibility';
+import { useCardVisibility } from '@/context/CardVisibilityContext';
 
 interface FinanceSummary {
   patrimonioLiquido: number;
@@ -21,6 +21,7 @@ interface FinanceSummary {
 
 interface FinancialSummaryProps {
   data: FinanceSummary;
+  hideControls?: boolean;
 }
 
 // Cores para diferentes tipos de ativos
@@ -40,14 +41,14 @@ const getColorForAssetType = (assetType: string): string => {
   if (assetType in assetColors) {
     return assetColors[assetType];
   }
-  
+
   // Gera uma cor para tipos não mapeados
   const hash = assetType.split('').reduce((acc, char) => char.charCodeAt(0) + acc, 0);
   const hue = hash % 360;
   return `hsl(${hue}, 70%, 60%)`;
 };
 
-const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
+const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data, hideControls }) => {
   const headerRef = useScrollAnimation();
   const summaryCardRef = useScrollAnimation();
   const incomeExpenseCardRef = useScrollAnimation();
@@ -113,6 +114,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
             id="patrimonio-resumo"
             isVisible={isCardVisible("patrimonio-resumo")}
             onToggleVisibility={() => toggleCardVisibility("patrimonio-resumo")}
+            hideControls={hideControls}
           >
             <div className="grid md:grid-cols-3 gap-6 p-8">
               <div className="text-center">
@@ -169,6 +171,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
               id="renda-despesas"
               isVisible={isCardVisible("renda-despesas")}
               onToggleVisibility={() => toggleCardVisibility("renda-despesas")}
+              hideControls={hideControls}
             >
               <div className="p-8">
                 <h3 className="text-xl font-semibold mb-4">Renda vs. Despesas</h3>
@@ -217,13 +220,14 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
               id="composicao-patrimonial"
               isVisible={isCardVisible("composicao-patrimonial")}
               onToggleVisibility={() => toggleCardVisibility("composicao-patrimonial")}
+              hideControls={hideControls}
             >
               <div className="p-6">
                 <h3 className="text-xl font-semibold mb-3">Composição Patrimonial</h3>
-                <DonutChart 
-                  data={compositionChartData} 
-                  height={160} 
-                  innerRadius={45} 
+                <DonutChart
+                  data={compositionChartData}
+                  height={160}
+                  innerRadius={45}
                   outerRadius={65}
                 />
               </div>
@@ -241,6 +245,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
               id="ativos"
               isVisible={isCardVisible("ativos")}
               onToggleVisibility={() => toggleCardVisibility("ativos")}
+              hideControls={hideControls}
             >
               <div className="p-8">
                 <h3 className="text-xl font-semibold mb-4">Ativos</h3>
@@ -273,6 +278,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data }) => {
               id="passivos"
               isVisible={isCardVisible("passivos")}
               onToggleVisibility={() => toggleCardVisibility("passivos")}
+              hideControls={hideControls}
             >
               <div className="p-8">
                 <h3 className="text-xl font-semibold mb-4">Passivos</h3>

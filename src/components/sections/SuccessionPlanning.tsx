@@ -2,22 +2,23 @@ import React from 'react';
 import { Shield, Users, FileText, GanttChart } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import HideableCard from '@/components/ui/HideableCard';
-import useCardVisibility from '@/hooks/useCardVisibility';
+import { useCardVisibility } from '@/context/CardVisibilityContext';
 import StatusChip from '@/components/ui/StatusChip';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { formatCurrency } from '@/utils/formatCurrency';
 
 interface SuccessionPlanningProps {
   data?: any;
+  hideControls?: boolean;
 }
 
-const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
+const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data, hideControls }) => {
   const headerRef = useScrollAnimation();
   const cardRef1 = useScrollAnimation();
   const cardRef2 = useScrollAnimation();
   const cardRef3 = useScrollAnimation();
   const { isCardVisible, toggleCardVisibility } = useCardVisibility();
-  
+
   // Dados de previdência privada
   const previdenciaPrivada = {
     valor: data?.previdencia_privada?.saldo_atual || 0,
@@ -25,7 +26,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
     contribuicaoMensal: data?.previdencia_privada?.contribuicao_mensal || 0,
     beneficiarios: data?.sucessao?.herdeiros?.map(h => `${h.tipo} (${h.percentual})`).join(", ") || "Não especificado",
   };
-  
+
   // Projeto de vida e legado baseado em dados reais
   const projetoDeVida = [
     {
@@ -35,8 +36,8 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
     },
     {
       fase: "Legado de Conhecimento",
-      descricao: data?.sucessao?.herdeiros?.some(h => h.tipo === "Filha") ? 
-        `Preparação da filha (${data?.sucessao?.herdeiros?.find(h => h.tipo === "Filha")?.idade} anos) para gestão patrimonial` : 
+      descricao: data?.sucessao?.herdeiros?.some(h => h.tipo === "Filha") ?
+        `Preparação da filha (${data?.sucessao?.herdeiros?.find(h => h.tipo === "Filha")?.idade} anos) para gestão patrimonial` :
         "Preparação dos herdeiros para gestão patrimonial",
       prazo: "A definir"
     },
@@ -46,22 +47,22 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
       prazo: "Contínuo"
     }
   ];
-  
+
   // Valores para o impacto financeiro diretamente do JSON
   const patrimonioTotal = data?.sucessao?.situacaoAtual?.patrimonioTotal || 0;
   const patrimonioTransmissivel = patrimonioTotal * 0.9; // Assumindo que 90% do patrimônio é transmissível
-  
+
   // Valores de ITCMD diretamente do JSON
   const impostoSemPlanejamento = data?.sucessao?.economiaITCMD?.semPlanejamento?.totalImpostos || 0;
   const impostoComPlanejamento = data?.sucessao?.economiaITCMD?.comPlanejamento?.totalImpostos || 0;
   const economiaEstimada = data?.sucessao?.economiaITCMD?.economia || (impostoSemPlanejamento - impostoComPlanejamento);
   const percentualEconomia = data?.sucessao?.economiaITCMD?.percentualEconomia || 0;
-  
+
   return (
     <section className="py-16 px-4" id="succession">
       <div className="max-w-5xl mx-auto">
         {/* Header */}
-        <div 
+        <div
           ref={headerRef as React.RefObject<HTMLDivElement>}
           className="mb-12 text-center animate-on-scroll"
         >
@@ -77,9 +78,9 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
             </p>
           </div>
         </div>
-        
+
         {/* Objectives and Financial Impact */}
-        <div 
+        <div
           ref={cardRef1 as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-1"
         >
@@ -89,6 +90,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
               id="objetivos-sucessao"
               isVisible={isCardVisible("objetivos-sucessao")}
               onToggleVisibility={() => toggleCardVisibility("objetivos-sucessao")}
+              hideControls={hideControls}
             >
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -112,7 +114,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                 </ul>
               </CardContent>
             </HideableCard>
-            
+
             {/* Financial Impact */}
             <HideableCard
               id="impacto-financeiro-sucessao"
@@ -142,7 +144,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="space-y-3">
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
@@ -153,7 +155,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                         <div className="bg-financial-danger h-full" style={{ width: '100%' }}></div>
                       </div>
                     </div>
-                    
+
                     <div className="space-y-1">
                       <div className="flex justify-between text-sm">
                         <span>Custo com planejamento</span>
@@ -163,10 +165,10 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                         <div className="bg-financial-success h-full" style={{ width: `${100 - percentualEconomia}%` }}></div>
                       </div>
                     </div>
-                    
+
                     <div className="bg-accent/10 p-3 rounded-lg">
                       <p className="text-sm">
-                        <span className="font-medium">Redução de {percentualEconomia}%</span> nos 
+                        <span className="font-medium">Redução de {percentualEconomia}%</span> nos
                         custos sucessórios com implementação do planejamento recomendado.
                       </p>
                     </div>
@@ -176,9 +178,9 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
             </HideableCard>
           </div>
         </div>
-        
+
         {/* Succession Instruments */}
-        <div 
+        <div
           ref={cardRef2 as React.RefObject<HTMLDivElement>}
           className="mb-8 animate-on-scroll delay-2"
         >
@@ -202,7 +204,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                   <div key={index} className="border-b last:border-0 pb-5 last:pb-0">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-lg font-medium">{instrumento.tipo}</h3>
-                      <StatusChip 
+                      <StatusChip
                         status="warning"
                         label="Pendente"
                       />
@@ -246,9 +248,9 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
             </CardContent>
           </HideableCard>
         </div>
-        
+
         {/* Private Pension and Life Project */}
-        <div 
+        <div
           ref={cardRef3 as React.RefObject<HTMLDivElement>}
           className="animate-on-scroll delay-3"
         >
@@ -274,14 +276,14 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                     <div className="text-sm text-muted-foreground">Tipo de previdência</div>
                     <div className="text-2xl font-medium">{previdenciaPrivada.tipo}</div>
                   </div>
-                  
+
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Beneficiários</div>
                     <div className="bg-secondary/50 p-3 rounded-lg">
                       {previdenciaPrivada.beneficiarios}
                     </div>
                   </div>
-                  
+
                   <div>
                     <div className="text-sm text-muted-foreground mb-1">Vantagens sucessórias</div>
                     <ul className="space-y-2">
@@ -302,7 +304,7 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data }) => {
                 </div>
               </CardContent>
             </HideableCard>
-            
+
             {/* Life Project */}
             <HideableCard
               id="projeto-vida-legado"

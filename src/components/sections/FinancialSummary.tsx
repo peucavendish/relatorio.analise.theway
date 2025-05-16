@@ -111,16 +111,20 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data, hideControls 
           className="mb-10 animate-on-scroll"
         >
           <HideableCard
-            id="patrimonio-resumo"
-            isVisible={isCardVisible("patrimonio-resumo")}
-            onToggleVisibility={() => toggleCardVisibility("patrimonio-resumo")}
+            id="financial-resumo"
+            isVisible={isCardVisible("financial-resumo")}
+            onToggleVisibility={() => toggleCardVisibility("financial-resumo")}
             hideControls={hideControls}
           >
             <div className="grid md:grid-cols-3 gap-6 p-8">
               <div className="text-center">
-                <h3 className="text-muted-foreground text-sm mb-1">Patrimônio Líquido</h3>
+                <h3 className="text-muted-foreground text-sm mb-1">Investimentos Financeiros</h3>
                 <div className="text-3xl font-bold mb-1">
-                  {formatCurrency(data.patrimonioLiquido)}
+                  {data.ativos.length > 0 && (
+                    <>
+                      <div>{formatCurrency(data.ativos[0].valor)}</div>
+                    </>
+                  )}
                 </div>
                 <StatusChip
                   status="success"
@@ -308,6 +312,41 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data, hideControls 
               </div>
             </HideableCard>
           </div>
+        </div>
+
+        {/* Patrimonio */}
+        <div
+          ref={summaryCardRef as React.RefObject<HTMLDivElement>}
+          className="animate-on-scroll delay-4 pt-8"
+        >
+          <HideableCard
+            id="patrimonio-resumo"
+            isVisible={isCardVisible("patrimonio-resumo")}
+            onToggleVisibility={() => toggleCardVisibility("patrimonio-resumo")}
+            hideControls={hideControls}
+          >
+            <div className="grid md:grid-cols-3 gap-6 p-8">
+              <div className="text-center">
+                <h3 className="text-muted-foreground text-sm mb-1">Total de Ativos</h3>
+                <div className="text-3xl font-bold mb-1">
+                  {formatCurrency(data.ativos.reduce((sum, asset) => sum + asset.valor, 0))}
+                </div>
+              </div>
+
+              <div className="text-center">
+                <h3 className="text-muted-foreground text-sm mb-1">Total de passivos</h3>
+                <div className="text-3xl font-bold mb-1">
+                  {formatCurrency(data.passivos.reduce((sum, liability) => sum + liability.valor, 0))}
+                </div>
+              </div>
+              <div className="text-center">
+                <h3 className="text-muted-foreground text-sm mb-1">Patrimônio Líquido</h3>
+                <div className="text-3xl font-bold mb-1">
+                  {formatCurrency(data.patrimonioLiquido)}
+                </div>
+              </div>
+            </div>
+          </HideableCard>
         </div>
       </div>
     </section>

@@ -78,7 +78,7 @@ interface RetirementProjectionChartProps {
   lifeExpectancy: number;
   currentPortfolio: number;
   monthlyContribution: number;
-  targetAmount: number;
+  rendaMensalDesejada: number;
   safeWithdrawalRate: number;
   inflationRate: number;
   scenarios?: Array<{
@@ -342,13 +342,13 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
   lifeExpectancy,
   currentPortfolio,
   monthlyContribution,
-  targetAmount,
+  rendaMensalDesejada,
   safeWithdrawalRate,
   inflationRate
 }) => {
   const [selectedView, setSelectedView] = useState<'completo' | '10anos' | '20anos' | '30anos'>('completo');
   const [taxaRetorno, setTaxaRetorno] = useState<number>(0.03); // 3% real ao ano como valor inicial
-  const [rendaMensal, setRendaMensal] = useState<number>(targetAmount / 12);
+  const [rendaMensal, setRendaMensal] = useState<number>(rendaMensalDesejada);
   const [idadeEstimada, setIdadeEstimada] = useState<number>(100); // Idade fixa em 100 anos
   
   // Função para validar a idade estimada
@@ -419,7 +419,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
         <div className="flex flex-col w-full gap-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full">
             <div>
-              <CardTitle className="text-xl font-semibold">Projeção Patrimonial</CardTitle>
+              <CardTitle className="text-xl font-semibold">Cenários de Aposentadoria</CardTitle>
               <CardDescription className="mt-1">
                 Evolução do patrimônio em diferentes cenários ao longo do tempo
               </CardDescription>
@@ -652,9 +652,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                 <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.capitalNecessario1))}</td>
                 <td className="py-2 px-3 text-right">{formatCurrency(rendaMensal)}</td>
                 <td className="py-2 px-3 text-right">
-                  {projection.idadeEsgotamento1 
-                    ? `Dura até os ${projection.idadeEsgotamento1} anos de idade` 
-                    : `Dura até os ${100} anos de idade`}
+                  {`Dura até os ${100} anos de idade`}
                 </td>
               </tr>
               <tr>
@@ -666,9 +664,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                 <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.capitalNecessario2))}</td>
                 <td className="py-2 px-3 text-right">{formatCurrency(rendaMensal)}</td>
                 <td className="py-2 px-3 text-right">
-                  {projection.idadeEsgotamento2 
-                    ? `Dura até os ${projection.idadeEsgotamento2} anos de idade` 
-                    : `Dura até os ${100} anos de idade`}
+                  {`Dura até os ${100} anos de idade`}
                 </td>
               </tr>
               <tr className="bg-muted/10">
@@ -680,9 +676,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                 <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.capitalNecessario3))}</td>
                 <td className="py-2 px-3 text-right">{formatCurrency(rendaMensal)}</td>
                 <td className="py-2 px-3 text-right">
-                  {projection.idadeEsgotamento3
-                    ? `Dura até os ${projection.idadeEsgotamento3} anos de idade` 
-                    : `Dura até os ${100} anos de idade`}
+                  {`Dura até os ${100} anos de idade`}
                 </td>
               </tr>
             </tbody>

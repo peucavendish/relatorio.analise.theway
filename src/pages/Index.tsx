@@ -82,8 +82,8 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       valorPGBL: userReports?.tributario?.deducoes?.find(d => d.tipo === "PGBL")?.valor || 0,
 
       taxaRetiradaSegura: 0.04,
-      taxaInflacao: 0.035,
-      taxaJurosReal: 0.04
+      taxaInflacao: 0.03,
+      taxaJurosReal: 0.03
     },
     objetivos: userReports?.objetivos || [],
     tributario: {

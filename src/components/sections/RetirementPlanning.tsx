@@ -167,7 +167,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
               </div>
 
               <div className="flex flex-col items-center">
-                <div className="text-sm text-muted-foreground mb-1">Total Investido</div>
+                <div className="text-sm text-muted-foreground mb-1">Investimentos Financeiros Atual</div>
                 <div className="text-2xl font-semibold">
                   {formatCurrency(data?.totalInvestido || 0)}
                 </div>
@@ -203,14 +203,6 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
             <CardContent className="space-y-6">
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="flex flex-col items-center p-4 bg-muted/30 rounded-lg">
-                  <Calculator size={28} className="text-financial-success mb-2" />
-                  <div className="text-sm text-muted-foreground">Renda Mensal Desejada</div>
-                  <div className="text-xl font-semibold mt-1">
-                    {formatCurrency(data?.rendaMensalDesejada || 50000)}
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-center p-4 bg-muted/30 rounded-lg">
                   <Calendar size={28} className="text-financial-info mb-2" />
                   <div className="text-sm text-muted-foreground">Idade Planejada</div>
                   <div className="text-xl font-semibold mt-1">
@@ -220,12 +212,20 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                     ({data?.anosRestantes || 0} anos restantes)
                   </div>
                 </div>
+                
+                <div className="flex flex-col items-center p-4 bg-muted/30 rounded-lg">
+                  <Calculator size={28} className="text-financial-success mb-2" />
+                  <div className="text-sm text-muted-foreground">Renda Mensal Desejada</div>
+                  <div className="text-xl font-semibold mt-1">
+                    {formatCurrency(data?.rendaMensalDesejada || 0)}
+                  </div>
+                </div>
 
                 <div className="flex flex-col items-center p-4 bg-muted/30 rounded-lg">
                   <PiggyBank size={28} className="text-financial-highlight mb-2" />
-                  <div className="text-sm text-muted-foreground">Patrimônio Alvo</div>
+                  <div className="text-sm text-muted-foreground">Investimentos Financeiros Alvo</div>
                   <div className="text-xl font-semibold mt-1">
-                    {formatCurrency(data?.patrimonioAlvo || 13068655.02)}
+                    {formatCurrency(data?.patrimonioAlvo || 0)}
                   </div>
                 </div>
               </div>
@@ -239,7 +239,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                   </li>
                   <li className="flex items-start text-sm">
                     <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
-                    <span>Inflação média de 3,5 % a.a.</span>
+                    <span>Inflação média de {(data?.taxaInflacao || 0) * 100}% a.a.</span>
                   </li>
                   <li className="flex items-start text-sm">
                     <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
@@ -273,14 +273,14 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
             </CardHeader>
             <CardContent>
               <RetirementProjectionChart
-                currentAge={data?.idadeAtual || 30}
+                currentAge={data?.idadeAtual || 0}
                 retirementAge={data?.idadeAposentadoria || 65}
                 lifeExpectancy={data?.expectativaVida || 100}
-                currentPortfolio={data?.totalInvestido || 1000000}
-                monthlyContribution={data?.excedenteMensal || 10000}
-                targetAmount={data?.patrimonioAlvo || 5000000}
-                safeWithdrawalRate={data?.taxaRetiradaSegura || 0.04}
-                inflationRate={data?.taxaInflacao || 0.035}
+                currentPortfolio={data?.totalInvestido || 0}
+                monthlyContribution={data?.excedenteMensal || 0}
+                rendaMensalDesejada={data?.rendaMensalDesejada || 0}
+                safeWithdrawalRate={data?.taxaRetiradaSegura || 0.03}
+                inflationRate={data?.taxaInflacao || 0.03}
                 scenarios={data?.cenarios || []}
               />
             </CardContent>

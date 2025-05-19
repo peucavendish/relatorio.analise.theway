@@ -51,6 +51,7 @@ const getColorForAssetType = (assetType: string): string => {
 const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data, hideControls }) => {
   const headerRef = useScrollAnimation();
   const summaryCardRef = useScrollAnimation();
+  const patrimonioCardRef = useScrollAnimation();
   const incomeExpenseCardRef = useScrollAnimation();
   const assetsCardRef = useScrollAnimation();
   const liabilitiesCardRef = useScrollAnimation();
@@ -112,7 +113,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data, hideControls 
         >
           <HideableCard
             id="financial-resumo"
-            isVisible={true}
+            isVisible={isCardVisible("financial-resumo")}
             onToggleVisibility={() => toggleCardVisibility("financial-resumo")}
             hideControls={hideControls}
           >
@@ -316,7 +317,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data, hideControls 
 
         {/* Patrimonio */}
         <div
-          ref={summaryCardRef as React.RefObject<HTMLDivElement>}
+          ref={patrimonioCardRef as React.RefObject<HTMLDivElement>}
           className="animate-on-scroll delay-4 pt-8"
         >
           <HideableCard

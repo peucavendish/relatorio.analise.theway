@@ -24,13 +24,14 @@ const ALL_CARD_IDS = [
     "composicao-patrimonial",
     "renda-despesas",
     "passivos",
-    "ativos"
+    "ativos",
+    "financial-resumo"
 ];
 
-// Função para criar um objeto com todos os cards ocultos
+// Função para criar um objeto com todos os cards visíveis
 const createAllHiddenState = () => {
     return ALL_CARD_IDS.reduce((acc, cardId) => {
-        acc[cardId] = true;
+        acc[cardId] = false; // false = visível (não oculto)
         return acc;
     }, {} as Record<string, boolean>);
 };

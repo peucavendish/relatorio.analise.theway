@@ -328,10 +328,10 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                         <ArrowRight size={14} />
                       </div>
                       <div className="text-sm">
-                        <span className="font-medium block">Aumentar aportes mensais</span>
-                        <span className="text-muted-foreground">
-                          Investir {percentualInvestir()}% do excedente ({formatCurrency(getAporteRecomendado())}/mês)
-                        </span>
+                      <span className="font-medium block">Aumentar aportes mensais</span>
+                      <span className="text-muted-foreground">
+                      Investir {formatCurrency(data?.aporteMensalRecomendado || 0)}/mês
+                      </span>
                       </div>
                     </li>
                     {data?.possuiPGBL && (
@@ -362,8 +362,8 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                 </div>
               </div>
 
-              {adequaAosCenarios() ? (
-                // Caso o cliente se adeque aos cenários
+              {data?.aporteMensalRecomendado <= data?.excedenteMensal ? (
+                // Caso o cliente se adeque ao cenário
                 <div className="p-4 border border-financial-success/30 bg-financial-success/5 rounded-lg">
                   <h4 className="font-medium text-financial-success mb-2">Projeção da Estratégia</h4>
                   <p className="text-sm">
@@ -375,7 +375,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                   </p>
                 </div>
               ) : (
-                // Caso o cliente NÃO se adeque aos cenários
+                // Caso o cliente NÃO se adeque ao cenário
                 <div className="space-y-4">
                   <div className="p-4 border border-financial-warning/30 bg-financial-warning/5 rounded-lg">
                     <div className="flex items-start gap-3 mb-2">
@@ -384,8 +384,8 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                     </div>
                     <p className="text-sm mb-3">
                       Com base nas projeções, percebemos que será necessário realizar ajustes para
-                      viabilizar seu plano de aposentadoria. O cenário atual exigiria um aporte mensal {calcularPorcentagemFaltante()}%
-                      maior do que seu excedente atual permite.
+                      viabilizar seu plano de aposentadoria. O cenário atual exigiria um aporte mensal maior do que 
+                      seu excedente atual permite.
                     </p>
                     <div className="space-y-2">
                       <h5 className="text-sm font-medium">Alternativas a considerar:</h5>
@@ -404,7 +404,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                       <div className="bg-white/40 p-3 rounded">
                         <p className="text-sm font-medium">3. Redução da renda desejada</p>
                         <p className="text-xs text-muted-foreground">
-                          Reduzir a renda mensal desejada em aproximadamente {calcularReducaoRendaNecessaria()}% tornaria
+                          Reduzir a renda mensal desejada tornaria
                           o plano mais viável com seus recursos atuais.
                         </p>
                       </div>

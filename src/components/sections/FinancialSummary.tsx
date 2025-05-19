@@ -112,7 +112,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data, hideControls 
         >
           <HideableCard
             id="financial-resumo"
-            isVisible={isCardVisible("financial-resumo")}
+            isVisible={true}
             onToggleVisibility={() => toggleCardVisibility("financial-resumo")}
             hideControls={hideControls}
           >

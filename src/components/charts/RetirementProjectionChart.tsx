@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
+  AreaChart,
   LineChart, 
   Line, 
   XAxis, 
@@ -8,7 +9,8 @@ import {
   Tooltip, 
   Legend, 
   ResponsiveContainer,
-  ReferenceLine
+  ReferenceLine,
+  Area
 } from 'recharts';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { ChartContainer } from '@/components/ui/chart';
@@ -313,25 +315,11 @@ const calculateRetirementProjection = (
 };
 
 const chartConfig = {
-  capital1: {
-    label: "Aposentadoria 5 anos antes",
-    theme: {
-      light: "#0EA5E9",
-      dark: "#0EA5E9",
-    }
-  },
   capital2: {
     label: "Aposentadoria no prazo desejado",
     theme: {
       light: "#7EC866",
       dark: "#7EC866",
-    }
-  },
-  capital3: {
-    label: "Aposentadoria 5 anos depois",
-    theme: {
-      light: "#000000",
-      dark: "#000000",
     }
   },
 };
@@ -419,9 +407,9 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
         <div className="flex flex-col w-full gap-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between w-full">
             <div>
-              <CardTitle className="text-xl font-semibold">Cenários de Aposentadoria</CardTitle>
+              <CardTitle className="text-xl font-semibold">Cenário de Aposentadoria</CardTitle>
               <CardDescription className="mt-1">
-                Evolução do patrimônio em diferentes cenários ao longo do tempo
+                Evolução do patrimônio no prazo desejado ao longo do tempo
               </CardDescription>
             </div>
             <ToggleGroup 
@@ -507,7 +495,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
         <div className="h-[320px] mb-6">
           <ChartContainer config={chartConfig} className="h-full w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart
+            <AreaChart
               data={filteredData}
               margin={{ top: 25, right: 30, left: 20, bottom: 40 }}
             >
@@ -566,48 +554,20 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                 wrapperStyle={{ outline: 'none' }}
               />
               
-              {/* Linhas de referência para as idades de aposentadoria */}
-              <ReferenceLine 
-                x={projection.idadeAposentadoria1} 
-                stroke="#0EA5E9" 
-                strokeDasharray="3 3" 
-              />
-              
+              {/* Linha de referência para a idade de aposentadoria desejada */}
               <ReferenceLine 
                 x={projection.idadeAposentadoria2} 
                 stroke="#7EC866" 
                 strokeDasharray="3 3" 
               />
               
-              <ReferenceLine 
-                x={projection.idadeAposentadoria3} 
-                stroke="#000000" 
-                strokeDasharray="3 3" 
-              />
-              
-              <Line 
-                type="monotone" 
-                dataKey="capital1" 
-                name="Aposentadoria 5 anos antes" 
-                stroke="#0EA5E9" 
-                strokeWidth={2} 
-                dot={false} 
-                activeDot={{ r: 5, strokeWidth: 1 }}
-              />
-              <Line 
+              <Area 
                 type="monotone" 
                 dataKey="capital2" 
                 name="Aposentadoria no prazo desejado" 
                 stroke="#7EC866" 
-                strokeWidth={2} 
-                dot={false} 
-                activeDot={{ r: 5, strokeWidth: 1 }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="capital3" 
-                name="Aposentadoria 5 anos depois" 
-                stroke="#000000" 
+                fill="#7EC866"
+                fillOpacity={0.2}
                 strokeWidth={2} 
                 dot={false} 
                 activeDot={{ r: 5, strokeWidth: 1 }}
@@ -622,10 +582,10 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                   fontSize: 11,
                   lineHeight: '1.2em'
                 }}
-                iconType="line"
+                iconType="plainline"
                 iconSize={10}
               />
-            </LineChart>
+            </AreaChart>
           </ResponsiveContainer>
         </ChartContainer>
         </div>
@@ -642,19 +602,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                 <th className="py-2 px-3 text-right font-medium">Duração do Patrimônio</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
-              <tr className="bg-accent/5">
-                <td className="py-2 px-3 flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-[#0EA5E9] mr-2"></div>
-                  <span>5 anos antes ({projection.idadeAposentadoria1} anos)</span>
-                </td>
-                <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.aporteMensal1))}</td>
-                <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.capitalNecessario1))}</td>
-                <td className="py-2 px-3 text-right">{formatCurrency(rendaMensal)}</td>
-                <td className="py-2 px-3 text-right">
-                  {`Dura até os ${100} anos de idade`}
-                </td>
-              </tr>
+            <tbody>
               <tr>
                 <td className="py-2 px-3 flex items-center">
                   <div className="w-3 h-3 rounded-full bg-[#7EC866] mr-2"></div>
@@ -662,18 +610,6 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
                 </td>
                 <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.aporteMensal2))}</td>
                 <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.capitalNecessario2))}</td>
-                <td className="py-2 px-3 text-right">{formatCurrency(rendaMensal)}</td>
-                <td className="py-2 px-3 text-right">
-                  {`Dura até os ${100} anos de idade`}
-                </td>
-              </tr>
-              <tr className="bg-muted/10">
-                <td className="py-2 px-3 flex items-center">
-                  <div className="w-3 h-3 rounded-full bg-black mr-2"></div>
-                  <span>5 anos depois ({projection.idadeAposentadoria3} anos)</span>
-                </td>
-                <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.aporteMensal3))}</td>
-                <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.capitalNecessario3))}</td>
                 <td className="py-2 px-3 text-right">{formatCurrency(rendaMensal)}</td>
                 <td className="py-2 px-3 text-right">
                   {`Dura até os ${100} anos de idade`}

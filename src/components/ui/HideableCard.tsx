@@ -25,7 +25,7 @@ const HideableCard: React.FC<HideableCardProps> = ({
   }
 
   return (
-    <Card id={id} className={cn('relative', className)}>
+    <Card id={id} className={cn('relative', className, !isVisible && 'bg-slate-800/10')}>
       {!hideControls && (
         <button
           type="button"
@@ -45,8 +45,10 @@ const HideableCard: React.FC<HideableCardProps> = ({
       {children}
 
       {!isVisible && (
-        <div className="absolute bottom-1 right-1 text-[10px] text-muted-foreground/40">
-          oculto para cliente
+        <div className="absolute inset-0 bg-slate-800/20 flex justify-end items-end p-1">
+          <div className="text-[10px] text-white/80 font-medium">
+            oculto para cliente
+          </div>
         </div>
       )}
     </Card>

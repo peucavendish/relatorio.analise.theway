@@ -90,6 +90,14 @@ interface RetirementProjectionChartProps {
   }>;
 }
 
+interface LiquidityEvent {
+  id: string;
+  name: string;
+  age: number;
+  value: number;
+  isPositive: boolean;
+}
+
 // Interface para os resultados de duração do capital
 interface DuracaoCapital {
   idadeFinal: number;
@@ -337,31 +345,49 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
   const [selectedView, setSelectedView] = useState<'completo' | '10anos' | '20anos' | '30anos'>('completo');
   const [taxaRetorno, setTaxaRetorno] = useState<number>(0.03); // 3% real ao ano como valor inicial
   const [rendaMensal, setRendaMensal] = useState<number>(rendaMensalDesejada);
-  const [idadeEstimada, setIdadeEstimada] = useState<number>(100); // Idade fixa em 100 anos
+  const [idadeAposentadoria, setIdadeAposentadoria] = useState<number>(retirementAge); // Idade desejada de aposentadoria
+  const [aporteMensal, setAporteMensal] = useState<number>(monthlyContribution); // Aporte mensal personalizado
+  const [liquidityEvents, setLiquidityEvents] = useState<LiquidityEvent[]>([]); // Eventos de liquidez
+  const [newEventName, setNewEventName] = useState<string>('');
+  const [newEventAge, setNewEventAge] = useState<number>(currentAge + 5); // Valor padrão para idade
+  const [newEventValue, setNewEventValue] = useState<number>(0); // Valor do evento
+  const [newEventType, setNewEventType] = useState<'positive' | 'negative'>('positive'); // Tipo do evento
   
-  // Função para validar a idade estimada
-  const handleIdadeEstimadaChange = (valor: string) => {
-    const idadeDigitada = parseInt(valor) || 100;
-    // Se o usuario estiver editando o campo, permitir a edição
-    // Apenas ao terminar a edição (perder o foco do campo) validamos o valor mínimo
-    setIdadeEstimada(idadeDigitada);
+  // Função para adicionar um novo evento de liquidez
+  const handleAddLiquidityEvent = () => {
+    if (!newEventName || newEventAge < currentAge || newEventValue <= 0) return;
+
+    // Criar novo evento
+    const newEvent: LiquidityEvent = {
+      id: Date.now().toString(),
+      name: newEventName,
+      age: newEventAge,
+      value: newEventValue,
+      isPositive: newEventType === 'positive'
+    };
+
+    // Adicionar à lista de eventos
+    setLiquidityEvents([...liquidityEvents, newEvent]);
+
+    // Resetar campos
+    setNewEventName('');
+    setNewEventAge(currentAge + 5);
+    setNewEventValue(0);
+    setNewEventType('positive');
+  };
+
+  // Função para remover um evento de liquidez
+  const handleRemoveLiquidityEvent = (id: string) => {
+    setLiquidityEvents(liquidityEvents.filter(event => event.id !== id));
   };
   
-  // Função para validar a idade mínima ao perder o foco
-  const handleIdadeEstimadaBlur = () => {
-    const idadeMinima = retirementAge + 10; // Idade de aposentadoria + 5 anos do cenário mais tardio
-    if (idadeEstimada < idadeMinima) {
-      setIdadeEstimada(idadeMinima);
-    }
-  };
-  
-  // Verificar se é necessário atualizar a idadeEstimada quando o retirementAge mudar
+  // Atualizar o cálculo quando a idade de aposentadoria mudar
   useEffect(() => {
-    const idadeMinima = retirementAge + 10; // Idade mínima baseada na maior idade de aposentadoria + 5 anos
-    if (idadeEstimada < idadeMinima) {
-      setIdadeEstimada(idadeMinima);
+    // Garantir que a idade é pelo menos a idade atual + 1
+    if (idadeAposentadoria < currentAge + 1) {
+      setIdadeAposentadoria(currentAge + 1);
     }
-  }, [retirementAge]); // Remover idadeEstimada da dependência para evitar loops
+  }, [currentAge, idadeAposentadoria]);
   
   // Certifique-se de que o domínio do eixo X inclua todas as idades até 100
   const xDomain = React.useMemo(() => {
@@ -370,17 +396,42 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
   
   // Calcular projeção baseada nas propriedades e nos estados
   const projection = React.useMemo(() => {
-    return calculateRetirementProjection(
+    // Ajustar o cálculo para incluir os eventos de liquidez
+    const result = calculateRetirementProjection(
       currentAge,
-      retirementAge,
-      100, // Fixado em 100 anos para garantir consistência
+      idadeAposentadoria,  // Usar a idade de aposentadoria personalizada
+      100, // Idade final fixada em 100 anos
       currentPortfolio,
-      monthlyContribution,
+      aporteMensal,       // Usar o aporte mensal personalizado
       rendaMensal,
       taxaRetorno,
-      taxaRetorno * 0.8 // Taxa reduzida para fase de consumo (80% da acumulação)
+      taxaRetorno * 0.8   // Taxa reduzida para fase de consumo (80% da acumulação)
     );
-  }, [currentAge, retirementAge, currentPortfolio, monthlyContribution, rendaMensal, taxaRetorno]);
+
+    // Aplicar os eventos de liquidez ao fluxo de capital
+    const fluxoAjustado = [...result.fluxoCapital];
+    
+    // Para cada evento de liquidez, ajustar o valor do capital no ano correspondente e subsequentes
+    liquidityEvents.forEach(event => {
+      // Encontrar o índice do ano do evento
+      const eventIndex = fluxoAjustado.findIndex(item => item.age === event.age);
+      if (eventIndex !== -1) {
+        // Calcular o valor ajustado (positivo ou negativo)
+        const valorAjuste = event.isPositive ? event.value : -event.value;
+        
+        // Ajustar o capital no ano do evento e em todos os anos subsequentes
+        for (let i = eventIndex; i < fluxoAjustado.length; i++) {
+          fluxoAjustado[i].capital2 += valorAjuste;
+        }
+      }
+    });
+    
+    // Retornar o resultado com o fluxo ajustado
+    return {
+      ...result,
+      fluxoCapital: fluxoAjustado
+    };
+  }, [currentAge, idadeAposentadoria, currentPortfolio, aporteMensal, rendaMensal, taxaRetorno, liquidityEvents]);
   
   const filteredData = React.useMemo(() => {
     // Certifique-se de que todos os pontos até a expectativa de vida são exibidos
@@ -449,7 +500,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
             </ToggleGroup>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-4">
+          <div className="grid md:grid-cols-3 gap-4 mb-6">
             <div className="space-y-2">
               <Label htmlFor="taxaRetorno">Taxa de Retorno Real (% a.a.)</Label>
               <div className="flex items-center gap-2">
@@ -477,16 +528,127 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="idadeEstimada">Idade Estimada</Label>
+              <Label htmlFor="idadeAposentadoria">Idade de Aposentadoria</Label>
               <Input
-                id="idadeEstimada"
+                id="idadeAposentadoria"
                 type="number"
-                value={idadeEstimada}
-                onChange={(e) => handleIdadeEstimadaChange(e.target.value)}
-                onBlur={handleIdadeEstimadaBlur}
+                value={idadeAposentadoria}
+                onChange={(e) => setIdadeAposentadoria(parseInt(e.target.value) || retirementAge)}
+                min={currentAge + 1}
+                max={90}
                 className="h-9"
               />
             </div>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-4 mb-6">
+            <div className="space-y-2">
+              <Label htmlFor="aporteMensal">Aporte Mensal</Label>
+              <CurrencyInput
+                id="aporteMensal"
+                value={aporteMensal}
+                onChange={(value) => setAporteMensal(value)}
+                className="h-9"
+              />
+            </div>
+            
+            <div className="md:col-span-2">
+              <div className="flex items-center justify-between mb-2">
+                <Label>Eventos de Liquidez</Label>
+                <div className="text-xs text-muted-foreground">
+                  Eventos que afetam seu patrimônio em momentos específicos (ex: venda de imóvel, herança, compra de bem)
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* Seção de Eventos de Liquidez */}
+          <div className="border border-border rounded-md overflow-hidden mb-6">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/30">
+                <tr>
+                  <th className="py-2 px-3 text-left font-medium">Evento</th>
+                  <th className="py-2 px-3 text-center font-medium">Idade</th>
+                  <th className="py-2 px-3 text-center font-medium">Tipo</th>
+                  <th className="py-2 px-3 text-right font-medium">Valor</th>
+                  <th className="py-2 px-3 text-center font-medium">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {liquidityEvents.map(event => (
+                  <tr key={event.id}>
+                    <td className="py-2 px-3">{event.name}</td>
+                    <td className="py-2 px-3 text-center">{event.age} anos</td>
+                    <td className="py-2 px-3 text-center">
+                      <span className={`inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-medium ${event.isPositive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {event.isPositive ? 'Entrada' : 'Saída'}
+                      </span>
+                    </td>
+                    <td className="py-2 px-3 text-right font-medium">
+                      {formatCurrency(event.value)}
+                    </td>
+                    <td className="py-2 px-3 text-center">
+                      <button 
+                        onClick={() => handleRemoveLiquidityEvent(event.id)}
+                        className="text-red-500 hover:text-red-700"
+                        title="Remover evento"
+                      >
+                        ×
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                
+                {/* Formulário para adicionar novo evento */}
+                <tr className="bg-accent/5">
+                  <td className="py-2 px-3">
+                    <Input 
+                      placeholder="Nome do evento" 
+                      value={newEventName}
+                      onChange={(e) => setNewEventName(e.target.value)}
+                      className="h-8 text-xs"
+                    />
+                  </td>
+                  <td className="py-2 px-3 text-center">
+                    <Input 
+                      type="number" 
+                      value={newEventAge}
+                      onChange={(e) => setNewEventAge(parseInt(e.target.value) || currentAge + 1)}
+                      min={currentAge}
+                      max={90}
+                      className="h-8 text-xs w-20 mx-auto text-center"
+                    />
+                  </td>
+                  <td className="py-2 px-3 text-center">
+                    <select 
+                      value={newEventType}
+                      onChange={(e) => setNewEventType(e.target.value as 'positive' | 'negative')}
+                      className="h-8 text-xs rounded-md border border-input bg-background px-2"
+                    >
+                      <option value="positive">Entrada</option>
+                      <option value="negative">Saída</option>
+                    </select>
+                  </td>
+                  <td className="py-2 px-3 text-right">
+                    <CurrencyInput
+                      value={newEventValue}
+                      onChange={(value) => setNewEventValue(value)}
+                      className="h-8 text-xs w-28 ml-auto"
+                    />
+                  </td>
+                  <td className="py-2 px-3 text-center">
+                    <button 
+                      onClick={handleAddLiquidityEvent}
+                      className="bg-primary text-white h-8 w-8 rounded-full flex items-center justify-center text-lg font-bold"
+                      title="Adicionar evento"
+                      disabled={!newEventName || newEventAge < currentAge || newEventValue <= 0}
+                    >
+                      +
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </CardHeader>
@@ -556,9 +718,15 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
               
               {/* Linha de referência para a idade de aposentadoria desejada */}
               <ReferenceLine 
-                x={projection.idadeAposentadoria2} 
+                x={idadeAposentadoria} 
                 stroke="#7EC866" 
                 strokeDasharray="3 3" 
+                label={{
+                  value: `Aposentadoria (${idadeAposentadoria} anos)`,
+                  position: 'insideTopRight',
+                  fill: '#7EC866',
+                  fontSize: 11
+                }}
               />
               
               <Area 
@@ -606,9 +774,9 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
               <tr>
                 <td className="py-2 px-3 flex items-center">
                   <div className="w-3 h-3 rounded-full bg-[#7EC866] mr-2"></div>
-                  <span>No prazo desejado ({projection.idadeAposentadoria2} anos)</span>
+                  <span>Aposentadoria aos {idadeAposentadoria} anos</span>
                 </td>
-                <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.aporteMensal2))}</td>
+                <td className="py-2 px-3 text-right">{formatCurrency(aporteMensal)}</td>
                 <td className="py-2 px-3 text-right">{formatCurrency(Math.round(projection.capitalNecessario2))}</td>
                 <td className="py-2 px-3 text-right">{formatCurrency(rendaMensal)}</td>
                 <td className="py-2 px-3 text-right">

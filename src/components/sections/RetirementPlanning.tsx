@@ -42,63 +42,40 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
 
   const { isCardVisible, toggleCardVisibility } = useCardVisibility();
 
-  // Calculate percentage of income that should be invested correctly
+  // Calculate percentage of income that should be invested (aligned with spreadsheet)
   const percentualInvestir = () => {
-    if (!data?.excedenteMensal || !data?.cenarios || data.cenarios.length < 2) return 0;
-
-    const aporteCenarioSecundario = data.cenarios[1]?.aporteMensal || 0;
-    return Math.round((aporteCenarioSecundario / data.excedenteMensal) * 100);
+    if (!data?.excedenteMensal || !data?.aporteMensalRecomendado) return 0;
+    return Math.round((data.aporteMensalRecomendado / data.excedenteMensal) * 100);
   };
 
-  // Determine which aporte to use based on conditions
+  // Get recommended monthly investment (aligned with spreadsheet)
   const getAporteRecomendado = () => {
-    if (!data?.cenarios || !data.excedenteMensal) {
-      return data?.aporteMensalRecomendado || 0;
-    }
-    // Get value from the second scenario (if exists)
-    const aporteCenarioSecundario = data.cenarios[1]?.aporteMensal || 0;
-
-    // If it's greater than the excedente, use excedente
-    if (aporteCenarioSecundario > data.excedenteMensal) {
-      return data.excedenteMensal;
-    }
-
-    // Otherwise use the value from cenarios[1]
-    return aporteCenarioSecundario;
+    return data?.aporteMensalRecomendado || 0;
   };
 
-  // Verifica se o cliente se adequa a algum dos cenários
+  // Check if client fits the scenarios (aligned with spreadsheet)
   const adequaAosCenarios = () => {
-    if (!data?.cenarios || !data.excedenteMensal || data.cenarios.length < 2) return false;
-
-    // Verifica se o aporte do segundo cenário é viável com o excedente mensal
-    const aporteCenarioSecundario = data.cenarios[1]?.aporteMensal || 0;
-    return aporteCenarioSecundario <= data.excedenteMensal;
+    return data?.aporteMensalRecomendado <= (data?.excedenteMensal || 0);
   };
 
-  // Calcula a porcentagem adicional necessária para atingir o cenário mais viável
+  // Calculate missing percentage (aligned with spreadsheet)
   const calcularPorcentagemFaltante = () => {
-    if (!data?.cenarios || !data.excedenteMensal || data.cenarios.length < 2) return 0;
+    if (!data?.aporteMensalRecomendado || !data.excedenteMensal) return 0;
+    if (data.aporteMensalRecomendado <= data.excedenteMensal) return 0;
 
-    const aporteCenarioSecundario = data.cenarios[1]?.aporteMensal || 0;
-
-    if (aporteCenarioSecundario <= data.excedenteMensal) return 0;
-
-    const faltante = aporteCenarioSecundario - data.excedenteMensal;
+    const faltante = data.aporteMensalRecomendado - data.excedenteMensal;
     return Math.round((faltante / data.excedenteMensal) * 100);
   };
 
-  // Calcular redução necessária na renda mensal desejada
+  // Calculate necessary income reduction (aligned with spreadsheet)
   const calcularReducaoRendaNecessaria = () => {
-    if (!data?.rendaMensalDesejada || !data.excedenteMensal || !data?.cenarios || data.cenarios.length < 2) return 0;
+    if (!data?.rendaMensalDesejada || !data.excedenteMensal || !data?.aporteMensalRecomendado) return 0;
 
-    const aporteCenarioSecundario = data.cenarios[1]?.aporteMensal || 0;
+    if (data.aporteMensalRecomendado <= data.excedenteMensal) return 0;
 
-    // Se o aporte for viável, não é necessária redução
-    if (aporteCenarioSecundario <= data.excedenteMensal) return 0;
-
-    // Estimativa básica: quanto precisaria reduzir a renda desejada para que o aporte fosse viável
-    const porcentagemReducao = Math.round((1 - (data.excedenteMensal / aporteCenarioSecundario)) * 100);
+    const porcentagemReducao = Math.round(
+      (1 - (data.excedenteMensal / data.aporteMensalRecomendado)) * 100
+    );
     return porcentagemReducao > 0 ? porcentagemReducao : 0;
   };
 
@@ -212,7 +189,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                     ({data?.anosRestantes || 0} anos restantes)
                   </div>
                 </div>
-                
+
                 <div className="flex flex-col items-center p-4 bg-muted/30 rounded-lg">
                   <Calculator size={28} className="text-financial-success mb-2" />
                   <div className="text-sm text-muted-foreground">Renda Mensal Desejada</div>
@@ -231,23 +208,23 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
               </div>
 
               <div className="bg-muted/10 border border-border/80 rounded-lg p-4">
-                <h4 className="font-medium mb-2">Premissas Utilizadas</h4>
+                <h4 className="font-medium mb-2">Premissas Utilizadas (alinhadas com a planilha)</h4>
                 <ul className="grid md:grid-cols-2 gap-2">
                   <li className="flex items-start text-sm">
                     <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
-                    <span>Taxa de juros real de {(data?.taxaJurosReal || 0) * 100}% a.a.</span>
+                    <span>Taxa de juros real de {(data?.taxaJurosReal || 0.03) * 100}% a.a. (acumulação e consumo)</span>
                   </li>
                   <li className="flex items-start text-sm">
                     <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
-                    <span>Inflação média de {(data?.taxaInflacao || 0) * 100}% a.a.</span>
+                    <span>Inflação média de {(data?.taxaInflacao || 0.0345) * 100}% a.a.</span>
                   </li>
                   <li className="flex items-start text-sm">
                     <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
-                    <span>Expectativa de vida até {data?.expectativaVida || 0} anos</span>
+                    <span>Expectativa de vida até {data?.expectativaVida || 100} anos</span>
                   </li>
                   <li className="flex items-start text-sm">
                     <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
-                    <span>Taxa de retirada segura de {(data?.taxaRetiradaSegura || 0) * 100}%</span>
+                    <span>Cálculo do capital necessário usando Valor Presente (PV) de saques mensais</span>
                   </li>
                 </ul>
               </div>
@@ -268,7 +245,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
             <CardHeader>
               <CardTitle className="text-xl">Projeção Patrimonial</CardTitle>
               <CardDescription>
-                Análise da evolução do seu patrimônio ao longo do tempo em diferentes cenários
+                Análise da evolução do seu patrimônio ao longo do tempo
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -280,7 +257,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                 monthlyContribution={data?.excedenteMensal || 0}
                 rendaMensalDesejada={data?.rendaMensalDesejada || 0}
                 safeWithdrawalRate={data?.taxaRetiradaSegura || 0.03}
-                inflationRate={data?.taxaInflacao || 0.03}
+                inflationRate={data?.taxaInflacao || 0.0345}
                 scenarios={data?.cenarios || []}
               />
             </CardContent>
@@ -328,10 +305,10 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                         <ArrowRight size={14} />
                       </div>
                       <div className="text-sm">
-                      <span className="font-medium block">Aumentar aportes mensais</span>
-                      <span className="text-muted-foreground">
-                      Investir {formatCurrency(data?.aporteMensalRecomendado || 0)}/mês
-                      </span>
+                        <span className="font-medium block">Aumentar aportes mensais</span>
+                        <span className="text-muted-foreground">
+                          Investir {formatCurrency(getAporteRecomendado())}/mês ({percentualInvestir()}% do excedente)
+                        </span>
                       </div>
                     </li>
                     {data?.possuiPGBL && (
@@ -362,20 +339,19 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                 </div>
               </div>
 
-              {data?.aporteMensalRecomendado <= data?.excedenteMensal ? (
-                // Caso o cliente se adeque ao cenário
+              {adequaAosCenarios() ? (
                 <div className="p-4 border border-financial-success/30 bg-financial-success/5 rounded-lg">
                   <h4 className="font-medium text-financial-success mb-2">Projeção da Estratégia</h4>
                   <p className="text-sm">
-                    Seguindo o plano recomendado, você tem <span className="font-medium">alta probabilidade</span> de
-                    atingir seu objetivo de aposentadoria até os {data?.idadeAposentadoria || 0} anos com a renda mensal desejada de{' '}
-                    {formatCurrency(data?.rendaMensalDesejada || 0)} por {data?.expectativaVida && data.idadeAposentadoria
-                      ? data.expectativaVida - data.idadeAposentadoria
-                      : 35} anos. Revisões anuais são recomendadas para ajustes conforme necessário.
+                    Seguindo o plano recomendado, com um aporte mensal de {formatCurrency(getAporteRecomendado())},
+                    você pode atingir seu objetivo de aposentadoria aos {data?.idadeAposentadoria || 0} anos com uma renda mensal de{' '}
+                    {formatCurrency(data?.rendaMensalDesejada || 0)}.
+                  </p>
+                  <p className="text-sm mt-2">
+                    Seu patrimônio deverá durar até os {data?.expectativaVida || 100} anos, conforme as premissas utilizadas.
                   </p>
                 </div>
               ) : (
-                // Caso o cliente NÃO se adeque ao cenário
                 <div className="space-y-4">
                   <div className="p-4 border border-financial-warning/30 bg-financial-warning/5 rounded-lg">
                     <div className="flex items-start gap-3 mb-2">
@@ -384,8 +360,8 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                     </div>
                     <p className="text-sm mb-3">
                       Com base nas projeções, percebemos que será necessário realizar ajustes para
-                      viabilizar seu plano de aposentadoria. O cenário atual exigiria um aporte mensal maior do que 
-                      seu excedente atual permite.
+                      viabilizar seu plano de aposentadoria. O cenário atual exigiria um aporte mensal de{' '}
+                      {formatCurrency(getAporteRecomendado())}, que é {calcularPorcentagemFaltante()}% maior que seu excedente atual.
                     </p>
                     <div className="space-y-2">
                       <h5 className="text-sm font-medium">Alternativas a considerar:</h5>
@@ -396,16 +372,15 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                         </p>
                       </div>
                       <div className="bg-white/40 p-3 rounded">
-                        <p className="text-sm font-medium">2. Consumo de patrimônio</p>
+                        <p className="text-sm font-medium">2. Redução da renda desejada em {calcularReducaoRendaNecessaria()}%</p>
                         <p className="text-xs text-muted-foreground">
-                          Considerar a venda de ativos não essenciais para complementar a renda na aposentadoria.
+                          Reduzir a renda mensal desejada para {formatCurrency(data?.rendaMensalDesejada * (1 - (calcularReducaoRendaNecessaria() / 100)) || 0)} tornaria o plano viável.
                         </p>
                       </div>
                       <div className="bg-white/40 p-3 rounded">
-                        <p className="text-sm font-medium">3. Redução da renda desejada</p>
+                        <p className="text-sm font-medium">3. Aumentar o excedente mensal</p>
                         <p className="text-xs text-muted-foreground">
-                          Reduzir a renda mensal desejada tornaria
-                          o plano mais viável com seus recursos atuais.
+                          Aumentar sua capacidade de poupança em {calcularPorcentagemFaltante()}% tornaria o plano viável.
                         </p>
                       </div>
                     </div>

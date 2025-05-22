@@ -41,11 +41,42 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
   const estrategiaRef = useScrollAnimation();
 
   const { isCardVisible, toggleCardVisibility } = useCardVisibility();
+  const [projectionData, setProjectionData] = React.useState<{
+    capitalNecessario: number;
+    aporteMensal: number;
+    idadeEsgotamento: number | null;
+    rendaMensal: number;
+    idadeAposentadoria: number;
+  }>({
+    capitalNecessario: 0,
+    aporteMensal: 0,
+    idadeEsgotamento: null,
+    rendaMensal: data?.rendaMensalDesejada || 0,
+    idadeAposentadoria: data?.idadeAposentadoria || 65
+  });
 
   // Calculate percentage of income that should be invested (aligned with spreadsheet)
   const percentualInvestir = () => {
-    if (!data?.excedenteMensal || !data?.aporteMensalRecomendado) return 0;
-    return Math.round((data.aporteMensalRecomendado / data.excedenteMensal) * 100);
+    if (!data?.excedenteMensal || !projectionData.aporteMensal) return 0;
+    return Math.round((projectionData.aporteMensal / data.excedenteMensal) * 100);
+  };
+
+  // Calculate percentage increase needed
+  const percentualAumento = () => {
+    if (!data?.excedenteMensal || !projectionData.aporteMensal) return 0;
+    if (projectionData.aporteMensal <= data.excedenteMensal) return 0;
+    return Math.round(((projectionData.aporteMensal - data.excedenteMensal) / data.excedenteMensal) * 100);
+  };
+
+  // Calculate if contribution needs to be increased
+  const calcularAumentoAporte = () => {
+    if (!data?.excedenteMensal || !projectionData.aporteMensal) return 0;
+    return Math.max(0, projectionData.aporteMensal - data.excedenteMensal);
+  };
+
+  // Check if contribution needs to be increased
+  const precisaAumentarAporte = () => {
+    return calcularAumentoAporte() > 0;
   };
 
   // Get recommended monthly investment (aligned with spreadsheet)
@@ -183,10 +214,10 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                   <Calendar size={28} className="text-financial-info mb-2" />
                   <div className="text-sm text-muted-foreground">Idade Planejada</div>
                   <div className="text-xl font-semibold mt-1">
-                    {data?.idadeAposentadoria || 0} anos
+                    {projectionData.idadeAposentadoria} anos
                   </div>
                   <div className="text-sm text-muted-foreground mt-1">
-                    ({data?.anosRestantes || 0} anos restantes)
+                    ({projectionData.idadeAposentadoria - (data?.idadeAtual || 0)} anos restantes)
                   </div>
                 </div>
 
@@ -194,7 +225,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                   <Calculator size={28} className="text-financial-success mb-2" />
                   <div className="text-sm text-muted-foreground">Renda Mensal Desejada</div>
                   <div className="text-xl font-semibold mt-1">
-                    {formatCurrency(data?.rendaMensalDesejada || 0)}
+                    {formatCurrency(projectionData.rendaMensal)}
                   </div>
                 </div>
 
@@ -202,7 +233,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                   <PiggyBank size={28} className="text-financial-highlight mb-2" />
                   <div className="text-sm text-muted-foreground">Investimentos Financeiros Alvo</div>
                   <div className="text-xl font-semibold mt-1">
-                    {formatCurrency(data?.patrimonioAlvo || 0)}
+                    {formatCurrency(Math.round(projectionData.capitalNecessario))}
                   </div>
                 </div>
               </div>
@@ -259,6 +290,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                 safeWithdrawalRate={data?.taxaRetiradaSegura || 0.03}
                 inflationRate={data?.taxaInflacao || 0.0345}
                 scenarios={data?.cenarios || []}
+                onProjectionChange={setProjectionData}
               />
             </CardContent>
           </HideableCard>
@@ -307,7 +339,15 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                       <div className="text-sm">
                         <span className="font-medium block">Aumentar aportes mensais</span>
                         <span className="text-muted-foreground">
-                          Investir {formatCurrency(getAporteRecomendado())}/mês ({percentualInvestir()}% do excedente)
+                          {projectionData.aporteMensal > (data?.excedenteMensal || 0) ? (
+                            <>
+                              Investir {formatCurrency(projectionData.aporteMensal - (data?.excedenteMensal || 0))}/mês a mais ({percentualAumento()}% de aumento)
+                            </>
+                          ) : (
+                            <>
+                              Seu aporte atual de {formatCurrency(data?.excedenteMensal || 0)} /mês é suficiente
+                            </>
+                          )}
                         </span>
                       </div>
                     </li>

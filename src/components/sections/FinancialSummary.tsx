@@ -343,7 +343,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data, hideControls 
               <div className="text-center">
                 <h3 className="text-muted-foreground text-sm mb-1">Patrimônio Líquido</h3>
                 <div className="text-3xl font-bold mb-1">
-                  {formatCurrency(data.patrimonioLiquido)}
+                  {formatCurrency(data.ativos.reduce((sum, asset) => sum + asset.valor, 0) - data.passivos.reduce((sum, liability) => sum + liability.valor, 0) )}
                 </div>
               </div>
             </div>

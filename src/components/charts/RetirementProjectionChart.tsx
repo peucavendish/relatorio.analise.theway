@@ -77,6 +77,13 @@ interface RetirementProjectionChartProps {
     aporteMensal: number;
     capitalNecessario: number;
   }>;
+  onProjectionChange?: (projection: {
+    capitalNecessario: number;
+    aporteMensal: number;
+    idadeEsgotamento: number | null;
+    rendaMensal: number;
+    idadeAposentadoria: number;
+  }) => void;
 }
 
 interface LiquidityEvent {
@@ -268,7 +275,8 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
   monthlyContribution,
   rendaMensalDesejada,
   safeWithdrawalRate,
-  inflationRate
+  inflationRate,
+  onProjectionChange
 }) => {
   const [selectedView, setSelectedView] = useState<'completo' | '10anos' | '20anos' | '30anos'>('completo');
   const [taxaRetorno, setTaxaRetorno] = useState<number>(0.03); // 3% real ao ano como na planilha
@@ -380,6 +388,17 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
       setIdadeAposentadoria(currentAge + 1);
     }
   }, [currentAge, idadeAposentadoria]);
+
+  // Add effect to notify parent of projection changes
+  useEffect(() => {
+    onProjectionChange?.({
+      capitalNecessario: projection.capitalNecessario,
+      aporteMensal: projection.aporteMensal,
+      idadeEsgotamento: projection.idadeEsgotamento,
+      rendaMensal: rendaMensal,
+      idadeAposentadoria: idadeAposentadoria
+    });
+  }, [projection, rendaMensal, idadeAposentadoria, onProjectionChange]);
 
   const xDomain = React.useMemo(() => {
     return [currentAge, lifeExpectancy];

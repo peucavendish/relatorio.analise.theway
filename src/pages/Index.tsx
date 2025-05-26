@@ -54,6 +54,12 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       patrimonioLiquido: userReports?.financas?.resumo?.patrimonio_liquido || 0,
       excedenteMensal: userReports?.financas?.resumo?.excedente_mensal || 0,
       totalInvestido: userReports?.financas?.composicao_patrimonial?.Investimentos || 0,
+      ativos: userReports?.financas?.ativos?.map(a => ({
+        tipo: a.tipo,
+        valor: a.valor,
+        classe: a.classe
+      })) || [],
+      passivos: userReports?.financas?.passivos || [],
 
       rendaMensalDesejada: userReports?.planoAposentadoria?.renda_desejada || 0,
       idadeAposentadoria: userReports?.planoAposentadoria?.idade_aposentadoria || 0,

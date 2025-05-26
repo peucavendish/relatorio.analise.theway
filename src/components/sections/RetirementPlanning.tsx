@@ -11,6 +11,8 @@ import { useCardVisibility } from '@/context/CardVisibilityContext';
 
 interface RetirementPlanningProps {
   data: {
+    ativos: Array<{ tipo: string; valor: number; classe?: string }>;
+    passivos: Array<{ tipo: string; valor: number }>;
     patrimonioLiquido: number;
     excedenteMensal: number;
     totalInvestido: number;
@@ -151,12 +153,12 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
               <div className="flex flex-col items-center">
                 <div className="text-sm text-muted-foreground mb-1">Patrimônio Líquido</div>
                 <div className="text-2xl font-semibold">
-                  {formatCurrency(data?.patrimonioLiquido || 0)}
+                  {formatCurrency(data.ativos.reduce((sum, asset) => sum + asset.valor, 0) - data.passivos.reduce((sum, liability) => sum + liability.valor, 0))}
                 </div>
                 <div className="mt-1">
                   <StatusChip
-                    status={data?.patrimonioLiquido && data.patrimonioLiquido >= 0 ? "success" : "error"}
-                    label={data?.patrimonioLiquido && data.patrimonioLiquido >= 0 ? "Positivo" : "Negativo"}
+                    status={(data.ativos.reduce((sum, asset) => sum + asset.valor, 0) - data.passivos.reduce((sum, liability) => sum + liability.valor, 0)) >= 0 ? "success" : "error"}
+                    label={(data.ativos.reduce((sum, asset) => sum + asset.valor, 0) - data.passivos.reduce((sum, liability) => sum + liability.valor, 0)) >= 0 ? "Positivo" : "Negativo"}
                   />
                 </div>
               </div>

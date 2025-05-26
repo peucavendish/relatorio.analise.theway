@@ -282,7 +282,20 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
   const [taxaRetorno, setTaxaRetorno] = useState<number>(0.03); // 3% real ao ano como na planilha
   const [rendaMensal, setRendaMensal] = useState<number>(rendaMensalDesejada);
   const [idadeAposentadoria, setIdadeAposentadoria] = useState<number>(retirementAge);
-  const [aporteMensal, setAporteMensal] = useState<number>(monthlyContribution);
+  const [aporteMensal, setAporteMensal] = useState<number>(() => {
+    const result = calculateRetirementProjection(
+      currentAge,
+      retirementAge,
+      lifeExpectancy,
+      currentPortfolio,
+      monthlyContribution,
+      rendaMensalDesejada,
+      0.03,
+      0.03,
+      []
+    );
+    return result.aporteMensal;
+  });
   const [liquidityEvents, setLiquidityEvents] = useState<LiquidityEvent[]>([]);
   const [newEventName, setNewEventName] = useState<string>('');
   const [newEventAge, setNewEventAge] = useState<number>(currentAge + 5);

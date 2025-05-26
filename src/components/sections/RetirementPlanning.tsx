@@ -339,7 +339,9 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                         <ArrowRight size={14} />
                       </div>
                       <div className="text-sm">
-                        <span className="font-medium block">Aumentar aportes mensais</span>
+                        <span className="font-medium block">
+                          {projectionData.aporteMensal > (data?.excedenteMensal || 0) ? "Aumentar" : "Manter"} aportes mensais
+                        </span>
                         <span className="text-muted-foreground">
                           {projectionData.aporteMensal > (data?.excedenteMensal || 0) ? (
                             <>
@@ -433,7 +435,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
           </HideableCard>
         </div>
       </div>
-    </section>
+    </section >
   );
 };
 

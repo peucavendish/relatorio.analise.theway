@@ -135,23 +135,37 @@ const calculateRetirementProjection = (
     const meses_acumulacao = (idade_para_aposentar - idade_atual) * 12;
     if (meses_acumulacao <= 0) return 0;
 
-    // Ajusta o capital inicial considerando os eventos de liquidez futuros
-    let capitalAjustado = capitalDisponivelHoje;
+    // Primeiro, calculamos o capital necessário total
+    const capitalNecessarioTotal = capitalNecessario;
+
+    // Calculamos o valor futuro do capital disponível hoje
+    const capitalFuturo = capitalDisponivelHoje * Math.pow(1 + taxa_mensal_real, meses_acumulacao);
+
+    // Calculamos o valor futuro dos eventos de liquidez
+    let valorFuturoEventos = 0;
     eventosLiquidez.forEach(evento => {
       if (evento.age < idade_para_aposentar) {
-        const mesesAteEvento = (evento.age - idade_atual) * 12;
-        // Entrada aumenta o capital, saída diminui
-        const valorPresente = evento.isPositive ? evento.value : -evento.value;
-        capitalAjustado += valorPresente * Math.pow(1 + taxa_mensal_real, -mesesAteEvento);
+        const mesesAteAposentadoria = (idade_para_aposentar - evento.age) * 12;
+        const valorFuturo = evento.value * Math.pow(1 + taxa_mensal_real, mesesAteAposentadoria);
+        valorFuturoEventos += evento.isPositive ? valorFuturo : -valorFuturo;
       }
     });
 
-    return Math.abs(PMT(
+    // Capital total disponível no momento da aposentadoria
+    const capitalTotalDisponivel = capitalFuturo + valorFuturoEventos;
+
+    // Se já temos capital suficiente, retornamos 0
+    if (capitalTotalDisponivel >= capitalNecessarioTotal) return 0;
+
+    // Calculamos o aporte mensal necessário para complementar
+    const aporteMensal = Math.abs(PMT(
       taxa_mensal_real,
       meses_acumulacao,
-      -capitalAjustado,
-      capitalNecessario
+      -capitalDisponivelHoje,
+      capitalNecessarioTotal - valorFuturoEventos
     ));
+
+    return aporteMensal;
   };
 
   const aporteMensal = calculaAporteMensal();
@@ -170,7 +184,6 @@ const calculateRetirementProjection = (
       // Aplica eventos de liquidez no ano atual
       const eventosAno = eventosOrdenados.filter(e => e.age === idade);
       eventosAno.forEach(evento => {
-        // Entrada aumenta o capital, saída diminui
         capital += evento.isPositive ? evento.value : -evento.value;
       });
 
@@ -195,7 +208,6 @@ const calculateRetirementProjection = (
       // Aplica eventos de liquidez no ano atual
       const eventosAno = eventosOrdenados.filter(e => e.age === idade);
       eventosAno.forEach(evento => {
-        // Entrada aumenta o capital, saída diminui
         capital += evento.isPositive ? evento.value : -evento.value;
       });
 
@@ -220,45 +232,17 @@ const calculateRetirementProjection = (
   const resultado = simularFluxoCapital();
   const fluxoCapital = resultado.fluxo;
 
-  // Cálculo da duração do capital (ajustado)
-  const calcularDuracaoCapital = () => {
-    const capitalInicioAposentadoria = fluxoCapital.find(
-      item => item.idade === idade_para_aposentar
-    )?.capital || 0;
-
-    let capital = capitalInicioAposentadoria;
-    let idade = idade_para_aposentar;
-    const saqueAnual = saque_mensal_desejado * 12;
-
-    while (capital > 0 && idade < expectativa_de_vida) {
-      // Aplica eventos de liquidez no ano atual
-      const eventosAno = eventosLiquidez.filter(e => e.age === idade);
-      eventosAno.forEach(evento => {
-        // Entrada aumenta o capital, saída diminui
-        capital += evento.isPositive ? evento.value : -evento.value;
-      });
-
-      const rendimento = capital * rentabilidade_real_liquida_consumo;
-      capital = capital + rendimento - saqueAnual;
-      idade++;
-    }
-
-    return {
-      idadeFinal: capital > 0 ? expectativa_de_vida : idade - 1,
-      duracaoAnos: capital > 0 ?
-        expectativa_de_vida - idade_para_aposentar :
-        (idade - 1) - idade_para_aposentar
-    };
-  };
-
-  const duracaoCapital = calcularDuracaoCapital();
-
   return {
     fluxoCapital,
     idadeAposentadoria: idade_para_aposentar,
     capitalNecessario,
     aporteMensal,
-    duracaoCapital,
+    duracaoCapital: {
+      idadeFinal: resultado.idadeEsgotamento || expectativa_de_vida,
+      duracaoAnos: resultado.idadeEsgotamento ?
+        resultado.idadeEsgotamento - idade_para_aposentar :
+        expectativa_de_vida - idade_para_aposentar
+    },
     idadeEsgotamento: resultado.idadeEsgotamento
   };
 };

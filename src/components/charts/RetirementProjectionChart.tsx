@@ -130,32 +130,6 @@ const calculateRetirementProjection = (
 
   const capitalNecessario = calculaCapitalNecessario();
 
-  // Cálculo do aporte mensal necessário (igual à planilha - célula C14 em Apos(2))
-  const calculaAporteMensal = () => {
-    const meses_acumulacao = (idade_para_aposentar - idade_atual) * 12;
-    if (meses_acumulacao <= 0) return 0;
-
-    // Ajusta o capital inicial considerando os eventos de liquidez futuros
-    let capitalAjustado = capitalDisponivelHoje;
-    eventosLiquidez.forEach(evento => {
-      if (evento.age < idade_para_aposentar) {
-        const mesesAteEvento = (evento.age - idade_atual) * 12;
-        // Entrada aumenta o capital, saída diminui
-        const valorPresente = evento.isPositive ? evento.value : -evento.value;
-        capitalAjustado += valorPresente * Math.pow(1 + taxa_mensal_real, -mesesAteEvento);
-      }
-    });
-
-    return Math.abs(PMT(
-      taxa_mensal_real,
-      meses_acumulacao,
-      -capitalAjustado,
-      capitalNecessario
-    ));
-  };
-
-  const aporteMensal = calculaAporteMensal();
-
   // Simulação do fluxo de capital (ajustado para a lógica da planilha)
   const simularFluxoCapital = () => {
     const fluxo = [];
@@ -176,7 +150,7 @@ const calculateRetirementProjection = (
       // Rendimento anual
       const rendimento = capital * rentabilidade_real_liquida_acumulacao;
       // Aporte anual
-      const aporteAnual = aporteMensal * 12;
+      const aporteAnual = capital_disponivel_mensal * 12;
 
       capital = capital + rendimento + aporteAnual;
       idade++;
@@ -210,6 +184,43 @@ const calculateRetirementProjection = (
 
     return { fluxo, idadeEsgotamento };
   };
+
+  const calculaAporteMensal = () => {
+    const meses_acumulacao = (idade_para_aposentar - idade_atual) * 12;
+    if (meses_acumulacao <= 0) return 0;
+
+    // Calcula o valor futuro dos eventos de liquidez
+    let valorFuturoEventos = 0;
+    eventosLiquidez.forEach(evento => {
+      if (evento.age < idade_para_aposentar) {
+        const mesesAteEvento = (evento.age - idade_atual) * 12;
+        const mesesAteAposentadoria = meses_acumulacao - mesesAteEvento;
+        // Calcula quanto o evento vai render até a aposentadoria
+        const valorFuturo = evento.value * Math.pow(1 + taxa_mensal_real, mesesAteAposentadoria);
+        // Se for entrada, diminui o aporte necessário. Se for saída, aumenta
+        valorFuturoEventos += evento.isPositive ? valorFuturo : -valorFuturo;
+      }
+    });
+
+    // Calcula quanto o capital atual vai render até a aposentadoria
+    const capitalAtualFuturo = capitalDisponivelHoje * Math.pow(1 + taxa_mensal_real, meses_acumulacao);
+
+    // Calcula quanto falta para atingir o capital necessário
+    const capitalFaltante = capitalNecessario - (capitalAtualFuturo + valorFuturoEventos);
+
+    // Se o capital atual + eventos já for suficiente, retorna 0
+    if (capitalFaltante <= 0) return 0;
+
+    // Calcula o aporte mensal necessário para atingir o capital faltante
+    return Math.abs(PMT(
+      taxa_mensal_real,
+      meses_acumulacao,
+      0,
+      capitalFaltante
+    ));
+  };
+
+  const aporteMensal = calculaAporteMensal();
 
   const resultado = simularFluxoCapital();
   const fluxoCapital = resultado.fluxo;

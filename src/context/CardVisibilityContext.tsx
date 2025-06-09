@@ -58,7 +58,38 @@ export const CardVisibilityProvider: React.FC<{ children: React.ReactNode }> = (
         try {
             const apiUrl = import.meta.env.VITE_API_THE_WAY;
             const response = await axios.get(`${apiUrl}/clients/hidden-cards?session_id=${sessionId}`);
-            setHiddenCards(response.data.hiddenCards);
+
+            if (response.data.hiddenCards === null) {
+                // Se hiddenCards for null, faz uma requisição POST para setar todos os cards como visíveis
+                const allVisibleState = {
+                    "ativos": false,
+                    "passivos": false,
+                    "renda-despesas": false,
+                    "financial-resumo": false,
+                    "patrimonio-resumo": false,
+                    "objetivos-sucessao": false,
+                    "indicador-seguranca": false,
+                    "projeto-vida-legado": false,
+                    "situacao-financeira": false,
+                    "projecao-patrimonial": false,
+                    "composicao-patrimonial": false,
+                    "estrategia-recomendada": false,
+                    "objetivo-aposentadoria": false,
+                    "instrumentos-sucessorios": false,
+                    "recomendacoes-adicionais": false,
+                    "impacto-financeiro-sucessao": false,
+                    "previdencia-privada-sucessao": false
+                };
+
+                await axios.post(`${apiUrl}/clients/update-hidden-cards`, {
+                    session_id: sessionId,
+                    hiddenCards: allVisibleState
+                });
+
+                setHiddenCards(allVisibleState);
+            } else {
+                setHiddenCards(response.data.hiddenCards);
+            }
             setInitialized(true);
         } catch (error) {
             console.error('Error fetching hidden cards state:', error);

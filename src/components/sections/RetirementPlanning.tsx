@@ -9,29 +9,31 @@ import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import RetirementProjectionChart from '@/components/charts/RetirementProjectionChart';
 import { useCardVisibility } from '@/context/CardVisibilityContext';
 
+interface RetirementData {
+  ativos: Array<{ tipo: string; valor: number }>;
+  passivos: Array<{ tipo: string; valor: number }>;
+  patrimonioLiquido: number;
+  excedenteMensal: number;
+  totalInvestido: number;
+  rendaMensalDesejada: number;
+  idadeAposentadoria: number;
+  patrimonioAlvo: number;
+  idadeAtual: number;
+  expectativaVida: number;
+  cenarios: any[];
+  perfilInvestidor: string;
+  alocacaoAtivos: any[];
+  anosRestantes: number;
+  aporteMensalRecomendado: number;
+  possuiPGBL: boolean;
+  valorPGBL: number;
+  taxaRetiradaSegura: number;
+  taxaInflacao: number;
+  taxaJurosReal: number;
+}
+
 interface RetirementPlanningProps {
-  data: {
-    ativos: Array<{ tipo: string; valor: number; classe?: string }>;
-    passivos: Array<{ tipo: string; valor: number }>;
-    patrimonioLiquido: number;
-    excedenteMensal: number;
-    totalInvestido: number;
-    rendaMensalDesejada: number;
-    idadeAposentadoria: number;
-    patrimonioAlvo: number;
-    idadeAtual: number;
-    expectativaVida: number;
-    cenarios: any[];
-    perfilInvestidor: string;
-    alocacaoAtivos: any[];
-    anosRestantes: number;
-    aporteMensalRecomendado: number;
-    possuiPGBL: boolean;
-    valorPGBL: number;
-    taxaRetiradaSegura: number;
-    taxaInflacao: number;
-    taxaJurosReal: number;
-  };
+  data: RetirementData;
   hideControls?: boolean;
 }
 
@@ -179,13 +181,18 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
               <div className="flex flex-col items-center">
                 <div className="text-sm text-muted-foreground mb-1">Investimentos Financeiros Atual</div>
                 <div className="text-2xl font-semibold">
-                  {formatCurrency(data?.totalInvestido || 0)}
+                  {formatCurrency(data?.ativos
+                    ?.filter(asset => asset.tipo === 'Investimentos')
+                    .reduce((sum, asset) => sum + asset.valor, 0) || 0)}
                 </div>
                 <div className="mt-1">
                   <StatusChip
-                    status={data?.totalInvestido && data.totalInvestido > 2000000 ? "success" : "warning"}
-                    label={`${data?.totalInvestido && data.patrimonioLiquido
-                      ? Math.round((data.totalInvestido / Math.abs(data.patrimonioLiquido)) * 100)
+                    status={data?.ativos?.filter(asset => asset.tipo === 'Investimentos')
+                      .reduce((sum, asset) => sum + asset.valor, 0) > 2000000 ? "success" : "warning"}
+                    label={`${data?.ativos && data.patrimonioLiquido
+                      ? Math.round((data.ativos
+                        .filter(asset => asset.tipo === 'Investimentos')
+                        .reduce((sum, asset) => sum + asset.valor, 0) / Math.abs(data.patrimonioLiquido)) * 100)
                       : 0}% do patrimônio`}
                   />
                 </div>

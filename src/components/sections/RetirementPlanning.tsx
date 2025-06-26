@@ -256,10 +256,6 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                   </li>
                   <li className="flex items-start text-sm">
                     <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
-                    <span>Inflação média de {(data?.taxaInflacao || 0.0345) * 100}% a.a.</span>
-                  </li>
-                  <li className="flex items-start text-sm">
-                    <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
                     <span>Expectativa de vida até {data?.expectativaVida || 100} anos</span>
                   </li>
                   <li className="flex items-start text-sm">

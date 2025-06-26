@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
+import { CardVisibilityProvider } from '@/context/CardVisibilityContext';
+import { SectionVisibilityProvider } from '@/context/SectionVisibilityContext';
 import Header from '@/components/layout/Header';
 import CoverPage from '@/components/sections/CoverPage';
 import FinancialSummary from '@/components/sections/FinancialSummary';
@@ -15,6 +17,8 @@ import { useSectionObserver } from '@/hooks/useSectionObserver';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import axios from 'axios';
+import SectionVisibilityControls from '@/components/layout/SectionVisibilityControls';
+import HideableSection from '@/components/ui/HideableSection';
 
 interface IndexPageProps {
   accessor?: boolean;
@@ -185,38 +189,50 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
 
   return (
     <ThemeProvider>
-      <div className="relative h-screen overflow-hidden">
-        <Header />
-        <main className="h-[calc(100vh-64px)] overflow-y-auto">
-          <div className="min-h-screen">
-            <CoverPage clientData={getClientData().cliente} />
+      <CardVisibilityProvider>
+        <SectionVisibilityProvider>
+          <div className="relative h-screen overflow-hidden">
+            <Header />
+            <main className="h-[calc(100vh-64px)] overflow-y-auto">
+              <div className="min-h-screen">
+                <CoverPage clientData={getClientData().cliente} />
+              </div>
+              
+              <HideableSection sectionId="summary" hideControls={clientPropect}>
+                <FinancialSummary data={getClientData().financas} hideControls={clientPropect} />
+              </HideableSection>
+              
+              <HideableSection sectionId="retirement" hideControls={clientPropect}>
+                <RetirementPlanning data={getClientData().aposentadoria} hideControls={clientPropect} />
+              </HideableSection>
+              
+              <HideableSection sectionId="beach-house" hideControls={clientPropect}>
+                <BeachHouse data={userReports} hideControls={clientPropect} />
+              </HideableSection>
+              
+              <HideableSection sectionId="tax" hideControls={clientPropect}>
+                <TaxPlanning data={getClientData()} hideControls={clientPropect} />
+              </HideableSection>
+              
+              <HideableSection sectionId="protection" hideControls={clientPropect}>
+                <ProtectionPlanning data={getClientData()} hideControls={clientPropect} />
+              </HideableSection>
+              
+              <HideableSection sectionId="succession" hideControls={clientPropect}>
+                <SuccessionPlanning data={getClientData()} hideControls={clientPropect} />
+              </HideableSection>
+              
+              <HideableSection sectionId="action-plan" hideControls={clientPropect}>
+                <ActionPlan data={getClientData()} hideControls={clientPropect} />
+              </HideableSection>
+            </main>
+            <DotNavigation />
+            <MobileDotNavigation />
+            <FloatingActions userReports={userReports} />
+            {!clientPropect && <SectionVisibilityControls />}
           </div>
-          <div className="min-h-screen">
-            <FinancialSummary data={getClientData().financas} hideControls={clientPropect} />
-          </div>
-          <div className="min-h-screen">
-            <RetirementPlanning data={getClientData().aposentadoria} hideControls={clientPropect} />
-          </div>
-          <div className="min-h-screen">
-            <BeachHouse data={userReports} hideControls={clientPropect} />
-          </div>
-          <div className="min-h-screen">
-            <TaxPlanning data={getClientData()} hideControls={clientPropect} />
-          </div>
-          <div className="min-h-screen">
-            <ProtectionPlanning data={getClientData()} hideControls={clientPropect} />
-          </div>
-          <div className="min-h-screen">
-            <SuccessionPlanning data={getClientData()} hideControls={clientPropect} />
-          </div>
-          <div className="min-h-screen">
-            <ActionPlan data={getClientData()} hideControls={clientPropect} />
-          </div>
-        </main>
-        <DotNavigation />
-        <MobileDotNavigation />
-        <FloatingActions userReports={userReports} />
-      </div>
+        </SectionVisibilityProvider>
+      </CardVisibilityProvider>
     </ThemeProvider>
   );
 };

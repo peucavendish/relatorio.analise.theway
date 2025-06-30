@@ -126,7 +126,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
                 <div className="mb-4">
                   <h4 className="text-md font-medium mb-2">Custo Estimado</h4>
                   <p className="text-sm text-muted-foreground">
-                    {protectionData.seguroVida.custoEstimadoAnual}
+                    {formatCurrency(protectionData.seguroVida.custoEstimadoAnual)}
                   </p>
                 </div>
 
@@ -141,10 +141,9 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
               <div>
                 <h4 className="text-md font-medium mb-3">Coberturas</h4>
                 <ul className="space-y-2">
-                  {protectionData.seguroVida.coberturas.map((cobertura: any, index: number) => (
+                  {protectionData.seguroVida.coberturas.map((cobertura: string, index: number) => (
                     <li key={index} className="flex items-center justify-between border-b pb-2">
-                      <span>{cobertura.tipo}</span>
-                      <span className="font-medium">{cobertura.percentual}</span>
+                      <span>{cobertura}</span>
                     </li>
                   ))}
                 </ul>
@@ -192,7 +191,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
                   <div className="mb-4">
                     <h4 className="text-md font-medium mb-2">Custo Estimado</h4>
                     <p className="text-sm text-muted-foreground">
-                      {protectionData.seguroPatrimonial.custoEstimadoAnual}
+                      {formatCurrency(protectionData.seguroPatrimonial.custoEstimadoAnual)}
                     </p>
                   </div>
 
@@ -264,7 +263,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
               <div className="mt-4">
                 <p className="text-sm text-muted-foreground mb-2">
                   <span className="font-medium">Custo estimado: </span>
-                  {protectionData.seguroDO.custoEstimadoAnual}
+                  {formatCurrency(protectionData.seguroDO.custoEstimadoAnual)}
                 </p>
                 <p className="text-sm text-accent font-medium">
                   <span className="font-medium">Prioridade: </span>
@@ -317,7 +316,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
               <div className="mt-4">
                 <p className="text-sm text-muted-foreground mb-2">
                   <span className="font-medium">Custo estimado: </span>
-                  {protectionData.seguroInternacional.custoEstimadoAnual}
+                  {formatCurrency(protectionData.seguroInternacional.custoEstimadoAnual)}
                 </p>
                 <p className="text-sm text-accent font-medium">
                   <span className="font-medium">Prioridade: </span>

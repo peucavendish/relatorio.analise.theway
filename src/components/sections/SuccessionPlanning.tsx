@@ -213,7 +213,14 @@ const SuccessionPlanning: React.FC<SuccessionPlanningProps> = ({ data, hideContr
                     <div>
                       <h4 className="text-sm font-medium mb-2">Vantagens:</h4>
                       <ul className="grid md:grid-cols-2 gap-2">
-                        {instrumento.tipo === "Holding Familiar" && data?.tributario?.holdingFamiliar?.beneficios ? (
+                        {instrumento.vantagens && Array.isArray(instrumento.vantagens) && instrumento.vantagens.length > 0 ? (
+                          instrumento.vantagens.map((vantagem, i) => (
+                            <li key={i} className="flex items-start gap-2 text-sm">
+                              <div className="text-accent mt-1">•</div>
+                              <span>{vantagem}</span>
+                            </li>
+                          ))
+                        ) : instrumento.tipo === "Holding Familiar" && data?.tributario?.holdingFamiliar?.beneficios ? (
                           data.tributario.holdingFamiliar.beneficios.map((beneficio, i) => (
                             <li key={i} className="flex items-start gap-2 text-sm">
                               <div className="text-accent mt-1">•</div>

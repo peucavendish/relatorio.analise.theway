@@ -127,7 +127,8 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       acompanhamentoProgresso: userReports?.planoAcao?.acompanhamentoProgresso || {},
       conclusao: userReports?.planoAcao?.conclusao || {}
     },
-    imovelDesejado: userReports?.imovelDesejado || {}
+    imovelDesejado: userReports?.imovelDesejado || {},
+    scoreFinanceiro: userReports?.scoreFinanceiro || {}
   });
 
   useEffect(() => {

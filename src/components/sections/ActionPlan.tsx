@@ -74,18 +74,18 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data, hideControls }) => {
     return <div className="py-12 px-4 text-center">Dados do plano de ação não disponíveis</div>;
   }
 
-  // Dados fixos (mock) para o indicador de segurança financeira
-  const mockIndicadorSeguranca = {
-    valor: 72,
-    nivel: "Adequado",
-    elementosAvaliados: [
-      "Reserva de emergência",
-      "Diversificação de ativos",
-      "Proteção patrimonial",
-      "Fluxo de caixa mensal",
-      "Endividamento"
-    ]
+  // Indicador de segurança financeira dinâmico baseado em scoreFinanceiro
+  type ScoreFinanceiroItem = {
+    Nota: number | null;
+    Pilar: string;
+    'Peso (%)': number;
+    'Nota Ponderada': number;
   };
+  const scoreFinanceiro: ScoreFinanceiroItem[] = data.scoreFinanceiro || [];
+  const totalGeral = scoreFinanceiro.find((item) => item.Pilar === 'Total Geral');
+  const valorIndicador = totalGeral && typeof totalGeral['Nota Ponderada'] === 'number' ? Math.floor(totalGeral['Nota Ponderada']) : 0;
+  const elementosAvaliados = scoreFinanceiro.filter((item) => item.Pilar !== 'Total Geral').map((item) => item.Pilar);
+  const nivelIndicador = valorIndicador >= 70 ? 'Adequado' : valorIndicador >= 50 ? 'Em desenvolvimento' : 'Crítico';
 
   // Períodos predefinidos para o cronograma
   const periodos = [
@@ -259,25 +259,27 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data, hideControls }) => {
                   <div className="relative w-40 h-40 flex items-center justify-center rounded-full border-8 border-accent/20">
                     <div className="absolute inset-0 rounded-full border-8 border-accent"
                       style={{
-                        clipPath: `inset(0 ${100 - mockIndicadorSeguranca.valor}% 0 0)`
+                        clipPath: `inset(0 ${100 - valorIndicador}% 0 0)`
                       }}
                     />
                     <div className="text-center">
-                      <div className="text-4xl font-bold">{mockIndicadorSeguranca.valor}</div>
+                      <div className="text-4xl font-bold">{valorIndicador}</div>
                       <div className="text-sm text-muted-foreground">/ 100</div>
                     </div>
                   </div>
                   <div className="flex-1">
                     <div className="flex justify-between mb-2">
-                      <span className="font-medium">Nível atual:</span>
-                      <StatusChip
-                        status={mockIndicadorSeguranca.valor >= 70 ? 'success' : mockIndicadorSeguranca.valor >= 50 ? 'info' : 'warning'}
-                        label={mockIndicadorSeguranca.nivel}
-                      />
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">Nível atual:</span>
+                        <StatusChip
+                          status={valorIndicador >= 70 ? 'success' : valorIndicador >= 50 ? 'info' : 'warning'}
+                          label={nivelIndicador}
+                        />
+                      </div>
                     </div>
                     <h4 className="text-lg font-medium mb-3">Elementos avaliados:</h4>
                     <ul className="space-y-2">
-                      {mockIndicadorSeguranca.elementosAvaliados.map((elemento, index) => (
+                      {elementosAvaliados.map((elemento, index) => (
                         <li key={index} className="flex items-start gap-2">
                           <CheckCircle className="text-accent h-5 w-5 mt-0.5 flex-shrink-0" />
                           <span>{elemento}</span>

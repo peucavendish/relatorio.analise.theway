@@ -35,7 +35,7 @@ interface TaxPlanningProps {
 
 const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
   // Get access to the tax planning data
-  const { tributario } = data;
+  const { tributario } = data || {};
   const headerRef = useScrollAnimation();
   const summaryRef = useScrollAnimation();
   const strategiesRef = useScrollAnimation();
@@ -46,7 +46,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
 
   // Calculate the savings percentage
   const savingsPercentage = Math.round(
-    (tributario.economiaTributaria.economia / tributario.economiaTributaria.semPlanejamento) * 100
+    (tributario?.economiaTributaria?.economia / (tributario?.economiaTributaria?.semPlanejamento?.totalImpostos || 1)) * 100
   );
 
   return (
@@ -90,17 +90,17 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
             <CardContent className="grid md:grid-cols-3 gap-4">
               <div className="flex flex-col">
                 <span className="text-sm text-muted-foreground mb-1">Objetivo</span>
-                <span className="font-medium">{tributario.resumo.objetivo}</span>
+                <span className="font-medium">{tributario?.resumo?.objetivo}</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-muted-foreground mb-1">Potencial de Economia</span>
                 <span className="font-medium text-financial-success">
-                  {formatCurrency(tributario.resumo.potencialEconomia)}
+                  {formatCurrency(tributario?.resumo?.potencialEconomia)}
                 </span>
               </div>
               <div className="flex flex-col">
                 <span className="text-sm text-muted-foreground mb-1">Prazo para Implementação</span>
-                <span className="font-medium">{tributario.resumo.prazoImplementacao}</span>
+                <span className="font-medium">{tributario?.resumo?.prazoImplementacao}</span>
               </div>
             </CardContent>
             <CardFooter className="flex justify-between text-sm text-muted-foreground border-t pt-4">
@@ -129,7 +129,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {tributario.estruturacaoPatrimonial.map((estrategia: string, index: number) => (
+                {Array.isArray(tributario?.estruturacaoPatrimonial) && tributario.estruturacaoPatrimonial.map((estrategia: string, index: number) => (
                   <li
                     key={index}
                     className="flex items-center gap-2 py-2 px-3 bg-muted/50 rounded-md"
@@ -156,7 +156,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
-                {tributario.deducoes.map((deducao: any, index: number) => (
+                {Array.isArray(tributario?.deducoes) && tributario.deducoes.map((deducao: any, index: number) => (
                   <li key={index} className="border-b border-border/50 last:border-0 py-2">
                     <div className="flex justify-between mb-1">
                       <span className="font-medium">{deducao.tipo}</span>
@@ -199,7 +199,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {Array.isArray(tributario.investimentosIsentos) && tributario.investimentosIsentos.map((investimento: { tipo: string; valor: number; isencao: string }, index: number) => (
+                  {Array.isArray(tributario?.investimentosIsentos) && tributario.investimentosIsentos.map((investimento: { tipo: string; valor: number; isencao: string }, index: number) => (
                     <TableRow key={index}>
                       <TableCell className="font-medium">{investimento.tipo}</TableCell>
                       <TableCell>{formatCurrency(investimento.valor)}</TableCell>
@@ -233,7 +233,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
                 Holding Familiar
               </CardTitle>
               <CardDescription>
-                {tributario.holdingFamiliar.descricao}
+                {tributario?.holdingFamiliar?.descricao}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -241,12 +241,12 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
                 <div className="flex flex-col">
                   <span className="text-sm text-muted-foreground mb-1">Custo de Implementação</span>
                   <span className="font-medium">
-                    {formatCurrency(tributario.holdingFamiliar.custoConstrucao)}
+                    {formatCurrency(tributario?.holdingFamiliar?.custoConstrucao)}
                   </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm text-muted-foreground mb-1">Tempo para Implementação</span>
-                  <span className="font-medium">{tributario.holdingFamiliar.tempoImplementacao}</span>
+                  <span className="font-medium">{tributario?.holdingFamiliar?.tempoImplementacao}</span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm text-muted-foreground mb-1">Recomendação</span>
@@ -257,7 +257,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
               <div>
                 <h4 className="font-medium mb-2">Principais Benefícios</h4>
                 <ul className="grid md:grid-cols-2 gap-2">
-                  {tributario.holdingFamiliar.beneficios.map((beneficio: string, index: number) => (
+                  {(tributario?.holdingFamiliar?.beneficios ?? []).map((beneficio: string, index: number) => (
                     <li key={index} className="flex items-center gap-2">
                       <ChevronRight size={16} className="text-financial-info" />
                       <span className="text-sm">{beneficio}</span>
@@ -269,7 +269,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
               <div className="bg-muted/50 p-4 rounded-lg border border-border/50">
                 <p className="text-sm">
                   <span className="font-medium">Recomendação: </span>
-                  {tributario.holdingFamiliar.recomendacao}
+                  {tributario?.holdingFamiliar?.recomendacao}
                 </p>
               </div>
             </CardContent>
@@ -293,7 +293,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
                 Economia Tributária Estimada
               </CardTitle>
               <CardDescription>
-                Projeção de economia com a implementação do planejamento tributário no período de {tributario.economiaTributaria.periodoEstimado}
+                Projeção de economia com a implementação do planejamento tributário no período de {tributario?.economiaTributaria?.periodoEstimado}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -304,7 +304,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
                   <div className="flex items-center gap-1">
                     <ArrowUp size={16} className="text-financial-danger" />
                     <span className="font-medium text-financial-danger">
-                      {formatCurrency(tributario.economiaTributaria.semPlanejamento.totalImpostos)}
+                      {formatCurrency(tributario?.economiaTributaria?.semPlanejamento?.totalImpostos)}
                     </span>
                   </div>
                 </div>
@@ -313,14 +313,14 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
                   <div className="flex items-center gap-1">
                     <ArrowDown size={16} className="text-financial-success" />
                     <span className="font-medium text-financial-success">
-                      {formatCurrency(tributario.economiaTributaria.comPlanejamento.totalImpostos)}
+                      {formatCurrency(tributario?.economiaTributaria?.comPlanejamento?.totalImpostos)}
                     </span>
                   </div>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-sm text-muted-foreground mb-1">Economia Total</span>
                   <span className="font-medium text-xl text-financial-success">
-                    {formatCurrency(tributario.economiaTributaria.economia)}
+                    {formatCurrency(tributario?.economiaTributaria?.economia)}
                   </span>
                 </div>
               </div>
@@ -330,16 +330,16 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
                 <div className="flex justify-between mb-2">
                   <span className="text-sm font-medium">Percentual de economia</span>
                   <span className="text-sm font-medium text-financial-success">
-                    {tributario.economiaTributaria.percentualEconomia}%
+                    {tributario?.economiaTributaria?.percentualEconomia}%
                   </span>
                 </div>
-                <Progress value={tributario.economiaTributaria.percentualEconomia} className="h-2.5 bg-financial-danger/20">
+                <Progress value={tributario?.economiaTributaria?.percentualEconomia} className="h-2.5 bg-financial-danger/20">
                   <div
                     className={cn(
                       "h-full w-full flex-1 transition-all rounded-full",
                       "bg-financial-success"
                     )}
-                    style={{ transform: `translateX(-${100 - tributario.economiaTributaria.percentualEconomia}%)` }}
+                    style={{ transform: `translateX(-${100 - tributario?.economiaTributaria?.percentualEconomia}%)` }}
                   />
                 </Progress>
               </div>
@@ -348,7 +348,7 @@ const TaxPlanning: React.FC<TaxPlanningProps> = ({ data, hideControls }) => {
               <div>
                 <h4 className="font-medium mb-2">Itens Considerados na Análise</h4>
                 <ul className="grid md:grid-cols-2 gap-2">
-                  {tributario.economiaTributaria.itensConsiderados.map((item: string, index: number) => (
+                  {tributario?.economiaTributaria?.itensConsiderados?.map((item: string, index: number) => (
                     <li key={index} className="flex items-center gap-2">
                       <ChevronRight size={16} className="text-financial-success" />
                       <span className="text-sm">{item}</span>

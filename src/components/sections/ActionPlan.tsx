@@ -81,7 +81,7 @@ const ActionPlan: React.FC<ActionPlanProps> = ({ data, hideControls }) => {
     'Peso (%)': number;
     'Nota Ponderada': number;
   };
-  const scoreFinanceiro: ScoreFinanceiroItem[] = data.scoreFinanceiro || [];
+  const scoreFinanceiro: ScoreFinanceiroItem[] = Array.isArray(data.scoreFinanceiro) ? data.scoreFinanceiro : [];
   const totalGeral = scoreFinanceiro.find((item) => item.Pilar === 'Total Geral');
   const valorIndicador = totalGeral && typeof totalGeral['Nota Ponderada'] === 'number' ? Math.floor(totalGeral['Nota Ponderada']) : 0;
   const elementosAvaliados = scoreFinanceiro.filter((item) => item.Pilar !== 'Total Geral').map((item) => item.Pilar);

@@ -78,7 +78,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
                 <ul className="space-y-3">
                   <li className="flex items-center justify-between">
                     <span className="text-muted-foreground">Dependentes</span>
-                    <span className="font-medium">{protectionData.analiseNecessidades.numeroDependentes} ({protectionData.analiseNecessidades.tiposDependentes.join(", ")})</span>
+                    <span className="font-medium">{protectionData?.analiseNecessidades?.numeroDependentes} ({protectionData?.analiseNecessidades?.tiposDependentes?.join(", ") ?? ""})</span>
                   </li>
                   <li className="flex items-center justify-between">
                     <span className="text-muted-foreground">Anos de Suporte</span>
@@ -141,7 +141,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
               <div>
                 <h4 className="text-md font-medium mb-3">Coberturas</h4>
                 <ul className="space-y-2">
-                  {protectionData.seguroVida.coberturas.map((cobertura: string, index: number) => (
+                  {Array.isArray(protectionData?.seguroVida?.coberturas) && protectionData.seguroVida.coberturas.map((cobertura: string, index: number) => (
                     <li key={index} className="flex items-center justify-between border-b pb-2">
                       <span>{cobertura}</span>
                     </li>
@@ -207,7 +207,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
               <div>
                 <h4 className="text-md font-medium mb-3">Riscos Protegidos</h4>
                 <ul className="space-y-2">
-                  {protectionData.seguroPatrimonial.riscosProtegidos.map((risco: string, index: number) => (
+                  {Array.isArray(protectionData?.seguroPatrimonial?.riscosProtegidos) && protectionData.seguroPatrimonial.riscosProtegidos.map((risco: string, index: number) => (
                     <li key={index} className="flex items-center gap-2">
                       <Shield className="h-4 w-4 text-accent" />
                       <span>{risco}</span>
@@ -251,7 +251,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
               <div className="mb-4">
                 <h4 className="text-md font-medium mb-2">Riscos Cobertos</h4>
                 <ul className="space-y-2">
-                  {protectionData.seguroDO.riscosCobertos.map((risco: string, index: number) => (
+                  {Array.isArray(protectionData?.seguroDO?.riscosCobertos) && protectionData.seguroDO.riscosCobertos.map((risco: string, index: number) => (
                     <li key={index} className="flex items-center gap-2">
                       <Shield className="h-4 w-4 text-accent" />
                       <span>{risco}</span>
@@ -304,7 +304,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
               <div className="mb-4">
                 <h4 className="text-md font-medium mb-2">Riscos Cobertos</h4>
                 <ul className="space-y-2">
-                  {protectionData.seguroInternacional.riscosCobertos.map((risco: string, index: number) => (
+                  {Array.isArray(protectionData?.seguroInternacional?.riscosCobertos) && protectionData.seguroInternacional.riscosCobertos.map((risco: string, index: number) => (
                     <li key={index} className="flex items-center gap-2">
                       <Shield className="h-4 w-4 text-accent" />
                       <span>{risco}</span>
@@ -338,8 +338,8 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
             <div className="flex items-center gap-3">
               <FileText className="h-8 w-8 text-accent" />
               <div>
-                <CardTitle>{protectionData.protecaoJuridica.titulo}</CardTitle>
-                <CardDescription>{protectionData.protecaoJuridica.descricao}</CardDescription>
+                <CardTitle>{protectionData?.protecaoJuridica?.titulo}</CardTitle>
+                <CardDescription>{protectionData?.protecaoJuridica?.descricao}</CardDescription>
               </div>
             </div>
           </CardHeader>
@@ -347,24 +347,24 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
             <div className="grid md:grid-cols-2 gap-6">
               {/* Holding */}
               <div className="border rounded-lg p-4">
-                <h4 className="text-lg font-medium mb-2">{protectionData.protecaoJuridica.holdingPatrimonial.titulo}</h4>
+                <h4 className="text-lg font-medium mb-2">{protectionData?.protecaoJuridica?.holdingPatrimonial?.titulo}</h4>
                 <p className="text-sm text-muted-foreground mb-3">
-                  {protectionData.protecaoJuridica.holdingPatrimonial.finalidade}
+                  {protectionData?.protecaoJuridica?.holdingPatrimonial?.finalidade}
                 </p>
 
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-muted-foreground">Custo Estimado</span>
-                  <span className="font-medium">{formatCurrency(protectionData.protecaoJuridica.holdingPatrimonial.custoEstimado)}</span>
+                  <span className="font-medium">{formatCurrency(protectionData?.protecaoJuridica?.holdingPatrimonial?.custoEstimado)}</span>
                 </div>
 
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-muted-foreground">Tempo de Implementação</span>
-                  <span className="font-medium">{protectionData.protecaoJuridica.holdingPatrimonial.tempoImplementacao}</span>
+                  <span className="font-medium">{protectionData?.protecaoJuridica?.holdingPatrimonial?.tempoImplementacao}</span>
                 </div>
 
                 <h5 className="text-sm font-medium mb-2">Vantagens Adicionais</h5>
                 <ul className="space-y-1">
-                  {protectionData.protecaoJuridica.holdingPatrimonial.vantagensAdicionais.map((vantagem: string, index: number) => (
+                  {Array.isArray(protectionData?.protecaoJuridica?.holdingPatrimonial?.vantagensAdicionais) && protectionData.protecaoJuridica.holdingPatrimonial.vantagensAdicionais.map((vantagem: string, index: number) => (
                     <li key={index} className="text-sm flex items-start gap-2">
                       <div className="mt-1 min-w-3 h-3 w-3 rounded-full bg-accent" />
                       <span>{vantagem}</span>
@@ -375,24 +375,24 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
 
               {/* Mandato Duradouro */}
               <div className="border rounded-lg p-4">
-                <h4 className="text-lg font-medium mb-2">{protectionData.protecaoJuridica.mandatoDuradouro.titulo}</h4>
+                <h4 className="text-lg font-medium mb-2">{protectionData?.protecaoJuridica?.mandatoDuradouro?.titulo}</h4>
                 <p className="text-sm text-muted-foreground mb-3">
-                  {protectionData.protecaoJuridica.mandatoDuradouro.descricao}
+                  {protectionData?.protecaoJuridica?.mandatoDuradouro?.descricao}
                 </p>
 
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-muted-foreground">Custo Estimado</span>
-                  <span className="font-medium">{formatCurrency(protectionData.protecaoJuridica.mandatoDuradouro.custoEstimado)}</span>
+                  <span className="font-medium">{formatCurrency(protectionData?.protecaoJuridica?.mandatoDuradouro?.custoEstimado)}</span>
                 </div>
 
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-muted-foreground">Prioridade</span>
-                  <span className="font-medium">{protectionData.protecaoJuridica.mandatoDuradouro.prioridadeImplementacao}</span>
+                  <span className="font-medium">{protectionData?.protecaoJuridica?.mandatoDuradouro?.prioridadeImplementacao}</span>
                 </div>
 
                 <h5 className="text-sm font-medium mb-2">Benefícios</h5>
                 <ul className="space-y-1">
-                  {protectionData.protecaoJuridica.mandatoDuradouro.beneficios.map((beneficio: string, index: number) => (
+                  {Array.isArray(protectionData?.protecaoJuridica?.mandatoDuradouro?.beneficios) && protectionData.protecaoJuridica.mandatoDuradouro.beneficios.map((beneficio: string, index: number) => (
                     <li key={index} className="text-sm flex items-start gap-2">
                       <div className="mt-1 min-w-3 h-3 w-3 rounded-full bg-accent" />
                       <span>{beneficio}</span>
@@ -412,11 +412,11 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
           className={cn("bg-accent/5 border-accent/20")}
         >
           <CardHeader>
-            <CardTitle>{protectionData.recomendacoesAdicionais.titulo}</CardTitle>
+            <CardTitle>{protectionData?.recomendacoesAdicionais?.titulo}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-3">
-              {protectionData.recomendacoesAdicionais.itens.map((item: string, index: number) => (
+              {Array.isArray(protectionData?.recomendacoesAdicionais?.itens) && protectionData.recomendacoesAdicionais.itens.map((item: string, index: number) => (
                 <li key={index} className="flex items-start gap-3">
                   <div className="mt-1 h-5 w-5 rounded-full bg-accent/20 flex items-center justify-center">
                     <div className="h-2.5 w-2.5 rounded-full bg-accent" />

@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
+import { getLiquidityEvents, saveLiquidityEvents, LiquidityEventApi } from '@/services/liquidityEventsService';
 
 // Custom currency input component
 const CurrencyInput: React.FC<{
@@ -312,9 +313,52 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
     };
   });
 
-  const handleAddLiquidityEvent = () => {
-    if (!newEventName || newEventAge < currentAge || newEventValue <= 0) return;
+  // Função para obter o session_id da URL
+  const getSessionId = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('sessionId');
+  };
 
+  // Buscar eventos da API ao montar
+  useEffect(() => {
+    const fetchEvents = async () => {
+      const sessionId = getSessionId();
+      if (!sessionId) return;
+      try {
+        const apiEvents = await getLiquidityEvents(sessionId);
+        // Adaptar para o formato local
+        setLiquidityEvents(apiEvents.map(e => ({
+          id: `${e.session_id || ''}-${e.nome}-${e.idade}`,
+          name: e.nome,
+          age: e.idade,
+          value: Number(e.valor),
+          isPositive: e.tipo === 'entrada',
+        })));
+      } catch (err) {
+        // fallback: nenhum evento
+        setLiquidityEvents([]);
+      }
+    };
+    fetchEvents();
+  }, []);
+
+  // Atualizar API ao adicionar/remover evento
+  const syncEventsToApi = async (events: LiquidityEvent[]) => {
+    const sessionId = getSessionId();
+    if (!sessionId) return;
+    const apiEvents: LiquidityEventApi[] = events.map(e => ({
+      session_id: sessionId,
+      nome: e.name,
+      idade: e.age,
+      tipo: e.isPositive ? 'entrada' : 'saida',
+      valor: e.value,
+    }));
+    await saveLiquidityEvents(apiEvents);
+  };
+
+  // Adicionar evento
+  const handleAddLiquidityEvent = async () => {
+    if (!newEventName || newEventAge < currentAge || newEventValue <= 0) return;
     const newEvent: LiquidityEvent = {
       id: Date.now().toString(),
       name: newEventName,
@@ -322,14 +366,13 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
       value: newEventValue,
       isPositive: newEventType === 'positive'
     };
-
     const updatedEvents = [...liquidityEvents, newEvent];
     setLiquidityEvents(updatedEvents);
     setNewEventName('');
     setNewEventAge(currentAge + 5);
     setNewEventValue(0);
     setNewEventType('positive');
-
+    await syncEventsToApi(updatedEvents);
     // Recalcula a projeção com os novos valores
     const result = calculateRetirementProjection(
       currentAge,
@@ -342,11 +385,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
       taxaRetorno,
       updatedEvents
     );
-
-    // Atualiza o aporte mensal com o valor calculado
     setAporteMensal(result.aporteMensal);
-
-    // Atualiza o gráfico com os novos dados
     setProjection({
       ...result,
       fluxoCapital: result.fluxoCapital.map(item => ({
@@ -356,11 +395,14 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
     });
   };
 
-  const handleRemoveLiquidityEvent = (id: string) => {
+  // Remover evento
+  const handleRemoveLiquidityEvent = async (id: string) => {
+    // Filtra os eventos que restaram após a remoção
     const updatedEvents = liquidityEvents.filter(event => event.id !== id);
+    // Envia para a API apenas os eventos que ainda estão preenchidos
+    await syncEventsToApi(updatedEvents);
     setLiquidityEvents(updatedEvents);
-
-    // Recalcula a projeção com os novos valores
+    // Recalcula a projeção com os eventos restantes
     const result = calculateRetirementProjection(
       currentAge,
       idadeAposentadoria,
@@ -372,11 +414,7 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
       taxaRetorno,
       updatedEvents
     );
-
-    // Atualiza o aporte mensal com o valor calculado
     setAporteMensal(result.aporteMensal);
-
-    // Atualiza o gráfico com os novos dados
     setProjection({
       ...result,
       fluxoCapital: result.fluxoCapital.map(item => ({

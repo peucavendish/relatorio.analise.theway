@@ -327,13 +327,35 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
       try {
         const apiEvents = await getLiquidityEvents(sessionId);
         // Adaptar para o formato local
-        setLiquidityEvents(apiEvents.map(e => ({
+        const localEvents = apiEvents.map(e => ({
           id: `${e.session_id || ''}-${e.nome}-${e.idade}`,
           name: e.nome,
           age: e.idade,
           value: Number(e.valor),
           isPositive: e.tipo === 'entrada',
-        })));
+        }));
+        setLiquidityEvents(localEvents);
+
+        // Atualiza projeção e aporteMensal com os eventos carregados
+        const result = calculateRetirementProjection(
+          currentAge,
+          retirementAge,
+          lifeExpectancy,
+          currentPortfolio,
+          monthlyContribution,
+          rendaMensalDesejada,
+          0.03,
+          0.03,
+          localEvents
+        );
+        setAporteMensal(result.aporteMensal);
+        setProjection({
+          ...result,
+          fluxoCapital: result.fluxoCapital.map(item => ({
+            age: item.idade,
+            capital: Math.round(item.capital)
+          }))
+        });
       } catch (err) {
         // fallback: nenhum evento
         setLiquidityEvents([]);

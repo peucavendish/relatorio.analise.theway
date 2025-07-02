@@ -121,10 +121,8 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data, hideControls 
               <div className="text-center">
                 <h3 className="text-muted-foreground text-sm mb-1">Investimentos Financeiros</h3>
                 <div className="text-3xl font-bold mb-1">
-                  {data.ativos.length > 0 && (
-                    <>
-                      <div>{formatCurrency(data.ativos[0].valor)}</div>
-                    </>
+                  {formatCurrency(
+                    data.ativos.find(a => a.tipo === "Investimentos")?.valor || 0
                   )}
                 </div>
                 <StatusChip
@@ -343,7 +341,7 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data, hideControls 
               <div className="text-center">
                 <h3 className="text-muted-foreground text-sm mb-1">Patrimônio Líquido</h3>
                 <div className="text-3xl font-bold mb-1">
-                  {formatCurrency(data.ativos.reduce((sum, asset) => sum + asset.valor, 0) - data.passivos.reduce((sum, liability) => sum + liability.valor, 0) )}
+                  {formatCurrency(data.ativos.reduce((sum, asset) => sum + asset.valor, 0) - data.passivos.reduce((sum, liability) => sum + liability.valor, 0))}
                 </div>
               </div>
             </div>

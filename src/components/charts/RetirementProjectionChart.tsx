@@ -368,13 +368,19 @@ const RetirementProjectionChart: React.FC<RetirementProjectionChartProps> = ({
   const syncEventsToApi = async (events: LiquidityEvent[]) => {
     const sessionId = getSessionId();
     if (!sessionId) return;
-    const apiEvents: LiquidityEventApi[] = events.map(e => ({
-      session_id: sessionId,
-      nome: e.name,
-      idade: e.age,
-      tipo: e.isPositive ? 'entrada' : 'saida',
-      valor: e.value,
-    }));
+    let apiEvents: LiquidityEventApi[];
+    if (events.length === 0) {
+      // Se não houver eventos, envie apenas o session_id
+      apiEvents = [{ session_id: sessionId } as LiquidityEventApi];
+    } else {
+      apiEvents = events.map(e => ({
+        session_id: sessionId,
+        nome: e.name,
+        idade: e.age,
+        tipo: e.isPositive ? 'entrada' : 'saida',
+        valor: e.value,
+      }));
+    }
     await saveLiquidityEvents(apiEvents);
   };
 

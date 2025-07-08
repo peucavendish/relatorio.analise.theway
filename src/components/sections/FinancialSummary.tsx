@@ -125,11 +125,6 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({ data, hideControls 
                     data.ativos.find(a => a.tipo === "Investimentos")?.valor || 0
                   )}
                 </div>
-                <StatusChip
-                  status="success"
-                  label="Sólido"
-                  icon={<TrendingUp size={14} />}
-                />
               </div>
 
               <div className="text-center">

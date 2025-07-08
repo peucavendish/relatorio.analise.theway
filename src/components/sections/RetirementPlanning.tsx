@@ -249,17 +249,17 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
 
               <div className="bg-muted/10 border border-border/80 rounded-lg p-4">
                 <h4 className="font-medium mb-2">Premissas Utilizadas (alinhadas com a planilha)</h4>
-                <ul className="grid md:grid-cols-2 gap-2">
-                  <li className="flex items-start text-sm">
-                    <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
+                <ul className="flex flex-col gap-2">
+                  <li className="flex items-center text-sm">
+                    <ArrowRight size={18} className="mr-2 text-accent" />
                     <span>Taxa de juros real de {(data?.taxaJurosReal || 0.03) * 100}% a.a. (acumulação e consumo)</span>
                   </li>
-                  <li className="flex items-start text-sm">
-                    <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
+                  <li className="flex items-center text-sm">
+                    <ArrowRight size={18} className="mr-2 text-accent" />
                     <span>Expectativa de vida até {data?.expectativaVida || 100} anos</span>
                   </li>
-                  <li className="flex items-start text-sm">
-                    <ArrowRight size={16} className="mt-1 mr-2 text-accent" />
+                  <li className="flex items-center text-sm">
+                    <ArrowRight size={18} className="mr-2 text-accent" />
                     <span>Cálculo do capital necessário usando Valor Presente (PV) de saques mensais</span>
                   </li>
                 </ul>
@@ -390,9 +390,8 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                 <div className="p-4 border border-financial-success/30 bg-financial-success/5 rounded-lg">
                   <h4 className="font-medium text-financial-success mb-2">Projeção da Estratégia</h4>
                   <p className="text-sm">
-                    Seguindo o plano recomendado, com um aporte mensal de {formatCurrency(getAporteRecomendado())},
-                    você pode atingir seu objetivo de aposentadoria aos {data?.idadeAposentadoria || 0} anos com uma renda mensal de{' '}
-                    {formatCurrency(data?.rendaMensalDesejada || 0)}.
+                    Seguindo o plano recomendado, com um aporte mensal de {formatCurrency(projectionData.aporteMensal)},
+                    você pode atingir seu objetivo de aposentadoria aos {projectionData.idadeAposentadoria} anos com uma renda mensal de {formatCurrency(projectionData.rendaMensal)}.
                   </p>
                   <p className="text-sm mt-2">
                     Seu patrimônio deverá durar até os {data?.expectativaVida || 100} anos, conforme as premissas utilizadas.
@@ -408,7 +407,7 @@ const RetirementPlanning: React.FC<RetirementPlanningProps> = ({ data, hideContr
                     <p className="text-sm mb-3">
                       Com base nas projeções, percebemos que será necessário realizar ajustes para
                       viabilizar seu plano de aposentadoria. O cenário atual exigiria um aporte mensal de{' '}
-                      {formatCurrency(getAporteRecomendado())}, que é {calcularPorcentagemFaltante()}% maior que seu excedente atual.
+                      {formatCurrency(projectionData.aporteMensal)}, o que representa {data.excedenteMensal > 0 ? Math.round(((projectionData.aporteMensal - data.excedenteMensal) / data.excedenteMensal) * 100) : 0}% a mais que seu excedente atual.
                     </p>
                     <div className="space-y-2">
                       <h5 className="text-sm font-medium">Alternativas a considerar:</h5>

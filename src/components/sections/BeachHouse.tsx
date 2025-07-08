@@ -84,6 +84,11 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data, hideControls }) => {
     return "text-3xl"; // Default size for regular values
   };
 
+  // Cálculo do excedente mensal após
+  const excedenteMensalAtual = imovelDesejado.impactoFinanceiro?.excedenteMensalAtual || 0;
+  const parcela = imovelDesejado.impactoFinanceiro?.parcela || 0;
+  const excedenteMensalApos = excedenteMensalAtual - parcela;
+
   return (
     <section className="py-16 px-4" id="beach-house">
       <div className="max-w-4xl mx-auto">
@@ -329,7 +334,7 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data, hideControls }) => {
                 <div className="text-center">
                   <div className="text-muted-foreground mb-1">Parcela {imovelDesejado.estrategiaRecomendada}</div>
                   <div className="text-2xl font-bold text-financial-danger">
-                    - {formatCurrency(imovelDesejado.impactoFinanceiro?.parcela || 0)}
+                    -{formatCurrency(imovelDesejado.impactoFinanceiro?.parcela || 0)}
                   </div>
                 </div>
 
@@ -339,8 +344,8 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data, hideControls }) => {
 
                 <div className="text-center">
                   <div className="text-muted-foreground mb-1">Excedente Mensal Após</div>
-                  <div className="text-2xl font-bold text-financial-success">
-                    {formatCurrency(imovelDesejado.impactoFinanceiro?.excedenteMensalApos || 0)}
+                  <div className={`text-2xl font-bold ${excedenteMensalApos < 0 ? 'text-financial-danger' : 'text-financial-success'}`}>
+                    {formatCurrency(excedenteMensalApos)}
                   </div>
                 </div>
               </div>
@@ -351,14 +356,6 @@ const BeachHouse: React.FC<BeachHouseProps> = ({ data, hideControls }) => {
                   Observação
                 </h3>
                 <p>{imovelDesejado.impactoFinanceiro?.observacao}</p>
-              </div>
-
-              <div className="mt-6">
-                <StatusChip
-                  status="success"
-                  label="Objetivo viável dentro do planejamento financeiro"
-                  className="mx-auto"
-                />
               </div>
             </CardContent>
           </HideableCard>

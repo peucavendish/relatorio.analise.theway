@@ -7,8 +7,20 @@ import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { Separator } from '@/components/ui/separator';
 
+interface AnaliseNecessidades {
+  patrimonioTotal?: number;
+  atividadeEmpresarial?: string | null;
+  anosSuporteDependentes?: number;
+  viagensInternacionais?: string | null;
+}
+
+interface ProtectionData {
+  analiseNecessidades: AnaliseNecessidades;
+  seguroVida?: { coberturas?: string[] };
+}
+
 interface ProtectionPlanningProps {
-  data: any;
+  data: ProtectionData;
   hideControls?: boolean;
 }
 
@@ -67,10 +79,12 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
                     <span className="text-muted-foreground">Patrimônio Total</span>
                     <span className="font-medium">{formatCurrency(protectionData.analiseNecessidades.patrimonioTotal)}</span>
                   </li>
-                  <li className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Participação Empresarial</span>
-                    <span className="font-medium">{protectionData.analiseNecessidades.atividadeEmpresarial}</span>
-                  </li>
+                  {protectionData.analiseNecessidades.atividadeEmpresarial ? (
+                    <li className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Participação Empresarial</span>
+                      <span className="font-medium">{protectionData.analiseNecessidades.atividadeEmpresarial}</span>
+                    </li>
+                  ) : null}
                 </ul>
               </div>
               <div>
@@ -84,10 +98,12 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
                     <span className="text-muted-foreground">Anos de Suporte</span>
                     <span className="font-medium">{protectionData.analiseNecessidades.anosSuporteDependentes} anos</span>
                   </li>
-                  <li className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Viagens Internacionais</span>
-                    <span className="font-medium">{protectionData.analiseNecessidades.viagensInternacionais}</span>
-                  </li>
+                  {protectionData.analiseNecessidades.viagensInternacionais ? (
+                    <li className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Viagens Internacionais</span>
+                      <span className="font-medium">{protectionData.analiseNecessidades.viagensInternacionais}</span>
+                    </li>
+                  ) : null}
                 </ul>
               </div>
             </div>
@@ -123,12 +139,6 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
                   </p>
                 </div>
 
-                <div className="mb-4">
-                  <h4 className="text-md font-medium mb-2">Custo Estimado</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {formatCurrency(protectionData.seguroVida.custoEstimadoAnual)}
-                  </p>
-                </div>
 
                 <div className="bg-accent/10 p-3 rounded-md">
                   <h4 className="text-sm font-medium mb-1">Prioridade</h4>
@@ -142,8 +152,8 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
                 <h4 className="text-md font-medium mb-3">Coberturas</h4>
                 <ul className="space-y-2">
                   {Array.isArray(protectionData?.seguroVida?.coberturas) && protectionData.seguroVida.coberturas.map((cobertura: string, index: number) => (
-                    <li key={index} className="flex items-center justify-between border-b pb-2">
-                      <span>{cobertura}</span>
+                    <li key={index} className="flex items-center gap-2">
+                      <span>{cobertura.charAt(0).toUpperCase() + cobertura.slice(1)}</span>
                     </li>
                   ))}
                 </ul>
@@ -151,6 +161,59 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
             </div>
           </CardContent>
         </HideableCard>
+
+          {/* Life Insurance Succession*/}
+          <HideableCard
+          id="seguro-vida"
+          isVisible={isCardVisible("seguro-vida")}
+          onToggleVisibility={() => toggleCardVisibility("seguro-vida-sucessorio")}
+          className="mb-8"
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <CircleDollarSign className="h-8 w-8 text-accent" />
+              <div>
+                <CardTitle>Seguro de Vida (Sucessório)</CardTitle>
+                <CardDescription></CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-6">
+              <div>
+                <div className="mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-muted-foreground">Cobertura Recomendada</span>
+                    <span className="text-xl font-bold text-accent">{formatCurrency(0)}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {protectionData.seguroVida.metodologiaCalculo}
+                  </p>
+                </div>
+
+
+                <div className="bg-accent/10 p-3 rounded-md">
+                  <h4 className="text-sm font-medium mb-1">Prioridade</h4>
+                  <p className="text-accent font-medium">
+                    {protectionData.seguroVida.prioridadeImplementacao}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-md font-medium mb-3">Coberturas</h4>
+                <ul className="space-y-2">
+                  {Array.isArray(protectionData?.seguroVida?.coberturas) && protectionData.seguroVida.coberturas.map((cobertura: string, index: number) => (
+                    <li key={index} className="flex items-center gap-2">
+                      <span>{cobertura.charAt(0).toUpperCase() + cobertura.slice(1)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </CardContent>
+        </HideableCard>
+
 
         {/* Property Insurance */}
         <HideableCard
@@ -179,7 +242,7 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">Adicional (bens móveis)</span>
-                      <span className="font-medium">{formatCurrency(protectionData.seguroPatrimonial.adicional)}</span>
+                      <span className="font-medium">{protectionData.seguroPatrimonial.adicional}</span>
                     </div>
                     <Separator className="my-2" />
                     <div className="flex justify-between items-center">
@@ -188,12 +251,6 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
                     </div>
                   </div>
 
-                  <div className="mb-4">
-                    <h4 className="text-md font-medium mb-2">Custo Estimado</h4>
-                    <p className="text-sm text-muted-foreground">
-                      {formatCurrency(protectionData.seguroPatrimonial.custoEstimadoAnual)}
-                    </p>
-                  </div>
 
                   <div className="bg-accent/10 p-3 rounded-md">
                     <h4 className="text-sm font-medium mb-1">Prioridade</h4>
@@ -261,10 +318,6 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
               </div>
 
               <div className="mt-4">
-                <p className="text-sm text-muted-foreground mb-2">
-                  <span className="font-medium">Custo estimado: </span>
-                  {formatCurrency(protectionData.seguroDO.custoEstimadoAnual)}
-                </p>
                 <p className="text-sm text-accent font-medium">
                   <span className="font-medium">Prioridade: </span>
                   {protectionData.seguroDO.prioridadeImplementacao}
@@ -314,10 +367,6 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
               </div>
 
               <div className="mt-4">
-                <p className="text-sm text-muted-foreground mb-2">
-                  <span className="font-medium">Custo estimado: </span>
-                  {formatCurrency(protectionData.seguroInternacional.custoEstimadoAnual)}
-                </p>
                 <p className="text-sm text-accent font-medium">
                   <span className="font-medium">Prioridade: </span>
                   {protectionData.seguroInternacional.prioridadeImplementacao}
@@ -352,10 +401,6 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
                   {protectionData?.protecaoJuridica?.holdingPatrimonial?.finalidade}
                 </p>
 
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-muted-foreground">Custo Estimado</span>
-                  <span className="font-medium">{formatCurrency(protectionData?.protecaoJuridica?.holdingPatrimonial?.custoEstimado)}</span>
-                </div>
 
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-muted-foreground">Tempo de Implementação</span>
@@ -380,10 +425,6 @@ const ProtectionPlanning: React.FC<ProtectionPlanningProps> = ({ data, hideContr
                   {protectionData?.protecaoJuridica?.mandatoDuradouro?.descricao}
                 </p>
 
-                <div className="flex justify-between items-center mb-3">
-                  <span className="text-muted-foreground">Custo Estimado</span>
-                  <span className="font-medium">{formatCurrency(protectionData?.protecaoJuridica?.mandatoDuradouro?.custoEstimado)}</span>
-                </div>
 
                 <div className="flex justify-between items-center mb-4">
                   <span className="text-muted-foreground">Prioridade</span>

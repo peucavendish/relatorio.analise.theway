@@ -169,6 +169,16 @@ const FloatingActions: React.FC<FloatingActionsProps> = ({ className, userReport
                     </Button>
                   </div>
                 </div>
+                <div className="flex items-center mt-2">
+                  <div className="flex items-center gap-2 bg-green-100 border border-green-300 rounded-md px-3 py-2 w-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span className="text-green-700 text-sm font-medium">
+                      E-mail enviado com sucesso para o cliente! Por favor, oriente-o a verificar a caixa de entrada e o spam.
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           )}

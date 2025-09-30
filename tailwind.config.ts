@@ -62,14 +62,14 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Financial report specific colors
+				// Financial report specific colors - premium/private
 				financial: {
-					success: '#7EC866',
-					warning: '#FFC971',
-					danger: '#C8686D',
-					info: '#0353A4',
-					highlight: '#FFC971',
-					muted: '#9CA3AF'
+					success: '#3BA97C', // emerald
+					warning: '#D4AF37', // premium gold
+					danger: '#C14D4D', // muted burgundy
+					info: '#1E3A8A', // deep navy
+					highlight: '#D4AF37',
+					muted: '#94A3B8' // slate
 				}
 			},
 			borderRadius: {

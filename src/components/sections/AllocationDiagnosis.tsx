@@ -204,7 +204,7 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
     const diffValue = (totalPatrimonio * diffPct) / 100;
     if (Math.abs(diffValue) < 0.005) return { label: '-', value: 0 };
     return {
-      label: diffPct > 0 ? 'Falta' : 'Excesso',
+      label: diffPct > 0 ? 'Faltam' : 'Excesso',
       value: Math.abs(diffValue)
     };
   };
@@ -269,7 +269,7 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
   }, 0);
   const totalFalta = comparativo.reduce((sum, item) => {
     const d = getDiffFinanceiro(item.atual, item.ideal);
-    return sum + (d.label === 'Falta' ? d.value : 0);
+    return sum + (d.label === 'Faltam' ? d.value : 0);
   }, 0);
   const totalEmLinha = Math.max(0, totalPatrimonio - totalExcesso - totalFalta);
 
@@ -316,8 +316,14 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
                   <div className="text-3xl md:text-4xl font-bold mb-2 text-financial-warning">{identificacao.perfil}/5</div>
                   <div className="text-sm text-muted-foreground">Perfil de Risco</div>
                   <StatusChip 
-                    status={identificacao.perfil >= 4 ? "warning" : "success"} 
-                    label={identificacao.perfil >= 4 ? "Agressivo" : "Conservador"} 
+                    status={identificacao.perfil >= 4 ? "warning" : identificacao.perfil >= 3 ? "info" : "success"} 
+                    label={
+                      identificacao.perfil === 1 ? "Super Conservador" :
+                      identificacao.perfil === 2 ? "Conservador" :
+                      identificacao.perfil === 3 ? "Moderado" :
+                      identificacao.perfil === 4 ? "Arrojado" :
+                      identificacao.perfil === 5 ? "Agressivo" : "N/A"
+                    } 
                     className="mt-2"
                   />
                 </div>
@@ -551,7 +557,7 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
                         <th className="text-center py-3 uppercase tracking-wide text-xs text-muted-foreground">% Atual</th>
                         <th className="text-center py-3 uppercase tracking-wide text-xs text-muted-foreground">% Ideal</th>
                         <th className="text-center py-3 uppercase tracking-wide text-xs text-muted-foreground">Delta (%)</th>
-                        <th className="text-center py-3 uppercase tracking-wide text-xs text-muted-foreground">Falta/Excesso (R$)</th>
+                        <th className="text-center py-3 uppercase tracking-wide text-xs text-muted-foreground">Faltam/Excesso (R$)</th>
                         <th className="text-center py-3 uppercase tracking-wide text-xs text-muted-foreground">Situação</th>
                       </tr>
                     </thead>
@@ -584,7 +590,7 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
                             {diff.label === '-' ? (
                               <span className="text-green-700 font-medium">Em linha</span>
                             ) : (
-                              <span className={diff.label === 'Falta' ? 'text-red-600 font-medium' : 'text-yellow-600 font-medium'}>
+                              <span className={diff.label === 'Faltam' ? 'text-red-600 font-medium' : 'text-yellow-600 font-medium'}>
                                 {diff.label}: {formatCurrency(diff.value)}
                               </span>
                             )}
@@ -607,7 +613,7 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
                         <td className="py-4 text-center font-semibold">
                           <div className="flex items-center justify-center gap-4">
                             <span className="text-yellow-700">Excesso: {formatCurrency(totalExcesso)}</span>
-                            <span className="text-red-700">Falta: {formatCurrency(totalFalta)}</span>
+                            <span className="text-red-700">Faltam: {formatCurrency(totalFalta)}</span>
                           </div>
                         </td>
                         <td />

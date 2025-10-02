@@ -24,12 +24,17 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null);
   const [userReports, setUserReports] = useState(null);
+  const [currentSessionId, setCurrentSessionId] = useState(null);
+  
+  // Obter sessionId atual da URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const sessionId = urlParams.get('sessionId');
 
   const getClientData = () => ({
     cliente: {
-      nome: "João Silva", // Mockado temporariamente
+      nome: userReports?.cliente?.nome || 'Teste',
       idade: userReports?.cliente?.idade || 0,
-      codigoXP: userReports?.cliente?.codigo_xp || userReports?.cliente?.codigoXP || userReports?.cliente?.codigoXp || userReports?.cliente?.codigo || "405703"
+      codigoXP: userReports?.cliente?.codigo_xp || "405703"
     },
     financas: {
       patrimonioLiquido: userReports?.financas?.resumo?.patrimonio_liquido || 0,
@@ -273,25 +278,90 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
     fetchUserData();
   }, []);
 
+  // Monitorar mudanças na URL e limpar estados
+  useEffect(() => {
+    const handleUrlChange = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionId = urlParams.get('sessionId');
+      
+      if (sessionId !== currentSessionId) {
+        setCurrentSessionId(sessionId);
+        // Limpar todos os estados quando sessionId mudar
+        setUserReports(null);
+        setUser(null);
+        setIsLoading(true);
+        
+        // Forçar limpeza do cache e recarregar a página
+        if (currentSessionId !== null) {
+          window.location.reload();
+        }
+      }
+    };
+
+    // Executar imediatamente
+    handleUrlChange();
+
+    // Adicionar listener para mudanças na URL
+    window.addEventListener('popstate', handleUrlChange);
+    
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+    };
+  }, [currentSessionId]);
+
   useEffect(() => {
     const fetchUserReportsData = async () => {
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get('sessionId');
 
+        console.log('=== FETCHING WALLET REPORTS ===');
+        console.log('SessionId from URL:', sessionId);
+        console.log('Current SessionId state:', currentSessionId);
+
         if (sessionId) {
           const apiUrl = import.meta.env.VITE_API_THE_WAY;
-          const response = await axios.get(`${apiUrl}/client-reports/${sessionId}`);
+          const requestUrl = `${apiUrl}/wallet-reports/${sessionId}`;
+          console.log('Request URL:', requestUrl);
+          
+          const response = await axios.get(requestUrl);
+          console.log('Response data:', response.data);
+          console.log('Response data type:', typeof response.data);
+          console.log('Response data[0]:', response.data[0]);
 
-          const reportData = JSON.parse(response.data[0].report_data);
-          setUserReports(reportData);
+          // Verificar se os dados existem antes de fazer parse
+          if (response.data && response.data[0]) {
+            const rawData = response.data[0].wallet_data || response.data[0].report_data;
+            console.log('Raw data:', rawData);
+            console.log('Raw data type:', typeof rawData);
+            
+            if (rawData) {
+              const reportData = typeof rawData === 'string' ? JSON.parse(rawData) : rawData;
+              console.log('Parsed report data:', reportData);
+              console.log('Cliente name:', reportData?.cliente?.nome);
+              
+              setUserReports(reportData);
+            } else {
+              console.error('No wallet_data or report_data found in response');
+              setUserReports(null);
+            }
+          } else {
+            console.error('Invalid response structure');
+            setUserReports(null);
+          }
         }
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        console.error('Error fetching wallet reports data:', error);
+        if (error.response) {
+          console.error('Error response:', error.response.data);
+          console.error('Error status:', error.response.status);
+        }
+        // Não definir dados mock - deixar null para mostrar que não há dados
+        setUserReports(null);
       }
     };
     fetchUserReportsData();
-  }, []);
+  }, [currentSessionId]);
 
   useEffect(() => {
     const timer = setTimeout(() => {

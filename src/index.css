@@ -123,6 +123,27 @@
     @apply bg-black/10 backdrop-blur-md border border-white/10 shadow-sm;
   }
 
+  /* Dark mode: substituir azuis por dourado */
+  .dark .text-primary {
+    @apply text-accent;
+  }
+
+  .dark .bg-primary {
+    @apply bg-accent;
+  }
+
+  .dark .border-primary {
+    @apply border-accent;
+  }
+
+  .dark .bg-primary\/5 {
+    @apply bg-accent/5;
+  }
+
+  .dark .border-primary\/20 {
+    @apply border-accent/20;
+  }
+
   .financial-card {
     @apply rounded-2xl bg-card p-10 shadow-sm border border-border/70 transition-all duration-300 hover:shadow-md hover:translate-y-[-2px];
   }

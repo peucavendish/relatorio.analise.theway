@@ -251,3 +251,136 @@
     backface-visibility: hidden;
   }
 }
+
+/* Estilos para impressão/PDF */
+@media print {
+  /* CRITICAL: Forçar impressão de cores */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Ocultar elementos desnecessários */
+  .no-print {
+    display: none !important;
+  }
+
+  /* Layout da página */
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  /* Body e HTML */
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  /* CRITICAL: Remover scroll-snap que esconde conteúdo */
+  * {
+    scroll-snap-type: none !important;
+    scroll-snap-align: none !important;
+  }
+
+  /* Main container - REMOVER todas as restrições */
+  main,
+  #main-report {
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    position: static !important;
+    display: block !important;
+  }
+
+  /* Containers e divs - remover restrições */
+  .relative {
+    position: static !important;
+  }
+
+  /* Remover restrições de overflow e altura do Tailwind */
+  .overflow-y-auto,
+  .overflow-y-scroll,
+  .overflow-x-auto,
+  .overflow-x-scroll,
+  .overflow-hidden {
+    overflow: visible !important;
+  }
+
+  .h-\[calc\(100vh-64px\)\],
+  .h-screen,
+  .min-h-screen {
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+  }
+
+  /* CRITICAL: Garantir que todas as seções sejam visíveis */
+  section {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: static !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    page-break-after: auto;
+    page-break-before: auto;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 20px;
+  }
+
+  /* CRITICAL: Garantir que TODOS os elementos dentro das seções sejam visíveis */
+  section *,
+  section > *,
+  section > div,
+  section > div > *,
+  section div {
+    visibility: visible !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+    display: revert !important;
+  }
+  
+  /* Exceções: manter hidden quando necessário */
+  .no-print,
+  [style*="display: none"],
+  [hidden] {
+    display: none !important;
+  }
+  
+  /* Preservar flex e grid */
+  .flex {
+    display: flex !important;
+  }
+  
+  .grid {
+    display: grid !important;
+  }
+
+  /* Remover sombras */
+  .shadow,
+  .shadow-sm,
+  .shadow-md,
+  .shadow-lg {
+    box-shadow: none !important;
+  }
+
+  /* Evitar quebras de página indesejadas */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  /* Tabelas */
+  table {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+}

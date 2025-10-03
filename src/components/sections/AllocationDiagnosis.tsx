@@ -148,6 +148,26 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
   };
 
   const getClassColor = (classe: string): 'default' | 'success' | 'warning' | 'danger' | 'info' => {
+    // Buscar o item correspondente no comparativo
+    const comparativoItem = comparativo.find(item => 
+      item.classe.toLowerCase().includes(classe.toLowerCase()) || 
+      classe.toLowerCase().includes(item.classe.toLowerCase())
+    );
+    
+    if (comparativoItem) {
+      const situacao = comparativoItem.situacao.toLowerCase();
+      
+      // Determinar cor baseada na situação
+      if (situacao.includes('sobrealocado') || situacao.includes('excesso')) {
+        return 'danger'; // Vermelho para excesso
+      } else if (situacao.includes('subalocado') || situacao.includes('abaixo') || situacao.includes('faltam')) {
+        return 'warning'; // Amarelo para abaixo
+      } else if (situacao.includes('em linha') || situacao.includes('neutro')) {
+        return 'success'; // Verde para em linha
+      }
+    }
+    
+    // Fallback para classes sem dados de comparação
     const key = (classe || '').toLowerCase();
     if (key.includes('pós') || key.includes('pos')) return 'warning'; // CDI / Pós-fixado
     if (key.includes('prefixada') || key.includes('pré') || key.includes('pre')) return 'danger'; // Pré-fixado
@@ -562,7 +582,14 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
                       </tr>
                     </thead>
                     <tbody>
-                      {comparativo.map((item, index) => {
+                      {comparativo
+                        .sort((a, b) => {
+                          // Ordenar por % Ideal (decrescente)
+                          const idealA = parsePercent(a.ideal);
+                          const idealB = parsePercent(b.ideal);
+                          return idealB - idealA;
+                        })
+                        .map((item, index) => {
                         const diff = getDiffFinanceiro(item.atual, item.ideal);
                         const atualPct = parsePercent(item.atual);
                         const idealPct = parsePercent(item.ideal);

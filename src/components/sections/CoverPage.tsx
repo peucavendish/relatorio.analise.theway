@@ -81,7 +81,9 @@ const CoverPage: React.FC<CoverPageProps> = ({
                   <User size={24} className="text-accent" />
                 </div>
                 <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2">Cliente</h3>
-                <p className="text-xl font-bold text-primary">{clientData.nome}</p>
+                <p className="text-xl font-bold text-primary">
+                  {clientData.nome || `Cliente ${clientData.codigoXP || 'XP'}`}
+                </p>
               </div>
 
               {/* Código XP */}

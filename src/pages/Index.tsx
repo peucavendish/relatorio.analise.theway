@@ -5,13 +5,12 @@ import { SectionVisibilityProvider } from '@/context/SectionVisibilityContext';
 import Header from '@/components/layout/Header';
 import CoverPage from '@/components/sections/CoverPage';
 import AllocationDiagnosis from '@/components/sections/AllocationDiagnosis';
+import { PDFGeneratorButton } from '@/components/ui/PDFGeneratorButton';
 import FloatingActions from '@/components/layout/FloatingActions';
-import { DotNavigation, MobileDotNavigation } from '@/components/layout/DotNavigation';
 import { useSectionObserver } from '@/hooks/useSectionObserver';
 import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import axios from 'axios';
-import SectionVisibilityControls from '@/components/layout/SectionVisibilityControls';
 import HideableSection from '@/components/ui/HideableSection';
 
 interface IndexPageProps {
@@ -32,7 +31,7 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
 
   const getClientData = () => ({
     cliente: {
-      nome: userReports?.cliente?.nome || 'Teste',
+      nome: userReports?.cliente?.nome || `Cliente ${userReports?.cliente?.codigo_xp || 'XP'}`,
       idade: userReports?.cliente?.idade || 0,
       codigoXP: userReports?.cliente?.codigo_xp || "405703"
     },
@@ -50,6 +49,176 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       passivos: userReports?.financas?.passivos || []
     }
   });
+
+  // Função para obter alocações ideais por perfil
+  const getAlocacoesIdeaisByPerfil = (perfil: number) => {
+    const alocacoes = {
+      1: { // SUPER CONSERVADOR
+        'RF - Pós-fixada': 84,
+        'RF - Inflação': 11,
+        'RF - Prefixada': 5,
+        'Renda Variável': 0,
+        'Imobiliário': 0,
+        'Multimercado': 0,
+        'Moedas': 0,
+        'Alternativo': 0,
+        'Internacional': 0,
+        'Outros': 0,
+        'Criptomoedas': 0,
+        'Derivativos': 0
+      },
+      2: { // CONSERVADOR
+        'RF - Pós-fixada': 71,
+        'RF - Inflação': 14,
+        'RF - Prefixada': 6,
+        'Multimercado': 3,
+        'Internacional': 6,
+        'Renda Variável': 0,
+        'Imobiliário': 0,
+        'Moedas': 0,
+        'Alternativo': 0,
+        'Outros': 0,
+        'Criptomoedas': 0,
+        'Derivativos': 0
+      },
+      3: { // MODERADO
+        'RF - Pós-fixada': 45,
+        'RF - Inflação': 19,
+        'RF - Prefixada': 9,
+        'Multimercado': 7,
+        'Renda Variável': 6,
+        'Internacional': 10,
+        'Imobiliário': 2,
+        'Alternativo': 2,
+        'Moedas': 0,
+        'Outros': 0,
+        'Criptomoedas': 0,
+        'Derivativos': 0
+      },
+      4: { // ARROJADO
+        'RF - Pós-fixada': 26,
+        'RF - Inflação': 24,
+        'RF - Prefixada': 11,
+        'Renda Variável': 9,
+        'Imobiliário': 3,
+        'Multimercado': 10,
+        'Internacional': 14,
+        'Alternativo': 3,
+        'Moedas': 0,
+        'Outros': 0,
+        'Criptomoedas': 0,
+        'Derivativos': 0
+      },
+      5: { // AGRESSIVO
+        'RF - Pós-fixada': 11,
+        'RF - Inflação': 26,
+        'RF - Prefixada': 12,
+        'Renda Variável': 14,
+        'Imobiliário': 4,
+        'Multimercado': 11,
+        'Internacional': 18,
+        'Alternativo': 4,
+        'Moedas': 0,
+        'Outros': 0,
+        'Criptomoedas': 0,
+        'Derivativos': 0
+      }
+    };
+    
+    return alocacoes[perfil as keyof typeof alocacoes] || alocacoes[5]; // Default para Agressivo
+  };
+
+  // Função para obter carteira modelo baseada no perfil
+  const getModeloIdealByPerfil = (perfil: number) => {
+    const perfis = {
+      1: [ // SUPER CONSERVADOR
+        { classe: 'RF - Pós-fixada', exemplo: 'Bradesco Zupo FIC FIRF LP CP', percentual: '10%', liquidez: '6 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Títulos RF PÓS', percentual: '20%', liquidez: '-' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Compass Yield 30 FIF RF CP LP RL', percentual: '10%', liquidez: '30 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Itaú Sinfonia All Distribuidores FIF CIC Mult CP Resp Limta', percentual: '10%', liquidez: '10 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Valora Guardian Advisory FIDC RL', percentual: '7%', liquidez: '76 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Capitânia Yield 120 CP FIC FIM CP', percentual: '7%', liquidez: '120 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Jive BossaNova High Yield Advisory FIC FIDC', percentual: '5%', liquidez: '362 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'ARX Fuji FIC de FIF RF CP RL', percentual: '15%', liquidez: '1 dia' },
+        { classe: 'RF - Inflação', exemplo: 'Títulos RF IPCA', percentual: '6%', liquidez: '-' },
+        { classe: 'RF - Inflação', exemplo: 'ARX Elbrus Advisory FIC Incentivado FIF em Infra RF RL', percentual: '5%', liquidez: '31 dias' },
+        { classe: 'RF - Prefixada', exemplo: 'Títulos RF PRÉ', percentual: '5%', liquidez: '-' }
+      ],
+      2: [ // CONSERVADOR
+        { classe: 'RF - Pós-fixada', exemplo: 'Bradesco Zupo FIC FIRF LP CP', percentual: '15%', liquidez: '6 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Títulos RF PÓS', percentual: '10%', liquidez: '-' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Valora Guardian Advisory FIDC RL', percentual: '5%', liquidez: '76 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Compass Yield 30 FIF RF CP LP RL', percentual: '10%', liquidez: '30 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Capitânia Yield 120 CP FIC FIM CP', percentual: '5%', liquidez: '120 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Jive BossaNova High Yield Advisory FIC FIDC', percentual: '5%', liquidez: '362 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'SPX Seahawk Debêntures Incentivadas D45 FIF CIC Infra RF CP LP RL', percentual: '10%', liquidez: '46 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'ARX Fuji FIC de FIF RF CP RL', percentual: '11%', liquidez: '1 dia' },
+        { classe: 'RF - Inflação', exemplo: 'ARX Elbrus Advisory FIC Incentivado FIF em Infra RF RL', percentual: '5%', liquidez: '31 dias' },
+        { classe: 'RF - Inflação', exemplo: 'Títulos RF IPCA', percentual: '9%', liquidez: '-' },
+        { classe: 'RF - Prefixada', exemplo: 'Títulos RF PRÉ', percentual: '6%', liquidez: '-' },
+        { classe: 'Multimercado', exemplo: 'Vinland Incentivado Investimento Debêntures Infraestr RF CP', percentual: '1.5%', liquidez: '31 dias' },
+        { classe: 'Multimercado', exemplo: 'Absolute Vertex Advisory FIC FIM', percentual: '1.5%', liquidez: '45 dias' },
+        { classe: 'Internacional', exemplo: 'WHG Global Long Biased BRL FIC FIA IE', percentual: '3%', liquidez: '30 dias' },
+        { classe: 'Internacional', exemplo: 'Gama Pearl Diver Global Floating Income BRL FIC FIM IE RL', percentual: '3%', liquidez: '-' }
+      ],
+      3: [ // MODERADO
+        { classe: 'RF - Pós-fixada', exemplo: 'SPX Seahawk Debêntures Incentivadas D45 FIF CIC Infra RF CP LP RL', percentual: '8%', liquidez: '46 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Valora Guardian Advisory FIDC RL', percentual: '5%', liquidez: '76 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Capitânia Yield 120 CP FIC FIM CP', percentual: '5%', liquidez: '120 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Jive BossaNova High Yield Advisory FIC FIDC', percentual: '4%', liquidez: '362 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Compass Yield 30 FIF RF CP LP RL', percentual: '8%', liquidez: '30 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'ARX Fuji FIC de FIF RF CP RL', percentual: '15%', liquidez: '1 dia' },
+        { classe: 'RF - Inflação', exemplo: 'Títulos RF IPCA', percentual: '14%', liquidez: '-' },
+        { classe: 'RF - Inflação', exemplo: 'ARX Elbrus Advisory FIC Incentivado FIF em Infra RF RL', percentual: '5%', liquidez: '31 dias' },
+        { classe: 'RF - Prefixada', exemplo: 'Títulos RF PRÉ', percentual: '9%', liquidez: '-' },
+        { classe: 'Multimercado', exemplo: 'Vinland Incentivado Investimento Debêntures Infraestr RF CP', percentual: '2.5%', liquidez: '31 dias' },
+        { classe: 'Multimercado', exemplo: 'Absolute Vertex Advisory FIC FIM', percentual: '2.5%', liquidez: '45 dias' },
+        { classe: 'Multimercado', exemplo: 'Quantitas FIC FIM Mallorca', percentual: '2%', liquidez: '15 dias' },
+        { classe: 'Renda Variável', exemplo: 'Real Investor FIC de FIF em Ações RL', percentual: '3%', liquidez: '29 dias' },
+        { classe: 'Renda Variável', exemplo: 'Mesa RV Alta Vista', percentual: '3%', liquidez: '-' },
+        { classe: 'Internacional', exemplo: 'WHG Global Long Biased BRL FIC FIA IE', percentual: '5%', liquidez: '30 dias' },
+        { classe: 'Internacional', exemplo: 'Gama Pearl Diver Global Floating Income BRL FIC FIM IE RL', percentual: '5%', liquidez: '-' },
+        { classe: 'Imobiliário', exemplo: 'CARTEIRA DE FII', percentual: '2%', liquidez: '2 dias' },
+        { classe: 'Alternativo', exemplo: 'INVESTIMENTOS ALTERNATIVOS', percentual: '2%', liquidez: '-' }
+      ],
+      4: [ // ARROJADO
+        { classe: 'RF - Pós-fixada', exemplo: 'Capitânia Yield 120 CP FIC FIM CP', percentual: '5%', liquidez: '120 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Jive BossaNova High Yield Advisory FIC FIDC', percentual: '5%', liquidez: '362 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'ARX Fuji FIC de FIF RF CP RL', percentual: '16%', liquidez: '1 dia' },
+        { classe: 'RF - Inflação', exemplo: 'Títulos RF IPCA', percentual: '16%', liquidez: '-' },
+        { classe: 'RF - Inflação', exemplo: 'ARX Elbrus Advisory FIC Incentivado FIF em Infra RF RL', percentual: '8%', liquidez: '31 dias' },
+        { classe: 'RF - Prefixada', exemplo: 'Títulos RF PRÉ', percentual: '11%', liquidez: '-' },
+        { classe: 'Multimercado', exemplo: 'Vinland Incentivado Investimento Debêntures Infraestr RF CP', percentual: '4%', liquidez: '31 dias' },
+        { classe: 'Multimercado', exemplo: 'Absolute Vertex Advisory FIC FIM', percentual: '3%', liquidez: '45 dias' },
+        { classe: 'Multimercado', exemplo: 'Quantitas FIC FIM Mallorca', percentual: '3%', liquidez: '15 dias' },
+        { classe: 'Renda Variável', exemplo: 'Real Investor FIC de FIF em Ações RL', percentual: '4.5%', liquidez: '29 dias' },
+        { classe: 'Renda Variável', exemplo: 'Mesa RV Alta Vista', percentual: '4.5%', liquidez: '-' },
+        { classe: 'Internacional', exemplo: 'WHG Global Long Biased BRL FIC FIA IE', percentual: '7%', liquidez: '30 dias' },
+        { classe: 'Internacional', exemplo: 'Gama Pearl Diver Global Floating Income BRL FIC FIM IE RL', percentual: '7%', liquidez: '-' },
+        { classe: 'Imobiliário', exemplo: 'CARTEIRA DE FII', percentual: '3%', liquidez: '2 dias' },
+        { classe: 'Alternativo', exemplo: 'INVESTIMENTOS ALTERNATIVOS', percentual: '3%', liquidez: '-' }
+      ],
+      5: [ // AGRESSIVO
+        { classe: 'RF - Pós-fixada', exemplo: 'Capitânia Yield 120 CP FIC FIM CP', percentual: '4%', liquidez: '120 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'Jive BossaNova High Yield Advisory FIC FIDC', percentual: '4%', liquidez: '362 dias' },
+        { classe: 'RF - Pós-fixada', exemplo: 'ARX Fuji FIC de FIF RF CP RL', percentual: '3%', liquidez: '1 dia' },
+        { classe: 'RF - Inflação', exemplo: 'Títulos RF IPCA', percentual: '14%', liquidez: '-' },
+        { classe: 'RF - Inflação', exemplo: 'ARX Elbrus Advisory FIC Incentivado FIF em Infra RF RL', percentual: '12%', liquidez: '31 dias' },
+        { classe: 'RF - Prefixada', exemplo: 'Títulos RF PRÉ', percentual: '12%', liquidez: '-' },
+        { classe: 'Multimercado', exemplo: 'Vinland Incentivado Investimento Debêntures Infraestr RF CP', percentual: '4%', liquidez: '31 dias' },
+        { classe: 'Multimercado', exemplo: 'Absolute Vertex Advisory FIC FIM', percentual: '4%', liquidez: '45 dias' },
+        { classe: 'Multimercado', exemplo: 'Quantitas FIC FIM Mallorca', percentual: '3%', liquidez: '15 dias' },
+        { classe: 'Renda Variável', exemplo: 'Real Investor FIC de FIF em Ações RL', percentual: '10%', liquidez: '29 dias' },
+        { classe: 'Renda Variável', exemplo: 'Mesa RV Alta Vista', percentual: '4%', liquidez: '-' },
+        { classe: 'Internacional', exemplo: 'WHG Global Long Biased BRL FIC FIA IE', percentual: '9%', liquidez: '30 dias' },
+        { classe: 'Internacional', exemplo: 'Gama Pearl Diver Global Floating Income BRL FIC FIM IE RL', percentual: '9%', liquidez: '-' },
+        { classe: 'Imobiliário', exemplo: 'CARTEIRA DE FII', percentual: '4%', liquidez: '2 dias' },
+        { classe: 'Alternativo', exemplo: 'INVESTIMENTOS ALTERNATIVOS', percentual: '4%', liquidez: '-' }
+      ]
+    };
+    
+    return perfis[perfil as keyof typeof perfis] || perfis[5]; // Default para Agressivo
+  };
 
   // Mapper: JSON modelo -> props de AllocationDiagnosis
   const mapModelToAllocationProps = (model: any) => {
@@ -142,54 +311,58 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       .reduce((s: number, p: any) => s + Number(p.valor || 0), 0);
     const rvBrasilPct = totalPatrimonio > 0 ? ((Math.max(0, totalRVValor - totalRVIntlValor) / totalPatrimonio) * 100) : 0;
 
+    // Obter alocações ideais baseadas no perfil
+    const perfilCliente = Number(model?.cliente?.perfil_av ?? 5);
+    const alocacoesIdeais = getAlocacoesIdeaisByPerfil(perfilCliente);
+
     const comparativo = [
       {
         classe: 'RF Pós-Fixado',
         atual: `${diverg?.rf_pos?.atual ?? 0}%`,
-        ideal: `${modeloClasses['RF - Pós-fixada'] ?? modeloClasses['Pós-fixado'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.rf_pos?.status, diverg?.rf_pos?.atual, modeloClasses['RF - Pós-fixada'] ?? modeloClasses['Pós-fixado'])
+        ideal: `${alocacoesIdeais['RF - Pós-fixada'] ?? 0}%`,
+        situacao: buildSituacao(diverg?.rf_pos?.status, diverg?.rf_pos?.atual, alocacoesIdeais['RF - Pós-fixada'])
       },
       {
         classe: 'RF Inflação',
         atual: `${diverg?.rf_inflacao?.atual ?? 0}%`,
-        ideal: `${modeloClasses['RF - Inflação'] ?? modeloClasses['IPCA'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.rf_inflacao?.status, diverg?.rf_inflacao?.atual, modeloClasses['RF - Inflação'] ?? modeloClasses['IPCA'])
+        ideal: `${alocacoesIdeais['RF - Inflação'] ?? 0}%`,
+        situacao: buildSituacao(diverg?.rf_inflacao?.status, diverg?.rf_inflacao?.atual, alocacoesIdeais['RF - Inflação'])
       },
       {
         classe: 'RF Pré-Fixado',
         atual: `${diverg?.rf_pre?.atual ?? 0}%`,
-        ideal: `${modeloClasses['Pré-fixado'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.rf_pre?.status, diverg?.rf_pre?.atual, modeloClasses['Pré-fixado'])
+        ideal: `${alocacoesIdeais['RF - Prefixada'] ?? 0}%`,
+        situacao: buildSituacao(diverg?.rf_pre?.status, diverg?.rf_pre?.atual, alocacoesIdeais['RF - Prefixada'])
       },
       {
         classe: 'Multimercado',
         atual: `${diverg?.multimercado?.atual ?? 0}%`,
-        ideal: `${modeloClasses['Multimercado'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.multimercado?.status, diverg?.multimercado?.atual, modeloClasses['Multimercado'])
+        ideal: `${alocacoesIdeais['Multimercado'] ?? 0}%`,
+        situacao: buildSituacao(diverg?.multimercado?.status, diverg?.multimercado?.atual, alocacoesIdeais['Multimercado'])
       },
       {
         classe: 'RV Brasil',
         atual: `${rvBrasilPct.toFixed(1)}%`,
-        ideal: `${modeloClasses['Renda Variável Brasil'] ?? 0}%`,
-        situacao: buildSituacao(rvBrasilPct > (modeloClasses['Renda Variável Brasil'] ?? 0) ? 'Sobrealocado' : rvBrasilPct < (modeloClasses['Renda Variável Brasil'] ?? 0) ? 'Subalocado' : 'Em linha', rvBrasilPct, modeloClasses['Renda Variável Brasil'])
+        ideal: `${alocacoesIdeais['Renda Variável'] ?? 0}%`,
+        situacao: buildSituacao(rvBrasilPct > (alocacoesIdeais['Renda Variável'] ?? 0) ? 'Sobrealocado' : rvBrasilPct < (alocacoesIdeais['Renda Variável'] ?? 0) ? 'Subalocado' : 'Em linha', rvBrasilPct, alocacoesIdeais['Renda Variável'])
       },
       {
         classe: 'FII',
         atual: `${diverg?.fii?.atual ?? 0}%`,
-        ideal: `${modeloClasses['FII'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.fii?.status, diverg?.fii?.atual, modeloClasses['FII'])
+        ideal: `${alocacoesIdeais['Imobiliário'] ?? 0}%`,
+        situacao: buildSituacao(diverg?.fii?.status, diverg?.fii?.atual, alocacoesIdeais['Imobiliário'])
       },
       {
         classe: 'Internacional',
         atual: `${diverg?.internacional?.atual ?? pctIntl ?? 0}%`,
-        ideal: `${modeloClasses['Internacional'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.internacional?.status, diverg?.internacional?.atual ?? pctIntl, modeloClasses['Internacional'])
+        ideal: `${alocacoesIdeais['Internacional'] ?? 0}%`,
+        situacao: buildSituacao(diverg?.internacional?.status, diverg?.internacional?.atual ?? pctIntl, alocacoesIdeais['Internacional'])
       },
       {
         classe: 'Alternativo',
         atual: `${diverg?.alternativo?.atual ?? 0}%`,
-        ideal: `${modeloClasses['Alternativo'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.alternativo?.status, diverg?.alternativo?.atual, modeloClasses['Alternativo'])
+        ideal: `${alocacoesIdeais['Alternativo'] ?? 0}%`,
+        situacao: buildSituacao(diverg?.alternativo?.status, diverg?.alternativo?.atual, alocacoesIdeais['Alternativo'])
       }
     ];
 
@@ -207,17 +380,12 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       recs.push({ acao: `Observação`, justificativa: o });
     });
 
-    // Modelo ideal
-    const modeloIdeal = (model?.carteira_recomendada || []).map((item: any) => ({
-      classe: item.classe,
-      exemplo: item.produto,
-      percentual: `${item.percentual}%`,
-      liquidez: '-'
-    }));
+    // Modelo ideal baseado no perfil do cliente
+    const modeloIdeal = getModeloIdealByPerfil(perfilCliente);
 
     return {
       identificacao: {
-        nome: model?.cliente?.nome || '',
+        nome: model?.cliente?.nome || `Cliente ${model?.cliente?.codigo_xp || 'XP'}`,
         tipo: model?.cliente?.tipo === 'Pessoa Jurídica' ? 'PJ' : 'PF',
         perfil: Number(model?.cliente?.perfil_av ?? 0),
         pdf: Boolean(model?.cliente?.arquivo_posicao),
@@ -249,9 +417,9 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       recomendacoes: recs,
       modeloIdeal,
       macro: {
-        brasil: 'Selic projetada em 15% no 1º semestre, inflação 5,7%, PIB 2,3%, risco fiscal crescente, câmbio R$ 5,80/USD.',
-        mundo: 'Juros altos em EUA/Europa, China crescendo 5%, dólar em desvalorização, commodities 20% abaixo de 2024.',
-        implicacoes: 'Valorização de ativos atrelados ao CDI e inflação. Necessidade de maior exposição internacional e seletividade em crédito privado.'
+        brasil: 'O mês foi marcado pelo corte de juros do Federal Reserve, o primeiro desde 2023, dando fôlego aos ativos de risco e ampliando o apetite global. Apesar das pressões fiscais no Brasil, o país brilhou com forte entrada de capital estrangeiro e renovação de recordes na bolsa.',
+        mundo: '📈 O Ibovespa subiu +4,2% em reais e +5,6% em dólares, superando os 145 mil pontos, enquanto o dólar recuou -2,0%. Destaques positivos: ELET3 +16,7%, MGLU3 +15,9%, COGN3 +14,4%. Maiores quedas: BRKM5 -27,8%, VAMO3 -17,9%, RAIZ4 -17,7%.',
+        implicacoes: 'O corte de juros do Fed e a entrada de capital estrangeiro no Brasil criam ambiente favorável para ativos de risco. Oportunidade de maior exposição em renda variável e internacional, mantendo seletividade em crédito privado.'
       }
     };
   };
@@ -383,8 +551,10 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       <CardVisibilityProvider>
         <SectionVisibilityProvider>
           <div className="relative h-screen overflow-hidden">
-            <Header />
-            <main className="h-[calc(100vh-64px)] overflow-y-auto">
+            <div className="no-print">
+              <Header />
+            </div>
+            <main className="h-[calc(100vh-64px)] overflow-y-auto" id="main-report">
               <div className="min-h-screen">
                 <CoverPage clientData={getClientData().cliente} />
               </div>
@@ -442,37 +612,44 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
                         { classe: 'Internacional', atual: '0.05%', ideal: '18%', situacao: '❌ Muito abaixo' },
                         { classe: 'Alternativo', atual: '0.0%', ideal: '4%', situacao: '❌ Ausente' },
                       ]}
-                      modeloIdeal={mapped?.modeloIdeal || [
-                        { classe: 'RF - Pós-fixada', exemplo: 'ARX Fuji FIC de FIF RF CP RL', percentual: '5%', liquidez: '-' },
-                        { classe: 'RF - Pós-fixada', exemplo: 'Jive BossaNova High Yield Advisory FIC FIDC', percentual: '5%', liquidez: '-' },
-                        { classe: 'RF - Pós-fixada', exemplo: 'Capitânia Yield 120 CP FIC FIM CP', percentual: '5%', liquidez: '-' },
-                        { classe: 'RF - Inflação', exemplo: 'NTN-B - AGO/205', percentual: '16%', liquidez: '-' },
-                        { classe: 'RF - Inflação', exemplo: 'ARX Elbrus Advisory FIC Incentivado FIF em Infra RF RL', percentual: '8%', liquidez: '-' },
-                        { classe: 'Pré-fixado', exemplo: 'Títulos RF PRÉ', percentual: '11%', liquidez: '-' },
-                        { classe: 'Multimercado', exemplo: 'Vinland Incentivado Investimento Debêntures Infraestr RF CP', percentual: '4%', liquidez: '-' },
-                        { classe: 'Multimercado', exemplo: 'Absolute Vertex Advisory FIC FIM', percentual: '3%', liquidez: '-' },
-                        { classe: 'Multimercado', exemplo: 'Quantitas FIC FIM Mallorca', percentual: '3%', liquidez: '-' },
-                        { classe: 'Renda Variável Brasil', exemplo: 'Real Investor FIC de FIF em Ações RL', percentual: '4.5%', liquidez: '-' },
-                        { classe: 'Renda Variável Brasil', exemplo: 'Mesa RV Alta Vista', percentual: '4.5%', liquidez: '-' },
-                        { classe: 'Internacional', exemplo: 'WHG Global Long Biased BRL FIC FIA IE', percentual: '7%', liquidez: '-' },
-                        { classe: 'Internacional', exemplo: 'Gama Pearl Diver Global Floating Income BRL FIC FIM IE RL', percentual: '7%', liquidez: '-' },
-                        { classe: 'FII', exemplo: 'Carteira de FII', percentual: '3%', liquidez: '-' },
-                        { classe: 'Alternativo', exemplo: 'Investimentos Alternativos', percentual: '3%', liquidez: '-' },
-                      ]}
+                      modeloIdeal={mapped?.modeloIdeal || getModeloIdealByPerfil(5)}
                       macro={mapped?.macro || {
-                        brasil: 'Selic projetada em 15% no 1º semestre, inflação 5,7%, PIB 2,3%, risco fiscal crescente, câmbio R$ 5,80/USD.',
-                        mundo: 'Juros altos em EUA/Europa, China crescendo 5%, dólar em desvalorização, commodities 20% abaixo de 2024.',
-                        implicacoes: 'Valorização de ativos atrelados ao CDI e inflação. Necessidade de maior exposição internacional e seletividade em crédito privado.'
+                        brasil: 'O mês foi marcado pelo corte de juros do Federal Reserve, o primeiro desde 2023, dando fôlego aos ativos de risco e ampliando o apetite global. Apesar das pressões fiscais no Brasil, o país brilhou com forte entrada de capital estrangeiro e renovação de recordes na bolsa.',
+                        mundo: '📈 O Ibovespa subiu +4,2% em reais e +5,6% em dólares, superando os 145 mil pontos, enquanto o dólar recuou -2,0%. Destaques positivos: ELET3 +16,7%, MGLU3 +15,9%, COGN3 +14,4%. Maiores quedas: BRKM5 -27,8%, VAMO3 -17,9%, RAIZ4 -17,7%.',
+                        implicacoes: 'O corte de juros do Fed e a entrada de capital estrangeiro no Brasil criam ambiente favorável para ativos de risco. Oportunidade de maior exposição em renda variável e internacional, mantendo seletividade em crédito privado.'
                       }}
                     />
                   );
                 })()}
               </HideableSection>
+
+              {/* Seção de Geração de PDF */}
+              <div className="py-20 px-6 no-print">
+                <div className="max-w-7xl mx-auto space-y-10">
+                  <div className="bg-white rounded-lg shadow-sm border p-8">
+                    <div className="text-center mb-6">
+                      <h2 className="text-2xl font-semibold mb-2 text-primary">Gerar Relatório em PDF</h2>
+                      <p className="text-muted-foreground">
+                        Baixe o relatório completo em formato PDF para análise offline ou compartilhamento.
+                      </p>
+                    </div>
+                    
+                    <div className="flex justify-center">
+                      <PDFGeneratorButton
+                        elementId="main-report"
+                        filename={`relatorio-alocacao-${userReports?.cliente?.codigo_xp || 'cliente'}.pdf`}
+                        variant="default"
+                        size="lg"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </main>
-            <DotNavigation />
-            <MobileDotNavigation />
-            <FloatingActions userReports={userReports} />
-            {!clientPropect && <SectionVisibilityControls />}
+            <div className="no-print">
+              <FloatingActions userReports={userReports} />
+            </div>
           </div>
         </SectionVisibilityProvider>
       </CardVisibilityProvider>

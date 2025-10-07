@@ -33,7 +33,7 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
     cliente: {
       nome: userReports?.cliente?.nome || `Cliente ${userReports?.cliente?.codigo_xp || 'XP'}`,
       idade: userReports?.cliente?.idade || 0,
-      codigoXP: userReports?.cliente?.codigo_xp || "405703"
+      codigoXP: userReports?.cliente?.codigo_xp || ""
     },
     financas: {
       patrimonioLiquido: userReports?.financas?.resumo?.patrimonio_liquido || 0,
@@ -417,8 +417,8 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       recomendacoes: recs,
       modeloIdeal,
       macro: {
-        brasil: 'O mês foi marcado pelo corte de juros do Federal Reserve, o primeiro desde 2023, dando fôlego aos ativos de risco e ampliando o apetite global. Apesar das pressões fiscais no Brasil, o país brilhou com forte entrada de capital estrangeiro e renovação de recordes na bolsa.',
-        mundo: '📈 O Ibovespa subiu +4,2% em reais e +5,6% em dólares, superando os 145 mil pontos, enquanto o dólar recuou -2,0%. Destaques positivos: ELET3 +16,7%, MGLU3 +15,9%, COGN3 +14,4%. Maiores quedas: BRKM5 -27,8%, VAMO3 -17,9%, RAIZ4 -17,7%.',
+        brasil: '📈 O Ibovespa subiu +4,2% em reais e +5,6% em dólares, superando os 145 mil pontos, enquanto o dólar recuou -2,0%. Destaques positivos: ELET3 +16,7%, MGLU3 +15,9%, COGN3 +14,4%. Maiores quedas: BRKM5 -27,8%, VAMO3 -17,9%, RAIZ4 -17,7%.',
+        mundo: 'O mês foi marcado pelo corte de juros do Federal Reserve, o primeiro desde 2023, dando fôlego aos ativos de risco e ampliando o apetite global. Apesar das pressões fiscais no Brasil, o país brilhou com forte entrada de capital estrangeiro e renovação de recordes na bolsa.',
         implicacoes: 'O corte de juros do Fed e a entrada de capital estrangeiro no Brasil criam ambiente favorável para ativos de risco. Oportunidade de maior exposição em renda variável e internacional, mantendo seletividade em crédito privado.'
       }
     };
@@ -562,62 +562,30 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
               <HideableSection sectionId="analise-carteira" hideControls={clientPropect}>
                 {(() => {
                   const mapped = (userReports && (userReports as any)?.posicao_atual) ? mapModelToAllocationProps(userReports) : null;
+                  
+                  // Se não há dados, não renderizar o componente
+                  if (!mapped) {
+                    return (
+                      <div className="min-h-screen flex items-center justify-center">
+                        <div className="text-center p-8">
+                          <h3 className="text-2xl font-semibold mb-4">Nenhum dado disponível</h3>
+                          <p className="text-muted-foreground">Por favor, carregue um relatório válido.</p>
+                        </div>
+                      </div>
+                    );
+                  }
+
                   return (
                     <AllocationDiagnosis
-                      identificacao={mapped?.identificacao || { tipo: 'PF', perfil: 5, pdf: true }}
-                      patrimonioTotal={mapped?.patrimonioTotal || 1415741.57}
-                      ativos={mapped?.ativos || [
-                        { nome: 'SPARTA MAX ADVISORY FIC DE FIF RF CP LP RL', classe: 'RF Pós-Fixada', valor: 208615.30 },
-                        { nome: 'EMPÍRICA LÓTUS FIC FIM CP', classe: 'Multimercado', valor: 134777.51, obs: 'Reclassificado manualmente' },
-                        { nome: 'RIZA LOTUS FIF RF - REFERENCIADA DI CP RL', classe: 'RF Pós-Fixada', valor: 118635.72 },
-                        { nome: 'ARX DENALI ADVISORY FIC DE FIF RF CP RL', classe: 'RF Pós-Fixada', valor: 91528.92 },
-                        { nome: 'TREND DI FIC RF SIMPLES RL', classe: 'RF Pós-Fixada', valor: 70744.86 },
-                        { nome: 'ARX FUJI FIC DE FIF RF CP RL', classe: 'RF Pós-Fixada', valor: 13067.69 },
-                        { nome: 'CDB WILL FINANCEIRA (MASTER) - MAR/2027', classe: 'RF Pós-Fixada', valor: 4689.20 },
-                        { nome: 'SPARTA PREV ADVISORY XP SEG FIC RF CP RL', classe: 'Previdência', valor: 18427.72 },
-                        { nome: 'ARX DENALI XP SEG PREV FIC FIRF CP RL', classe: 'Previdência', valor: 80370.32 },
-                        { nome: 'XP CORPORATE TOP CP XP SEG PREV FIC FIM RL', classe: 'Previdência', valor: 41712.02 },
-                        { nome: 'CDB AGIBANK - AGO/2025', classe: 'RF Inflação', valor: 148911.62 },
-                        { nome: 'NTN-B - AGO/2050', classe: 'RF Inflação', valor: 286341.07 },
-                        { nome: 'CDB BANCO C6 CONSIGNADO S.A. - JUL/2026', classe: 'RF Inflação', valor: 87081.71 },
-                        { nome: 'ARX ELBRUS ADVISORY FIC INCENTIVADO FIF EM INFRA RF RL', classe: 'RF Inflação', valor: 87940.23 },
-                        { nome: 'LPSB3', classe: 'Renda Variável Brasil', valor: 1815.00 },
-                        { nome: 'XPBR31', classe: 'Internacional', valor: 655.50 },
-                        { nome: 'Proventos', classe: 'Outros', valor: 80.11 },
-                      ]}
-                      consolidado={mapped?.consolidado || [
-                        { classe: 'RF Pós-Fixado', valor: 782569.24, percentual: '56.1%' },
-                        { classe: 'RF Inflação', valor: 610274.63, percentual: '43.8%' },
-                        { classe: 'Multimercado', valor: 134777.51, percentual: '9.7%' },
-                        { classe: 'Previdência', valor: 140509.06, percentual: '10.1%' },
-                        { classe: 'Renda Variável Brasil', valor: 1815.00, percentual: '0.1%' },
-                        { classe: 'Internacional', valor: 655.50, percentual: '0.05%' },
-                        { classe: 'Outros', valor: 80.11, percentual: '0.01%' },
-                      ]}
-                      liquidez={mapped?.liquidez || [
-                        { faixa: 'D+0', valor: 84393.20, percentual: '6.05%' },
-                        { faixa: 'D+1-4', valor: 112438.41, percentual: '8.06%' },
-                        { faixa: 'D+5-30', valor: 154953.95, percentual: '11.10%' },
-                        { faixa: 'D+31-60', valor: 129652.25, percentual: '9.29%' },
-                        { faixa: '>D+60', valor: 1048956.69, percentual: '75.10%' },
-                      ]}
-                      internacional={mapped?.internacional || { valor: 655.50, percentual: '0.05%', recomendado: '15-20%' }}
-                      comparativo={mapped?.comparativo || [
-                        { classe: 'RF Pós-Fixado', atual: '56.1%', ideal: '11%', situacao: '⚠️ Excesso relevante' },
-                        { classe: 'RF Inflação', atual: '43.8%', ideal: '26%', situacao: '⚠️ Acima do ideal' },
-                        { classe: 'RF Pré-Fixado', atual: '0.0%', ideal: '12%', situacao: '❌ Ausente' },
-                        { classe: 'Multimercado', atual: '9.7%', ideal: '11%', situacao: '✅ Próximo ao ideal' },
-                        { classe: 'RV Brasil', atual: '0.1%', ideal: '14%', situacao: '❌ Praticamente zerado' },
-                        { classe: 'FII', atual: '0.0%', ideal: '4%', situacao: '❌ Ausente' },
-                        { classe: 'Internacional', atual: '0.05%', ideal: '18%', situacao: '❌ Muito abaixo' },
-                        { classe: 'Alternativo', atual: '0.0%', ideal: '4%', situacao: '❌ Ausente' },
-                      ]}
-                      modeloIdeal={mapped?.modeloIdeal || getModeloIdealByPerfil(5)}
-                      macro={mapped?.macro || {
-                        brasil: 'O mês foi marcado pelo corte de juros do Federal Reserve, o primeiro desde 2023, dando fôlego aos ativos de risco e ampliando o apetite global. Apesar das pressões fiscais no Brasil, o país brilhou com forte entrada de capital estrangeiro e renovação de recordes na bolsa.',
-                        mundo: '📈 O Ibovespa subiu +4,2% em reais e +5,6% em dólares, superando os 145 mil pontos, enquanto o dólar recuou -2,0%. Destaques positivos: ELET3 +16,7%, MGLU3 +15,9%, COGN3 +14,4%. Maiores quedas: BRKM5 -27,8%, VAMO3 -17,9%, RAIZ4 -17,7%.',
-                        implicacoes: 'O corte de juros do Fed e a entrada de capital estrangeiro no Brasil criam ambiente favorável para ativos de risco. Oportunidade de maior exposição em renda variável e internacional, mantendo seletividade em crédito privado.'
-                      }}
+                      identificacao={mapped.identificacao}
+                      patrimonioTotal={mapped.patrimonioTotal}
+                      ativos={mapped.ativos}
+                      consolidado={mapped.consolidado}
+                      liquidez={mapped.liquidez}
+                      internacional={mapped.internacional}
+                      comparativo={mapped.comparativo}
+                      modeloIdeal={mapped.modeloIdeal}
+                      macro={mapped.macro}
                     />
                   );
                 })()}

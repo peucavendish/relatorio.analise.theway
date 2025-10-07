@@ -374,34 +374,38 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
             hideControls={hideControls}
           >
             <div className="p-8">
-              <h3 className="text-2xl font-semibold mb-6 text-primary">2. Cenário Macroeconômico 2025</h3>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
+              <h3 className="text-2xl font-semibold mb-8 text-primary">2. Cenário Macroeconômico 2025</h3>
+              
+              <div className="space-y-6">
+                {/* Brasil */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 mb-2">
                     <div className="bg-blue-100 p-2 rounded-full">
+                    <Activity size={20} className="text-green-600" />
+                    </div>
+                    <h4 className="font-semibold text-lg">Brasil</h4>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed pl-11">{macro.brasil}</p>
+                </div>
+
+                {/* Mundo */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="bg-green-100 p-2 rounded-full">
                       <Globe size={20} className="text-blue-600" />
                     </div>
-                    <div>
-                      <h4 className="font-semibold">Brasil</h4>
-                      <p className="text-sm text-muted-foreground">{macro.brasil}</p>
-                    </div>
+                    <h4 className="font-semibold text-lg">Mundo</h4>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="bg-green-100 p-2 rounded-full">
-                      <Activity size={20} className="text-green-600" />
-                    </div>
-                    <div>
-                      <h4 className="font-semibold">Mundo</h4>
-                      <p className="text-sm text-muted-foreground">{macro.mundo}</p>
-                    </div>
-                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed pl-11">{macro.mundo}</p>
                 </div>
-                <div className="bg-secondary/50 p-6 rounded-xl">
-                  <h4 className="font-semibold mb-2 flex items-center gap-2">
-                    <Target size={16} />
+
+                {/* Implicações */}
+                <div className="bg-secondary/50 p-6 rounded-xl mt-6">
+                  <h4 className="font-semibold text-base mb-3 flex items-center gap-2">
+                    <Target size={18} />
                     Implicações para Alocação
                   </h4>
-                  <p className="text-sm">{macro.implicacoes}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{macro.implicacoes}</p>
                 </div>
               </div>
             </div>
@@ -421,21 +425,42 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
           >
             <div className="p-8">
               <h3 className="text-2xl font-semibold mb-6 text-primary">3. Ativos Classificados</h3>
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {ativos.map((ativo, index) => (
-                  <div key={index} className="flex justify-between items-center p-4 bg-secondary/40 rounded-xl">
-                    <div className="flex-1">
-                      <div className="font-medium text-sm">{ativo.nome}</div>
-                      <div className="text-xs text-muted-foreground">{ativo.classe}</div>
-                      {ativo.obs && (
-                        <div className="text-xs text-blue-600 mt-1">{ativo.obs}</div>
-                      )}
+              <div className="space-y-6">
+                {(() => {
+                  // Agrupar ativos por classe
+                  const ativosPorClasse = ativos.reduce((acc, ativo) => {
+                    const classe = ativo.classe;
+                    if (!acc[classe]) {
+                      acc[classe] = [];
+                    }
+                    acc[classe].push(ativo);
+                    return acc;
+                  }, {} as Record<string, typeof ativos>);
+
+                  // Renderizar cada classe com seus ativos
+                  return Object.entries(ativosPorClasse).map(([classe, ativosClasse]) => (
+                    <div key={classe} className="space-y-3">
+                      <h4 className="font-semibold text-base text-primary border-b pb-2">{classe}</h4>
+                      <div className="space-y-2">
+                        {ativosClasse
+                          .sort((a, b) => b.valor - a.valor) // Ordenar do maior para o menor
+                          .map((ativo, index) => (
+                          <div key={index} className="flex justify-between items-center p-3 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors">
+                            <div className="flex-1">
+                              <div className="font-medium text-sm">{ativo.nome}</div>
+                              {ativo.obs && (
+                                <div className="text-xs text-blue-600 mt-1">{ativo.obs}</div>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <div className="font-semibold text-primary">{formatCurrency(ativo.valor)}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-semibold text-primary">{formatCurrency(ativo.valor)}</div>
-                    </div>
-                  </div>
-                ))}
+                  ));
+                })()}
               </div>
             </div>
           </HideableCard>
@@ -527,7 +552,7 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
             hideControls={hideControls}
           >
             <div className="p-8">
-              <h3 className="text-2xl font-semibold mb-6 text-primary">5. Exposição Internacional</h3>
+              <h3 className="text-2xl font-semibold mb-6 text-primary">5. Conta Internacional</h3>
               <div className="text-center">
                 <div className="text-4xl md:text-5xl font-bold mb-2 text-primary">{formatCurrency(internacional.valor)}</div>
                 <div className="text-xl mb-4">{internacional.percentual}</div>
@@ -544,12 +569,6 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
                   label="Recomendado: 18%" 
                   icon={<Globe size={14} />}
                 />
-                {internacional.hedge && (
-                  <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-                    <StatusChip status="default" label={`Câmbio não hedgeado: ${internacional.hedge.naoHedgeado}%`} />
-                    <StatusChip status="default" label={`Câmbio hedgeado: ${internacional.hedge.hedgeado}%`} />
-                  </div>
-                )}
               </div>
             </div>
           </HideableCard>
@@ -577,8 +596,8 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
                         <th className="text-center py-3 uppercase tracking-wide text-xs text-muted-foreground">% Atual</th>
                         <th className="text-center py-3 uppercase tracking-wide text-xs text-muted-foreground">% Ideal</th>
                         <th className="text-center py-3 uppercase tracking-wide text-xs text-muted-foreground">Delta (%)</th>
-                        <th className="text-center py-3 uppercase tracking-wide text-xs text-muted-foreground">Faltam/Excesso (R$)</th>
                         <th className="text-center py-3 uppercase tracking-wide text-xs text-muted-foreground">Situação</th>
+                        <th className="text-center py-3 uppercase tracking-wide text-xs text-muted-foreground">Faltam/Excesso (R$)</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -614,37 +633,23 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
                             )}
                           </td>
                           <td className="py-4 text-center">
-                            {diff.label === '-' ? (
-                              <span className="text-green-700 font-medium">Em linha</span>
-                            ) : (
-                              <span className={diff.label === 'Faltam' ? 'text-red-600 font-medium' : 'text-yellow-600 font-medium'}>
-                                {diff.label}: {formatCurrency(diff.value)}
-                              </span>
-                            )}
-                          </td>
-                          <td className="py-4 text-center">
                             <div className="flex items-center justify-center gap-2">
                               {getSituacaoIcon(item.situacao)}
                               <span className="text-sm">{item.situacao.replace(/[✅⚠️❌]/g, '').trim()}</span>
                             </div>
                           </td>
+                          <td className="py-4 text-center">
+                            {diff.label === '-' ? (
+                              <span className="text-green-700 font-medium">-</span>
+                            ) : (
+                              <span className={diff.label === 'Faltam' ? 'text-red-600 font-medium' : 'text-yellow-600 font-medium'}>
+                                {formatCurrency(diff.value)}
+                              </span>
+                            )}
+                          </td>
                         </tr>
                         );
                       })}
-                      {/* Totais comparativo */}
-                      <tr className="bg-secondary/40">
-                        <td className="py-4 font-semibold">Totais</td>
-                        <td className="py-4 text-center font-semibold text-muted-foreground">100%</td>
-                        <td className="py-4 text-center font-semibold text-muted-foreground">100%</td>
-                        <td className="py-4 text-center font-semibold text-muted-foreground">0%</td>
-                        <td className="py-4 text-center font-semibold">
-                          <div className="flex items-center justify-center gap-4">
-                            <span className="text-yellow-700">Excesso: {formatCurrency(totalExcesso)}</span>
-                            <span className="text-red-700">Faltam: {formatCurrency(totalFalta)}</span>
-                          </div>
-                        </td>
-                        <td />
-                      </tr>
                     </tbody>
                   </table>
                 </div>

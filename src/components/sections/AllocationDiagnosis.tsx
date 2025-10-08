@@ -58,6 +58,7 @@ export interface AllocationDiagnosisProps {
     perfilModelo?: string;
   };
   patrimonioTotal: number;
+  patrimonioCarteiraBrasil: number; // Patrimônio da carteira brasileira (sem conta internacional)
   ativos: Ativo[];
   consolidado: Consolidado[];
   liquidez: Liquidez[];
@@ -81,6 +82,7 @@ export interface AllocationDiagnosisProps {
 export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
   identificacao,
   patrimonioTotal,
+  patrimonioCarteiraBrasil,
   ativos,
   consolidado,
   liquidez,
@@ -221,7 +223,8 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
     const atualPct = parsePercent(atualPctStr);
     const idealPct = parsePercent(idealPctStr);
     const diffPct = idealPct - atualPct; // >0 falta; <0 excesso
-    const diffValue = (totalPatrimonio * diffPct) / 100;
+    // Todas as classes da carteira brasileira usam patrimônio da carteira brasileira
+    const diffValue = (patrimonioCarteiraBrasil * diffPct) / 100;
     if (Math.abs(diffValue) < 0.005) return { label: '-', value: 0 };
     return {
       label: diffPct > 0 ? 'Faltam' : 'Excesso',
@@ -248,10 +251,11 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
     const atual = parsePercent(c.atual);
     const ideal = parsePercent(c.ideal);
     const diffPct = ideal - atual;
+    // Todas as classes da carteira brasileira usam patrimônio da carteira brasileira
     return {
       classe: canonicalClass(c.classe),
       diffPct,
-      diffValue: (totalPatrimonio * diffPct) / 100
+      diffValue: (patrimonioCarteiraBrasil * diffPct) / 100
     };
   });
 
@@ -279,7 +283,8 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
 
   // Totais para o Modelo de Carteira
   const totalPctModelo = modeloIdeal.reduce((s, mi) => s + parsePercent(mi.percentual), 0);
-  const totalValorAlocado = (totalPatrimonio * totalPctModelo) / 100;
+  // Modelo ideal calculado sobre patrimônio da carteira brasileira
+  const totalValorAlocado = (patrimonioCarteiraBrasil * totalPctModelo) / 100;
   const totalComprar = compras.reduce((s, c) => s + c.valor, 0);
 
   // Totais do comparativo (Excesso / Falta / Em linha)
@@ -330,7 +335,7 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
               <div className="grid md:grid-cols-3 gap-8">
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-bold mb-2 text-primary">{formatCurrency(getTotalPatrimonio())}</div>
-                  <div className="text-sm text-muted-foreground">Patrimônio Total</div>
+                  <div className="text-sm text-muted-foreground">Patrimônio Total (Nacional + Internacional)</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl md:text-4xl font-bold mb-2 text-financial-warning">{identificacao.perfil}/5</div>
@@ -650,6 +655,42 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
                         </tr>
                         );
                       })}
+                      {/* Linha de Total */}
+                      <tr className="bg-secondary/40 border-t-2 border-primary/20">
+                        <td className="py-4 font-semibold text-primary">TOTAL</td>
+                        <td className="py-4 text-center font-semibold text-primary">
+                          {comparativo.reduce((sum, item) => sum + parsePercent(item.atual), 0).toFixed(1)}%
+                        </td>
+                        <td className="py-4 text-center font-semibold text-primary">
+                          {comparativo.reduce((sum, item) => sum + parsePercent(item.ideal), 0).toFixed(1)}%
+                        </td>
+                        <td className="py-4 text-center font-semibold text-primary">
+                          {(() => {
+                            const totalAtual = comparativo.reduce((sum, item) => sum + parsePercent(item.atual), 0);
+                            const totalIdeal = comparativo.reduce((sum, item) => sum + parsePercent(item.ideal), 0);
+                            const delta = totalIdeal - totalAtual;
+                            return delta > 0 ? `+${delta.toFixed(1)}%` : `${delta.toFixed(1)}%`;
+                          })()}
+                        </td>
+                        <td className="py-4 text-center font-semibold text-primary">-</td>
+                        <td className="py-4 text-center font-semibold text-primary">
+                          {(() => {
+                            const totalFalta = comparativo.reduce((sum, item) => {
+                              const d = getDiffFinanceiro(item.atual, item.ideal);
+                              return sum + (d.label === 'Faltam' ? d.value : 0);
+                            }, 0);
+                            const totalExcesso = comparativo.reduce((sum, item) => {
+                              const d = getDiffFinanceiro(item.atual, item.ideal);
+                              return sum + (d.label === 'Excesso' ? d.value : 0);
+                            }, 0);
+                            const neto = totalFalta - totalExcesso;
+                            if (Math.abs(neto) < 0.01) return '-';
+                            return neto > 0 ? 
+                              <span className="text-red-600">Faltam {formatCurrency(neto)}</span> :
+                              <span className="text-yellow-600">Excesso {formatCurrency(Math.abs(neto))}</span>;
+                          })()}
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -692,7 +733,8 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
                   <tbody>
                     {modeloIdeal.map((item, index) => {
                       const pct = parsePercent(item.percentual);
-                      const valor = (totalPatrimonio * pct) / 100;
+                      // Modelo ideal calculado sobre patrimônio da carteira brasileira
+                      const valor = (patrimonioCarteiraBrasil * pct) / 100;
                       return (
                         <tr key={index} className="border-b border-border/50 hover:bg-secondary/30">
                           <td className="py-4 font-medium">

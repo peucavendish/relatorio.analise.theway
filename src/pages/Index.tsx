@@ -249,7 +249,7 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       obs: p.reclassificacao,
     }));
 
-    // Consolidação
+    // Consolidação (será recalculada depois de definir patrimônio nacional)
     const consolidacao = model?.posicao_atual?.consolidacao || {};
     const mapConsolKey = (k: string) => {
       if (k.toLowerCase().includes('pós') || k.toLowerCase().includes('pos')) return 'RF - Pós-fixada';
@@ -265,13 +265,14 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       if (k.toLowerCase().includes('caixa')) return 'Caixa';
       return 'Outros';
     };
-    const consolidado = Object.entries(consolidacao).map(([k, v]: any) => ({
+    const consolidadoTemp = Object.entries(consolidacao).map(([k, v]: any) => ({
       classe: mapConsolKey(k),
       valor: Number(v?.valor || 0),
       percentual: `${Number(v?.percentual || 0).toFixed(1)}%`,
     }));
 
     // Liquidez (aproximação por faixas a partir de percentual até 1 dia)
+    // Nota: A liquidez é calculada sobre a carteira nacional (excluindo internacional)
     const pctAte1d: number = Number(model?.liquidez?.percentual_ate_1d ?? 0);
     const valorAte1d = totalPatrimonio * (pctAte1d / 100);
     const restante = Math.max(0, totalPatrimonio - valorAte1d);
@@ -284,16 +285,25 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
     ];
 
     // Internacional
-    const pctIntl: number = Number(model?.exposicao_internacional?.percentual_internacional ?? 0);
+    const pctIntl: number = Number(model?.investimento_internacional?.percentual_sobre_patrimonio ?? 0);
+    const valorIntl: number = Number(model?.investimento_internacional?.valor_brl_aprox ?? 0);
     const internacional = {
-      valor: totalPatrimonio * (pctIntl / 100),
-      percentual: `${pctIntl}%`,
+      valor: valorIntl > 0 ? valorIntl : (totalPatrimonio * (pctIntl / 100)),
+      percentual: `${pctIntl.toFixed(1)}%`,
       recomendado: model?.carteira_modelo_referencia?.classes?.['Internacional'] ? `${model.carteira_modelo_referencia.classes['Internacional']}%` : '15-20%'
     };
 
+    // Patrimônio da Carteira Brasileira = Total - Conta Internacional
+    const patrimonioCarteiraBrasil = Math.max(0, totalPatrimonio - internacional.valor);
+
+    // Recalcular percentuais da consolidação sobre a carteira brasileira
+    const consolidado = consolidadoTemp.map(item => ({
+      ...item,
+      percentual: patrimonioCarteiraBrasil > 0 ? `${((item.valor / patrimonioCarteiraBrasil) * 100).toFixed(1)}%` : '0.0%'
+    }));
+
     // Comparativo: usar divergências e modelo de referência
     const diverg = model?.divergencias_vs_modelo || {};
-    const modeloClasses = model?.carteira_modelo_referencia?.classes || {};
 
     const buildSituacao = (status?: string, atual?: number, ideal?: number) => {
       if (status === 'Sobrealocado') return `⚠️ Acima do ideal`;
@@ -309,7 +319,14 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
     const totalRVIntlValor = produtos
       .filter((p: any) => (p.classe_av || '').toLowerCase().includes('renda') && p.internacional)
       .reduce((s: number, p: any) => s + Number(p.valor || 0), 0);
-    const rvBrasilPct = totalPatrimonio > 0 ? ((Math.max(0, totalRVValor - totalRVIntlValor) / totalPatrimonio) * 100) : 0;
+    // RV Brasil calculado sobre carteira brasileira
+    const rvBrasilPct = patrimonioCarteiraBrasil > 0 ? ((Math.max(0, totalRVValor - totalRVIntlValor) / patrimonioCarteiraBrasil) * 100) : 0;
+
+    // Calcular Internacional da carteira brasileira (ex: TSLA34)
+    const intlCarteiraBrasilValor = produtos
+      .filter((p: any) => (p.classe_av || '').toLowerCase().includes('internacional'))
+      .reduce((s: number, p: any) => s + Number(p.valor || 0), 0);
+    const intlCarteiraBrasilPct = patrimonioCarteiraBrasil > 0 ? ((intlCarteiraBrasilValor / patrimonioCarteiraBrasil) * 100) : 0;
 
     // Obter alocações ideais baseadas no perfil
     const perfilCliente = Number(model?.cliente?.perfil_av ?? 5);
@@ -354,26 +371,50 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       },
       {
         classe: 'Internacional',
-        atual: `${diverg?.internacional?.atual ?? pctIntl ?? 0}%`,
+        atual: `${intlCarteiraBrasilPct.toFixed(1)}%`,
         ideal: `${alocacoesIdeais['Internacional'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.internacional?.status, diverg?.internacional?.atual ?? pctIntl, alocacoesIdeais['Internacional'])
+        situacao: buildSituacao(intlCarteiraBrasilPct > (alocacoesIdeais['Internacional'] ?? 0) ? 'Sobrealocado' : intlCarteiraBrasilPct < (alocacoesIdeais['Internacional'] ?? 0) ? 'Subalocado' : 'Em linha', intlCarteiraBrasilPct, alocacoesIdeais['Internacional'])
       },
       {
         classe: 'Alternativo',
         atual: `${diverg?.alternativo?.atual ?? 0}%`,
         ideal: `${alocacoesIdeais['Alternativo'] ?? 0}%`,
         situacao: buildSituacao(diverg?.alternativo?.status, diverg?.alternativo?.atual, alocacoesIdeais['Alternativo'])
+      },
+      {
+        classe: 'Moedas',
+        atual: `${diverg?.moedas?.atual ?? 0}%`,
+        ideal: `${alocacoesIdeais['Moedas'] ?? 0}%`,
+        situacao: buildSituacao(diverg?.moedas?.status, diverg?.moedas?.atual, alocacoesIdeais['Moedas'])
+      },
+      {
+        classe: 'Outros',
+        atual: `${diverg?.outros?.atual ?? 0}%`,
+        ideal: `${alocacoesIdeais['Outros'] ?? 0}%`,
+        situacao: buildSituacao(diverg?.outros?.status, diverg?.outros?.atual, alocacoesIdeais['Outros'])
+      },
+      {
+        classe: 'Criptomoedas',
+        atual: `${diverg?.criptomoedas?.atual ?? 0}%`,
+        ideal: `${alocacoesIdeais['Criptomoedas'] ?? 0}%`,
+        situacao: buildSituacao(diverg?.criptomoedas?.status, diverg?.criptomoedas?.atual, alocacoesIdeais['Criptomoedas'])
+      },
+      {
+        classe: 'Derivativos',
+        atual: `${diverg?.derivativos?.atual ?? 0}%`,
+        ideal: `${alocacoesIdeais['Derivativos'] ?? 0}%`,
+        situacao: buildSituacao(diverg?.derivativos?.status, diverg?.derivativos?.atual, alocacoesIdeais['Derivativos'])
       }
     ];
 
     // Recomendações
     const recs: Array<{ acao: string; justificativa: string }> = [];
     (model?.recomendacoes?.reduzir || []).forEach((c: string) => {
-      const ideal = modeloClasses[c] ?? 0;
+      const ideal = alocacoesIdeais[c] ?? 0;
       recs.push({ acao: `Reduzir ${c}`, justificativa: `Ajustar para o ideal (${ideal}%).` });
     });
     (model?.recomendacoes?.aumentar || []).forEach((c: string) => {
-      const ideal = modeloClasses[c] ?? 0;
+      const ideal = alocacoesIdeais[c] ?? 0;
       recs.push({ acao: `Aumentar ${c}`, justificativa: `Aproximar do ideal (${ideal}%).` });
     });
     (model?.recomendacoes?.observacoes || []).forEach((o: string) => {
@@ -399,6 +440,7 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
         perfilModelo: model?.meta?.perfil_modelo || ''
       },
       patrimonioTotal: totalPatrimonio,
+      patrimonioCarteiraBrasil: patrimonioCarteiraBrasil, // Patrimônio da carteira brasileira (sem conta internacional)
       ativos,
       consolidado,
       liquidez,
@@ -409,8 +451,8 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       internacional: {
         ...internacional,
         hedge: {
-          naoHedgeado: Number(model?.exposicao_internacional?.cambial_nao_hedgeada ?? 0),
-          hedgeado: Number(model?.exposicao_internacional?.cambial_hedgeada ?? 0)
+          naoHedgeado: Number(model?.investimento_internacional?.cambial_nao_hedgeada ?? 0),
+          hedgeado: Number(model?.investimento_internacional?.cambial_hedgeada ?? 0)
         }
       },
       comparativo,
@@ -579,6 +621,7 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
                     <AllocationDiagnosis
                       identificacao={mapped.identificacao}
                       patrimonioTotal={mapped.patrimonioTotal}
+                      patrimonioCarteiraBrasil={mapped.patrimonioCarteiraBrasil}
                       ativos={mapped.ativos}
                       consolidado={mapped.consolidado}
                       liquidez={mapped.liquidez}

@@ -266,10 +266,10 @@
     display: none !important;
   }
 
-  /* Layout da página */
+  /* Layout da página - UMA PÁGINA APENAS */
   @page {
     size: A4;
-    margin: 15mm;
+    margin: 8mm;
   }
 
   /* Body e HTML */
@@ -279,6 +279,7 @@
     padding: 0 !important;
     height: auto !important;
     overflow: visible !important;
+    font-size: 10px !important; /* Reduzir tamanho da fonte */
   }
 
   /* CRITICAL: Remover scroll-snap que esconde conteúdo */
@@ -319,6 +320,233 @@
     max-height: none !important;
   }
 
+  /* LAYOUT COMPACTO PARA UMA PÁGINA */
+  
+  /* Aplicar classes de impressão compacta globalmente */
+  .p-8 { padding: 8px !important; }
+  .p-6 { padding: 6px !important; }
+  .p-4 { padding: 4px !important; }
+  .mb-8 { margin-bottom: 6px !important; }
+  .mb-6 { margin-bottom: 4px !important; }
+  .mb-4 { margin-bottom: 3px !important; }
+  .mb-2 { margin-bottom: 2px !important; }
+  .space-y-6 > * + * { margin-top: 3px !important; }
+  .space-y-4 > * + * { margin-top: 2px !important; }
+  .space-y-2 > * + * { margin-top: 1px !important; }
+  .gap-8 { gap: 4px !important; }
+  .gap-6 { gap: 3px !important; }
+  .gap-4 { gap: 2px !important; }
+  
+  /* Títulos compactos */
+  .text-4xl { font-size: 18px !important; }
+  .text-3xl { font-size: 16px !important; }
+  .text-2xl { font-size: 14px !important; }
+  .text-xl { font-size: 12px !important; }
+  .text-lg { font-size: 11px !important; }
+  .text-base { font-size: 10px !important; }
+  .text-sm { font-size: 9px !important; }
+  .text-xs { font-size: 8px !important; }
+  
+  /* Cards e containers */
+  .card { padding: 4px !important; margin-bottom: 3px !important; }
+  .financial-card { padding: 6px !important; margin-bottom: 4px !important; }
+  
+  /* Grid layouts mais compactos */
+  .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+  .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+  .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)) !important; }
+  
+  /* Ocultar elementos desnecessários em impressão */
+  .print\\:hidden { display: none !important; }
+  .animate-on-scroll { opacity: 1 !important; transform: none !important; }
+  .transition-all { transition: none !important; }
+  .transition-transform { transition: none !important; }
+  .transition-colors { transition: none !important; }
+  .duration-300 { transition-duration: 0s !important; }
+  
+  /* Cover Page - Layout compacto */
+  #cover {
+    min-height: auto !important;
+    padding: 10px 0 !important;
+    margin-bottom: 15px !important;
+  }
+  
+  #cover h1 {
+    font-size: 24px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  #cover .text-5xl {
+    font-size: 24px !important;
+  }
+  
+  #cover .text-3xl {
+    font-size: 16px !important;
+  }
+  
+  #cover .text-xl {
+    font-size: 12px !important;
+  }
+  
+  #cover .p-8 {
+    padding: 12px !important;
+  }
+  
+  #cover .mb-8 {
+    margin-bottom: 8px !important;
+  }
+  
+  #cover .mb-4 {
+    margin-bottom: 4px !important;
+  }
+  
+  #cover .grid {
+    gap: 8px !important;
+  }
+
+  /* AllocationDiagnosis - Layout ultra compacto */
+  #analise-carteira {
+    min-height: auto !important;
+    padding: 5px 0 !important;
+  }
+  
+  #analise-carteira .section-title {
+    font-size: 18px !important;
+    margin-bottom: 8px !important;
+  }
+  
+  #analise-carteira .section-subtitle {
+    font-size: 14px !important;
+    margin-bottom: 6px !important;
+  }
+  
+  #analise-carteira .text-2xl {
+    font-size: 14px !important;
+  }
+  
+  #analise-carteira .text-xl {
+    font-size: 12px !important;
+  }
+  
+  #analise-carteira .text-lg {
+    font-size: 11px !important;
+  }
+  
+  #analise-carteira .text-base {
+    font-size: 10px !important;
+  }
+  
+  #analise-carteira .text-sm {
+    font-size: 9px !important;
+  }
+  
+  #analise-carteira .p-8 {
+    padding: 8px !important;
+  }
+  
+  #analise-carteira .p-6 {
+    padding: 6px !important;
+  }
+  
+  #analise-carteira .p-4 {
+    padding: 4px !important;
+  }
+  
+  #analise-carteira .mb-8 {
+    margin-bottom: 6px !important;
+  }
+  
+  #analise-carteira .mb-6 {
+    margin-bottom: 4px !important;
+  }
+  
+  #analise-carteira .mb-4 {
+    margin-bottom: 3px !important;
+  }
+  
+  #analise-carteira .mb-2 {
+    margin-bottom: 2px !important;
+  }
+  
+  #analise-carteira .grid {
+    gap: 4px !important;
+  }
+  
+  #analise-carteira .gap-8 {
+    gap: 4px !important;
+  }
+  
+  #analise-carteira .gap-6 {
+    gap: 3px !important;
+  }
+  
+  #analise-carteira .gap-4 {
+    gap: 2px !important;
+  }
+
+  /* Cards compactos */
+  .financial-card {
+    padding: 6px !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .card {
+    padding: 4px !important;
+    margin-bottom: 3px !important;
+  }
+
+  /* Tabelas compactas */
+  table {
+    font-size: 8px !important;
+    margin-bottom: 4px !important;
+  }
+  
+  table th,
+  table td {
+    padding: 2px 4px !important;
+    font-size: 8px !important;
+  }
+  
+  table .text-sm {
+    font-size: 7px !important;
+  }
+
+  /* Gráficos e charts - reduzir tamanho */
+  .chart-container {
+    height: 80px !important;
+    margin-bottom: 4px !important;
+  }
+  
+  .progress-bar {
+    height: 8px !important;
+    margin-bottom: 2px !important;
+  }
+
+  /* Status chips compactos */
+  .status-chip {
+    padding: 1px 4px !important;
+    font-size: 7px !important;
+    margin: 1px !important;
+  }
+
+  /* Grid layouts mais compactos */
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+  
+  .grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  
+  .grid-cols-3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  
+  .grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+
   /* CRITICAL: Garantir que todas as seções sejam visíveis */
   section {
     display: block !important;
@@ -333,7 +561,7 @@
     page-break-before: auto;
     page-break-inside: avoid;
     break-inside: avoid;
-    margin-bottom: 20px;
+    margin-bottom: 8px;
   }
 
   /* CRITICAL: Garantir que TODOS os elementos dentro das seções sejam visíveis */

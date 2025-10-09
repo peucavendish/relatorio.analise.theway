@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ThemeProvider } from '@/context/ThemeContext';
 import { CardVisibilityProvider } from '@/context/CardVisibilityContext';
 import { SectionVisibilityProvider } from '@/context/SectionVisibilityContext';
+import { InvestorTypeProvider } from '@/context/InvestorTypeContext';
 import Header from '@/components/layout/Header';
 import CoverPage from '@/components/sections/CoverPage';
 import AllocationDiagnosis from '@/components/sections/AllocationDiagnosis';
@@ -12,6 +13,9 @@ import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import axios from 'axios';
 import HideableSection from '@/components/ui/HideableSection';
+import { InvestmentSettingsPanel } from '@/components/ui/InvestmentSettingsPanel';
+import { getPensionPortfolio } from '@/data/pensionPortfolios';
+import { AllocationDiagnosisWrapper } from '@/components/AllocationDiagnosisWrapper';
 
 interface IndexPageProps {
   accessor?: boolean;
@@ -51,7 +55,27 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
   });
 
   // Função para obter alocações ideais por perfil
-  const getAlocacoesIdeaisByPerfil = (perfil: number) => {
+  const getAlocacoesIdeaisByPerfil = (perfil: number, investorType: string = 'qualified', portfolioType: string = 'regular') => {
+    // Se for carteira de Previdência, usar os dados específicos
+    if (portfolioType === 'pension') {
+      const pensionData = getPensionPortfolio(investorType as any, perfil);
+      if (pensionData) {
+        return {
+          'RF - Pós-fixada': pensionData['Pós-fixado'] || 0,
+          'RF - Inflação': pensionData['IPCA'] || 0,
+          'RF - Prefixada': 0,
+          'Renda Variável': pensionData['RV Brasil'] || 0,
+          'Imobiliário': 0,
+          'Multimercado': pensionData['Multimercado'] || 0,
+          'Moedas': 0,
+          'Alternativo': 0,
+          'Internacional': pensionData['Internacional'] || 0,
+          'Outros': 0,
+          'Criptomoedas': 0,
+          'Derivativos': 0
+        };
+      }
+    }
     const alocacoes = {
       1: { // SUPER CONSERVADOR
         'RF - Pós-fixada': 84,
@@ -129,7 +153,19 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
   };
 
   // Função para obter carteira modelo baseada no perfil
-  const getModeloIdealByPerfil = (perfil: number) => {
+  const getModeloIdealByPerfil = (perfil: number, investorType: string = 'qualified', portfolioType: string = 'regular') => {
+    // Se for carteira de Previdência, usar os fundos específicos
+    if (portfolioType === 'pension') {
+      const pensionData = getPensionPortfolio(investorType as any, perfil);
+      if (pensionData && pensionData.funds) {
+        return pensionData.funds.map((fund: any) => ({
+          classe: fund.classe,
+          exemplo: fund.fundo,
+          percentual: `${fund.percentual}%`,
+          liquidez: '-'
+        }));
+      }
+    }
     const perfis = {
       1: [ // SUPER CONSERVADOR
         { classe: 'RF - Pós-fixada', exemplo: 'Bradesco Zupo FIC FIRF LP CP', percentual: '10%', liquidez: '6 dias' },
@@ -221,7 +257,7 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
   };
 
   // Mapper: JSON modelo -> props de AllocationDiagnosis
-  const mapModelToAllocationProps = (model: any) => {
+  const mapModelToAllocationProps = (model: any, investorType: string = 'qualified', portfolioType: string = 'regular') => {
     const totalPatrimonio: number = model?.cliente?.patrimonio_total || 0;
 
     const normalizeClasse = (classeAv?: string, subclasseAv?: string) => {
@@ -253,7 +289,7 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
     const consolidacao = model?.posicao_atual?.consolidacao || {};
     const mapConsolKey = (k: string) => {
       if (k.toLowerCase().includes('pós') || k.toLowerCase().includes('pos')) return 'RF - Pós-fixada';
-      if (k.toLowerCase().includes('prefixada') || k.toLowerCase().includes('pré') || k.toLowerCase().includes('pre')) return 'RF - Prefixada';
+      if (k.toLowerCase().includes('prefixada') || k.toLowerCase().includes('pré') || k.toLowerCase().includes('pre') || k.toLowerCase() === 'rf - prefixada') return 'RF - Prefixada';
       if (k.toLowerCase().includes('inflação') || k.toLowerCase().includes('inflacao')) return 'RF - Inflação';
       if (k.toLowerCase().includes('multimercado')) return 'Multimercado';
       if (k.toLowerCase().includes('renda variável') || k.toLowerCase().includes('renda variavel')) return 'Renda Variável';
@@ -296,11 +332,36 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
     // Patrimônio da Carteira Brasileira = Total - Conta Internacional
     const patrimonioCarteiraBrasil = Math.max(0, totalPatrimonio - internacional.valor);
 
-    // Recalcular percentuais da consolidação sobre a carteira brasileira
-    const consolidado = consolidadoTemp.map(item => ({
-      ...item,
-      percentual: patrimonioCarteiraBrasil > 0 ? `${((item.valor / patrimonioCarteiraBrasil) * 100).toFixed(1)}%` : '0.0%'
-    }));
+    // Usar os percentuais exatos do JSON da consolidação
+    const consolidado = consolidadoTemp;
+
+    // Função para arredondar percentuais quando o total estiver próximo de 100%
+    const ajustarPercentuaisPara100 = (items: any[]) => {
+      const totalAtual = items.reduce((sum, item) => sum + parseFloat(item.percentual), 0);
+      
+      console.log('Total atual antes do ajuste:', totalAtual);
+      
+      // Se o total estiver entre 99.0% e 101.0%, ajustar para 100%
+      if (totalAtual >= 99.0 && totalAtual <= 101.0) {
+        const fatorAjuste = 100 / totalAtual;
+        console.log('Fator de ajuste:', fatorAjuste);
+        
+        const ajustados = items.map(item => ({
+          ...item,
+          percentual: `${(parseFloat(item.percentual) * fatorAjuste).toFixed(1)}%`
+        }));
+        
+        const novoTotal = ajustados.reduce((sum, item) => sum + parseFloat(item.percentual), 0);
+        console.log('Total após ajuste:', novoTotal);
+        
+        return ajustados;
+      }
+      
+      return items;
+    };
+
+    // Aplicar ajuste de arredondamento
+    const consolidadoAjustado = ajustarPercentuaisPara100(consolidado);
 
     // Comparativo: usar divergências e modelo de referência
     const diverg = model?.divergencias_vs_modelo || {};
@@ -328,34 +389,47 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       .reduce((s: number, p: any) => s + Number(p.valor || 0), 0);
     const intlCarteiraBrasilPct = patrimonioCarteiraBrasil > 0 ? ((intlCarteiraBrasilValor / patrimonioCarteiraBrasil) * 100) : 0;
 
+    // Função para obter percentual ajustado da consolidação
+    const getPercentualAjustado = (classe: string) => {
+      const item = consolidadoAjustado.find(item => item.classe === classe);
+      return item ? parseFloat(item.percentual) : 0;
+    };
+
+    // Calcular RF Pré-Fixado atual a partir da consolidação
+    const rfPrefixadaPct = getPercentualAjustado('RF - Prefixada');
+    const rfPosPct = getPercentualAjustado('RF - Pós-fixada');
+    const rfInflacaoPct = getPercentualAjustado('RF - Inflação');
+    const multimercadoPct = getPercentualAjustado('Multimercado');
+    const alternativoPct = getPercentualAjustado('Alternativo');
+
     // Obter alocações ideais baseadas no perfil
     const perfilCliente = Number(model?.cliente?.perfil_av ?? 5);
-    const alocacoesIdeais = getAlocacoesIdeaisByPerfil(perfilCliente);
+    const alocacoesIdeais = getAlocacoesIdeaisByPerfil(perfilCliente, investorType, portfolioType);
 
     const comparativo = [
       {
         classe: 'RF Pós-Fixado',
-        atual: `${diverg?.rf_pos?.atual ?? 0}%`,
+        atual: `${rfPosPct.toFixed(1)}%`,
         ideal: `${alocacoesIdeais['RF - Pós-fixada'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.rf_pos?.status, diverg?.rf_pos?.atual, alocacoesIdeais['RF - Pós-fixada'])
+        situacao: buildSituacao(rfPosPct > (alocacoesIdeais['RF - Pós-fixada'] ?? 0) ? 'Sobrealocado' : rfPosPct < (alocacoesIdeais['RF - Pós-fixada'] ?? 0) ? 'Subalocado' : 'Em linha', rfPosPct, alocacoesIdeais['RF - Pós-fixada'])
       },
       {
         classe: 'RF Inflação',
-        atual: `${diverg?.rf_inflacao?.atual ?? 0}%`,
+        atual: `${rfInflacaoPct.toFixed(1)}%`,
         ideal: `${alocacoesIdeais['RF - Inflação'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.rf_inflacao?.status, diverg?.rf_inflacao?.atual, alocacoesIdeais['RF - Inflação'])
+        situacao: buildSituacao(rfInflacaoPct > (alocacoesIdeais['RF - Inflação'] ?? 0) ? 'Sobrealocado' : rfInflacaoPct < (alocacoesIdeais['RF - Inflação'] ?? 0) ? 'Subalocado' : 'Em linha', rfInflacaoPct, alocacoesIdeais['RF - Inflação'])
       },
       {
         classe: 'RF Pré-Fixado',
-        atual: `${diverg?.rf_pre?.atual ?? 0}%`,
+        atual: `${rfPrefixadaPct.toFixed(1)}%`,
         ideal: `${alocacoesIdeais['RF - Prefixada'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.rf_pre?.status, diverg?.rf_pre?.atual, alocacoesIdeais['RF - Prefixada'])
+        situacao: buildSituacao(rfPrefixadaPct > (alocacoesIdeais['RF - Prefixada'] ?? 0) ? 'Sobrealocado' : rfPrefixadaPct < (alocacoesIdeais['RF - Prefixada'] ?? 0) ? 'Subalocado' : 'Em linha', rfPrefixadaPct, alocacoesIdeais['RF - Prefixada'])
       },
       {
         classe: 'Multimercado',
-        atual: `${diverg?.multimercado?.atual ?? 0}%`,
+        atual: `${multimercadoPct.toFixed(1)}%`,
         ideal: `${alocacoesIdeais['Multimercado'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.multimercado?.status, diverg?.multimercado?.atual, alocacoesIdeais['Multimercado'])
+        situacao: buildSituacao(multimercadoPct > (alocacoesIdeais['Multimercado'] ?? 0) ? 'Sobrealocado' : multimercadoPct < (alocacoesIdeais['Multimercado'] ?? 0) ? 'Subalocado' : 'Em linha', multimercadoPct, alocacoesIdeais['Multimercado'])
       },
       {
         classe: 'RV Brasil',
@@ -377,9 +451,9 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       },
       {
         classe: 'Alternativo',
-        atual: `${diverg?.alternativo?.atual ?? 0}%`,
+        atual: `${alternativoPct.toFixed(1)}%`,
         ideal: `${alocacoesIdeais['Alternativo'] ?? 0}%`,
-        situacao: buildSituacao(diverg?.alternativo?.status, diverg?.alternativo?.atual, alocacoesIdeais['Alternativo'])
+        situacao: buildSituacao(alternativoPct > (alocacoesIdeais['Alternativo'] ?? 0) ? 'Sobrealocado' : alternativoPct < (alocacoesIdeais['Alternativo'] ?? 0) ? 'Subalocado' : 'Em linha', alternativoPct, alocacoesIdeais['Alternativo'])
       },
       {
         classe: 'Moedas',
@@ -422,7 +496,7 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
     });
 
     // Modelo ideal baseado no perfil do cliente
-    const modeloIdeal = getModeloIdealByPerfil(perfilCliente);
+    const modeloIdeal = getModeloIdealByPerfil(perfilCliente, investorType, portfolioType);
 
     return {
       identificacao: {
@@ -442,7 +516,7 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
       patrimonioTotal: totalPatrimonio,
       patrimonioCarteiraBrasil: patrimonioCarteiraBrasil, // Patrimônio da carteira brasileira (sem conta internacional)
       ativos,
-      consolidado,
+      consolidado: consolidadoAjustado,
       liquidez,
       liquidezInfo: {
         prazoMedio: model?.liquidez?.prazo_medio || '',
@@ -592,46 +666,28 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
     <ThemeProvider>
       <CardVisibilityProvider>
         <SectionVisibilityProvider>
-          <div className="relative h-screen overflow-hidden">
-            <div className="no-print">
-              <Header />
-            </div>
-            <main className="h-[calc(100vh-64px)] overflow-y-auto" id="main-report">
-              <div className="min-h-screen">
-                <CoverPage clientData={getClientData().cliente} />
+          <InvestorTypeProvider>
+            <div className="relative h-screen overflow-hidden">
+              <div className="no-print">
+                <Header />
               </div>
+              <main className="h-[calc(100vh-64px)] overflow-y-auto" id="main-report">
+                <div className="min-h-screen">
+                  <CoverPage clientData={getClientData().cliente} />
+                </div>
+                
+                {/* Painel de Configurações de Investimento */}
+                <div className="py-8 px-6 no-print">
+                  <div className="max-w-4xl mx-auto">
+                    <InvestmentSettingsPanel />
+                  </div>
+                </div>
               
               <HideableSection sectionId="analise-carteira" hideControls={clientPropect}>
-                {(() => {
-                  const mapped = (userReports && (userReports as any)?.posicao_atual) ? mapModelToAllocationProps(userReports) : null;
-                  
-                  // Se não há dados, não renderizar o componente
-                  if (!mapped) {
-                    return (
-                      <div className="min-h-screen flex items-center justify-center">
-                        <div className="text-center p-8">
-                          <h3 className="text-2xl font-semibold mb-4">Nenhum dado disponível</h3>
-                          <p className="text-muted-foreground">Por favor, carregue um relatório válido.</p>
-                        </div>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <AllocationDiagnosis
-                      identificacao={mapped.identificacao}
-                      patrimonioTotal={mapped.patrimonioTotal}
-                      patrimonioCarteiraBrasil={mapped.patrimonioCarteiraBrasil}
-                      ativos={mapped.ativos}
-                      consolidado={mapped.consolidado}
-                      liquidez={mapped.liquidez}
-                      internacional={mapped.internacional}
-                      comparativo={mapped.comparativo}
-                      modeloIdeal={mapped.modeloIdeal}
-                      macro={mapped.macro}
-                    />
-                  );
-                })()}
+                <AllocationDiagnosisWrapper 
+                  userReports={userReports}
+                  mapModelToAllocationProps={mapModelToAllocationProps}
+                />
               </HideableSection>
 
               {/* Seção de Geração de PDF */}
@@ -658,10 +714,11 @@ const IndexPage: React.FC<IndexPageProps> = ({ accessor, clientPropect }) => {
               </div>
 
             </main>
-            <div className="no-print">
-              <FloatingActions userReports={userReports} />
+              <div className="no-print">
+                <FloatingActions userReports={userReports} />
+              </div>
             </div>
-          </div>
+          </InvestorTypeProvider>
         </SectionVisibilityProvider>
       </CardVisibilityProvider>
     </ThemeProvider>

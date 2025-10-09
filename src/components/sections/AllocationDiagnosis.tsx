@@ -299,21 +299,21 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
   const totalEmLinha = Math.max(0, totalPatrimonio - totalExcesso - totalFalta);
 
   return (
-    <section className="py-20 px-6" id="analise-carteira">
-      <div className="max-w-7xl mx-auto space-y-10">
+    <section className="py-20 px-6 print:py-2 print:px-2" id="analise-carteira">
+      <div className="max-w-7xl mx-auto space-y-10 print:max-w-none print:space-y-4">
         {/* Header */}
         <div
           ref={headerRef as React.RefObject<HTMLDivElement>}
-          className="text-center animate-on-scroll"
+          className="text-center animate-on-scroll print:mb-2"
         >
-          <div className="inline-block">
-            <div className="flex items-center justify-center mb-5">
-              <div className="p-3 rounded-full ring-2 ring-financial-warning/40 bg-secondary">
-                <BarChart3 size={28} className="text-primary" />
+          <div className="inline-block print:block">
+            <div className="flex items-center justify-center mb-5 print:mb-2 print:hidden">
+              <div className="p-3 rounded-full ring-2 ring-financial-warning/40 bg-secondary print:p-1">
+                <BarChart3 size={28} className="text-primary print:w-4 print:h-4" />
               </div>
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-primary">Análise de Carteira</h2>
-            <p className="text-muted-foreground max-w-3xl mx-auto text-base">
+            <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-primary print:text-xl print:mb-2">Análise de Carteira</h2>
+            <p className="text-muted-foreground max-w-3xl mx-auto text-base print:text-xs print:max-w-none print:mb-2">
               Análise técnica da carteira atual, comparação com o perfil ideal e recomendações para otimização.
             </p>
           </div>
@@ -330,16 +330,16 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
             onToggleVisibility={() => toggleCardVisibility("score-geral")}
             hideControls={hideControls}
           >
-            <div className="p-8">
-              <h3 className="text-2xl font-semibold mb-6 text-primary">1. Parâmetros Iniciais</h3>
-              <div className="grid md:grid-cols-3 gap-8">
+            <div className="p-8 print:p-4">
+              <h3 className="text-2xl font-semibold mb-6 text-primary print:text-lg print:mb-3">1. Parâmetros Iniciais</h3>
+              <div className="grid md:grid-cols-3 gap-8 print:grid-cols-3 print:gap-4">
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold mb-2 text-primary">{formatCurrency(getTotalPatrimonio())}</div>
-                  <div className="text-sm text-muted-foreground">Patrimônio Total (Nacional + Internacional)</div>
+                  <div className="text-3xl md:text-4xl font-bold mb-2 text-primary print:text-lg print:mb-1">{formatCurrency(getTotalPatrimonio())}</div>
+                  <div className="text-sm text-muted-foreground print:text-xs">Patrimônio Total (Nacional + Internacional)</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold mb-2 text-financial-warning">{identificacao.perfil}/5</div>
-                  <div className="text-sm text-muted-foreground">Perfil de Risco</div>
+                  <div className="text-3xl md:text-4xl font-bold mb-2 text-financial-warning print:text-lg print:mb-1">{identificacao.perfil}/5</div>
+                  <div className="text-sm text-muted-foreground print:text-xs">Perfil de Risco</div>
                   <StatusChip 
                     status={identificacao.perfil >= 4 ? "warning" : identificacao.perfil >= 3 ? "info" : "success"} 
                     label={
@@ -349,14 +349,14 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
                       identificacao.perfil === 4 ? "Arrojado" :
                       identificacao.perfil === 5 ? "Agressivo" : "N/A"
                     } 
-                    className="mt-2"
+                    className="mt-2 print:mt-1 print:text-xs"
                   />
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold mb-2">{identificacao.tipo}</div>
-                  <div className="text-sm text-muted-foreground">Tipo de Investidor</div>
+                  <div className="text-3xl md:text-4xl font-bold mb-2 print:text-lg print:mb-1">{identificacao.tipo}</div>
+                  <div className="text-sm text-muted-foreground print:text-xs">Tipo de Investidor</div>
                   {identificacao.tipo === "PJ" && identificacao.pjDetalhe && (
-                    <StatusChip status="info" label={identificacao.pjDetalhe} className="mt-2" />
+                    <StatusChip status="info" label={identificacao.pjDetalhe} className="mt-2 print:mt-1 print:text-xs" />
                   )}
                 </div>
               </div>
@@ -378,39 +378,39 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
             onToggleVisibility={() => toggleCardVisibility("macro-alocacao")}
             hideControls={hideControls}
           >
-            <div className="p-8">
-              <h3 className="text-2xl font-semibold mb-8 text-primary">2. Cenário Macroeconômico 2025</h3>
+            <div className="p-8 print:p-4">
+              <h3 className="text-2xl font-semibold mb-8 text-primary print:text-lg print:mb-4">2. Cenário Macroeconômico 2025</h3>
               
-              <div className="space-y-6">
+              <div className="space-y-6 print:space-y-3">
                 {/* Brasil */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="bg-blue-100 p-2 rounded-full">
-                    <Activity size={20} className="text-green-600" />
+                <div className="space-y-3 print:space-y-1">
+                  <div className="flex items-center gap-3 mb-2 print:mb-1">
+                    <div className="bg-blue-100 p-2 rounded-full print:p-1">
+                    <Activity size={20} className="text-green-600 print:w-3 print:h-3" />
                     </div>
-                    <h4 className="font-semibold text-lg">Brasil</h4>
+                    <h4 className="font-semibold text-lg print:text-sm">Brasil</h4>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed pl-11">{macro.brasil}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed pl-11 print:text-xs print:pl-6 print:leading-tight">{macro.brasil}</p>
                 </div>
 
                 {/* Mundo */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="bg-green-100 p-2 rounded-full">
-                      <Globe size={20} className="text-blue-600" />
+                <div className="space-y-3 print:space-y-1">
+                  <div className="flex items-center gap-3 mb-2 print:mb-1">
+                    <div className="bg-green-100 p-2 rounded-full print:p-1">
+                      <Globe size={20} className="text-blue-600 print:w-3 print:h-3" />
                     </div>
-                    <h4 className="font-semibold text-lg">Mundo</h4>
+                    <h4 className="font-semibold text-lg print:text-sm">Mundo</h4>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed pl-11">{macro.mundo}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed pl-11 print:text-xs print:pl-6 print:leading-tight">{macro.mundo}</p>
                 </div>
 
                 {/* Implicações */}
-                <div className="bg-secondary/50 p-6 rounded-xl mt-6">
-                  <h4 className="font-semibold text-base mb-3 flex items-center gap-2">
-                    <Target size={18} />
+                <div className="bg-secondary/50 p-6 rounded-xl mt-6 print:p-3 print:mt-3">
+                  <h4 className="font-semibold text-base mb-3 flex items-center gap-2 print:text-sm print:mb-2">
+                    <Target size={18} className="print:w-3 print:h-3" />
                     Implicações para Alocação
                   </h4>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{macro.implicacoes}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed print:text-xs print:leading-tight">{macro.implicacoes}</p>
                 </div>
               </div>
             </div>
@@ -428,9 +428,9 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
             onToggleVisibility={() => toggleCardVisibility("ativos-alocacao")}
             hideControls={hideControls}
           >
-            <div className="p-8">
-              <h3 className="text-2xl font-semibold mb-6 text-primary">3. Ativos Classificados</h3>
-              <div className="space-y-6">
+            <div className="p-8 print:p-4">
+              <h3 className="text-2xl font-semibold mb-6 text-primary print:text-lg print:mb-3">3. Ativos Classificados</h3>
+              <div className="space-y-6 print:space-y-3">
                 {(() => {
                   // Agrupar ativos por classe
                   const ativosPorClasse = ativos.reduce((acc, ativo) => {
@@ -444,21 +444,21 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
 
                   // Renderizar cada classe com seus ativos
                   return Object.entries(ativosPorClasse).map(([classe, ativosClasse]) => (
-                    <div key={classe} className="space-y-3">
-                      <h4 className="font-semibold text-base text-primary border-b pb-2">{classe}</h4>
-                      <div className="space-y-2">
+                    <div key={classe} className="space-y-3 print:space-y-1">
+                      <h4 className="font-semibold text-base text-primary border-b pb-2 print:text-sm print:pb-1">{classe}</h4>
+                      <div className="space-y-2 print:space-y-1">
                         {ativosClasse
                           .sort((a, b) => b.valor - a.valor) // Ordenar do maior para o menor
                           .map((ativo, index) => (
-                          <div key={index} className="flex justify-between items-center p-3 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors">
+                          <div key={index} className="flex justify-between items-center p-3 bg-secondary/30 rounded-lg hover:bg-secondary/50 transition-colors print:p-2 print:bg-transparent print:hover:bg-transparent">
                             <div className="flex-1">
-                              <div className="font-medium text-sm">{ativo.nome}</div>
+                              <div className="font-medium text-sm print:text-xs">{ativo.nome}</div>
                               {ativo.obs && (
-                                <div className="text-xs text-blue-600 mt-1">{ativo.obs}</div>
+                                <div className="text-xs text-blue-600 mt-1 print:text-xs print:mt-0">{ativo.obs}</div>
                               )}
                             </div>
                             <div className="text-right">
-                              <div className="font-semibold text-primary">{formatCurrency(ativo.valor)}</div>
+                              <div className="font-semibold text-primary print:text-xs">{formatCurrency(ativo.valor)}</div>
                             </div>
                           </div>
                         ))}
@@ -482,8 +482,8 @@ export const AllocationDiagnosis: React.FC<AllocationDiagnosisProps> = ({
             onToggleVisibility={() => toggleCardVisibility("consolidado-alocacao")}
             hideControls={hideControls}
           >
-            <div className="p-8">
-              <h3 className="text-2xl font-semibold mb-6 text-primary">4. Consolidação por Classe</h3>
+            <div className="p-8 print:p-4">
+              <h3 className="text-2xl font-semibold mb-6 text-primary print:text-lg print:mb-3">4. Consolidação por Classe</h3>
               <div className="space-y-4">
                 {sortedConsolidado.map((item, index) => (
                   <div key={index} className="space-y-2">

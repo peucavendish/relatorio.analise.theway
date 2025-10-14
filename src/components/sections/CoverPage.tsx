@@ -8,6 +8,9 @@ interface ClientData {
   nome: string;
   idade: number;
   codigoXP?: string;
+  perfil?: number;
+  tipo?: string;
+  qualificacao?: string;
 }
 
 interface CoverPageProps {
@@ -74,7 +77,7 @@ const CoverPage: React.FC<CoverPageProps> = ({
               <div className="w-16 h-1 bg-accent mx-auto rounded-full print:w-8 print:h-0.5"></div>
             </div>
             
-            <div className="grid md:grid-cols-3 gap-8 print:grid-cols-3 print:gap-4">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 print:grid-cols-3 print:gap-4">
               {/* Cliente */}
               <div className="text-center group print:group-hover:scale-100">
                 <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-full mb-4 group-hover:scale-110 transition-transform duration-300 print:w-8 print:h-8 print:mb-2 print:group-hover:scale-100">
@@ -96,6 +99,49 @@ const CoverPage: React.FC<CoverPageProps> = ({
                   <p className="text-xl font-bold text-primary font-mono print:text-sm">{clientData.codigoXP}</p>
                 </div>
               )}
+
+              {/* Perfil de Risco */}
+              {clientData.perfil && (
+                <div className="text-center group print:group-hover:scale-100">
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-full mb-4 group-hover:scale-110 transition-transform duration-300 print:w-8 print:h-8 print:mb-2 print:group-hover:scale-100">
+                    <div className="text-accent font-bold text-lg print:text-sm">{clientData.perfil}/5</div>
+                  </div>
+                  <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2 print:text-xs print:mb-1">Perfil de Risco</h3>
+                  <p className="text-lg font-bold text-primary print:text-sm">
+                    {clientData.perfil === 1 ? "Super Conservador" :
+                     clientData.perfil === 2 ? "Conservador" :
+                     clientData.perfil === 3 ? "Moderado" :
+                     clientData.perfil === 4 ? "Arrojado" :
+                     clientData.perfil === 5 ? "Agressivo" : "N/A"}
+                  </p>
+                </div>
+              )}
+
+              {/* Tipo de Investidor */}
+              <div className="text-center group print:group-hover:scale-100">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-full mb-4 group-hover:scale-110 transition-transform duration-300 print:w-8 print:h-8 print:mb-2 print:group-hover:scale-100">
+                  <div className="text-accent font-bold text-sm print:text-xs">
+                    {clientData.tipo === "Pessoa Física" ? "PF" : clientData.tipo === "Pessoa Jurídica" ? "PJ" : "NI"}
+                  </div>
+                </div>
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2 print:text-xs print:mb-1">Tipo de Investidor</h3>
+                <p className="text-lg font-bold text-primary print:text-sm">
+                  {clientData.tipo || "Não informado"}
+                </p>
+              </div>
+
+              {/* Qualificação */}
+              <div className="text-center group print:group-hover:scale-100">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-accent/20 to-accent/10 rounded-full mb-4 group-hover:scale-110 transition-transform duration-300 print:w-8 print:h-8 print:mb-2 print:group-hover:scale-100">
+                  <div className="text-accent font-bold text-xs print:text-xs">
+                    {clientData.qualificacao ? "✓" : "?"}
+                  </div>
+                </div>
+                <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-2 print:text-xs print:mb-1">Qualificação</h3>
+                <p className="text-lg font-bold text-primary print:text-sm">
+                  {clientData.qualificacao || "Não informado"}
+                </p>
+              </div>
               
               {/* Data do Relatório */}
               <div className="text-center group print:group-hover:scale-100">
